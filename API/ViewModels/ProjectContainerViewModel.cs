@@ -39,6 +39,8 @@ namespace ViewModels
         public int SortOrder { get; set; }
         public decimal? BackgroundImageAspectRatio { get; set; }
         public string? BackgroundImageUrl { get; set; } // For the uploaded image URL
+        public string? BackgroundImageFileName { get; set; }
+
     }
 }
 

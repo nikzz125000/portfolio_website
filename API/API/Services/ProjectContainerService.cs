@@ -139,9 +139,16 @@ namespace API.Services
             return response;
         }
 
-        public Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()
+        public async Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()
         {
-            throw new NotImplementedException();
+            ModelEntityResponse<List<ProjectContainerViewModel>> res = new ModelEntityResponse<List<ProjectContainerViewModel>>();
+            var containers = await _unitOfWork.ProjectContainers.GetAll();
+            res.Data = _mapper.Map<List<ProjectContainerViewModel>>(containers);
+            foreach (var item in res.Data)
+            {
+                item.BackgroundImageUrl = CommonData.GetProjectContainerUrl(item.BackgroundImageFileName);
+            }
+            return res;
         }
     }
 }
