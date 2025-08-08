@@ -29,7 +29,7 @@ namespace ViewModels.Auth
     }
     public class SetNewPassword
     {
-        public string UserGUID { get; set; }
+        public int UserId { get; set; }
         public string CurrentPassword { get; set; }
         public string NewPassword { get; set; }
     }
