@@ -26,8 +26,8 @@ export const useGetUserDetails= () => {
     },
     onSuccess: (data:any) => {
       console.log(500,data)
-localStorage.setItem('user', data?.data.accessToken);
-       return data;
+localStorage.setItem('user', JSON.stringify(data?.data));
+       return data?.data;
     },
   });
 };

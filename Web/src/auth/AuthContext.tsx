@@ -12,7 +12,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 const [user, setUser] = useState<AuthUser | null>(() => {
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+
+    if (!savedUser) return null;
+    console.log(35, JSON.parse(savedUser));
+    const userData = JSON.parse(savedUser);
+        // Map your UserResponse to AuthUser format
+        const authUser: AuthUser = {
+          id: userData.bctUserId.toString(),
+          name: `${userData.firstName} ${userData.lastName}`,
+          email: userData.emailId,
+          role: userData.userType === 1 ? 'admin' : 'user' // Adjust mapping as needed
+        };
+    
+    return authUser;
   });
   
   return (
