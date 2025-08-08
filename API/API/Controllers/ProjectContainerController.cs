@@ -14,8 +14,8 @@ namespace API.Controllers
     [ApiController]
     public class ProjectContainerController : BaseController
     {
-        readonly IContainerService _containerService;
-        public ProjectContainerController(IContainerService containerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
+        readonly IProjectContainerService _containerService;
+        public ProjectContainerController(IProjectContainerService containerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
         {
             _containerService = containerService;
         }
@@ -55,40 +55,84 @@ namespace API.Controllers
             return response;
         }
 
-        //[Route("List")]
-        //[HttpGet]
-        //[ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerViewModel>>), 200)]
-        //public async Task<ModelEntityResponse<List<ProjectContainerViewModel>>> ListProjectContainers([FromForm] ProjectContainerPostModel model)
-        //{
-        //    ModelEntityResponse<List<ProjectContainerViewModel>> response = new ModelEntityResponse<List<ProjectContainerViewModel>>();
-        //    try
-        //    {
+        [Route("List")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerViewModel>>), 200)]
+        public async Task<ModelEntityResponse<List<ProjectContainerViewModel>>> ListProjectContainers()
+        {
+            ModelEntityResponse<List<ProjectContainerViewModel>> response = new ModelEntityResponse<List<ProjectContainerViewModel>>();
+            try
+            {
 
-        //        if (model.ImageFile == null)
-        //        {
-        //            response.CreateFailureResponse("Image file required");
-        //            return response;
-        //        }
+                response = await _containerService.GetAllContainers();
 
-        //        response = await _containerService.CreateOrModifyProjectContainer(model);
+            }
+            catch (Exception e)
+            {
 
-        //    }
-        //    catch (Exception e)
-        //    {
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
 
-        //        response.CreateFailureResponse(CommonData.ErrorMessage); ;
+        [Route("Details/{ProjectContainerId}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
+        public async Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> getProjectContainers(int ProjectContainerId)
+        {
+            ModelEntityResponse<ProjectContainerDetailsViewModel> response = new ModelEntityResponse<ProjectContainerDetailsViewModel>();
+            try
+            {
+                response = await _containerService.GetContainerDetails(ProjectContainerId);
 
-        //        ExceptionLog log = new ExceptionLog();
-        //        log.Api = $@"api/Container/List";
-        //        log.ApiType = ApiType.Get;
-        //        //log.Parameters = $@"";
-        //        log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
-        //        log.Message = e.Message;
-        //        log.StackTrace = e.StackTrace;
-        //        await SaveExceptionLog(log);
-        //    }
-        //    return response;
-        //}
-        
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+        [Route("Project/Delete/{ProjectContainerId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        public async Task<CommonEntityResponse> deleteProject(int ProjectId)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _containerService.DeleteProject(ProjectId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Project/Delete";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 }

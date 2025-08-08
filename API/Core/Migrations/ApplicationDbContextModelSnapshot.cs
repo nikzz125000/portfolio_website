@@ -199,6 +199,10 @@ namespace Core.Migrations
                     b.Property<decimal>("HeightPercent")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ImageFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -302,13 +306,11 @@ namespace Core.Migrations
 
             modelBuilder.Entity("Core.Models.Project", b =>
                 {
-                    b.HasOne("Core.Models.ProjectContainer", "Container")
+                    b.HasOne("Core.Models.ProjectContainer", null)
                         .WithMany("Projects")
                         .HasForeignKey("ProjectContainerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Container");
                 });
 
             modelBuilder.Entity("Core.Models.ProjectContainer", b =>

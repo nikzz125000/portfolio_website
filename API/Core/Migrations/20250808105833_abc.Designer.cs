@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250807184153_b1")]
-    partial class b1
+    [Migration("20250808105833_abc")]
+    partial class abc
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -202,6 +202,10 @@ namespace Core.Migrations
                     b.Property<decimal>("HeightPercent")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ImageFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -305,13 +309,11 @@ namespace Core.Migrations
 
             modelBuilder.Entity("Core.Models.Project", b =>
                 {
-                    b.HasOne("Core.Models.ProjectContainer", "Container")
+                    b.HasOne("Core.Models.ProjectContainer", null)
                         .WithMany("Projects")
                         .HasForeignKey("ProjectContainerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Container");
                 });
 
             modelBuilder.Entity("Core.Models.ProjectContainer", b =>

@@ -37,5 +37,23 @@ namespace Repository.Services
         {
             return await _context.Projects.FindAsync(ProjectId);
         }
+        public async Task<List<Project>> GetByProjectContainerId(int ProjectContainerId)
+        {
+            return await _context.Projects.Where(x => x.ProjectContainerId == ProjectContainerId).ToListAsync();
+        }
+        public async Task<bool> DeleteProject(int ProjectId)
+        {
+            Project? proj = await _context.Projects.FindAsync(ProjectId);
+            if (proj != null)
+            {
+                _context.Projects.Remove(proj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

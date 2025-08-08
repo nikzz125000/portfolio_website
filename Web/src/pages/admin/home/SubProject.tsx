@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useSaveContainer } from '../../../api/useSaveContainer';
 
 interface SubImage {
   id: number;
@@ -87,6 +88,8 @@ const ImageEditor: React.FC = () => {
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, [backgroundImage?.aspectRatio]);
+
+    const { mutate: addOrUpdateContainer} = useSaveContainer();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -510,30 +513,77 @@ const ImageEditor: React.FC = () => {
     }
   };
 
-  const handleSave = (): void => {
-    const data = {
+  const handleSave = async (): Promise<void> => {
+  try {
+    // Create FormData object for multipart/form-data
+    const formData = new FormData();
+    
+    // Add basic fields
+    formData.append('ProjectContainerId', '0');
+    formData.append('Title', title);
+    formData.append('SortOrder', sortOrder.toString());
+    
+    // Add background image file if exists
+    if (backgroundImage?.file) {
+      formData.append('ImageFile', backgroundImage.file);
+    }
+    
+    // Add background image aspect ratio
+    if (backgroundImage?.aspectRatio !== undefined) {
+      formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
+    }
+    
+    // Add background image URL
+    formData.append('BackgroundImageUrl', '');
+    
+    // Add each project individually using indexed notation
+    subImages.forEach((img, index) => {
+      formData.append(`Projects[${index}][ProjectId]`, '0'); // Assuming new projects have ID 0
+formData.append(`Projects[${index}][Name]`, img.name);
+formData.append(`Projects[${index}][ProjectImageUrl]`, ''); // or img.url if available
+formData.append(`Projects[${index}][XPosition]`, Math.round(img.x).toString());
+formData.append(`Projects[${index}][YPosition]`, Math.round(img.y).toString());
+formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
+formData.append(`Projects[${index}][Animation]`, img.animation);
+formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
+formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
+formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+      
+      // Add image file if exists
+      if (img.file && img.file.size > 0) {
+        formData.append(`Projects[${index}].ImageFile`, img.file);
+      }
+    });
+    
+    // Show loading state
+    console.log('Saving data...', {
       title,
       sortOrder,
       backgroundImage: backgroundImage ? {
         name: backgroundImage.name,
-        aspectRatio: backgroundImage.aspectRatio
+        aspectRatio: backgroundImage.aspectRatio,
+        hasFile: !!backgroundImage.file
       } : null,
-      subImages: subImages.map(img => ({
-        id: img.id,
-        name: img.name,
-        x: img.x,
-        y: img.y,
-        heightPercent: img.heightPercent,
-        animation: img.animation,
-        animationSpeed: img.animationSpeed,
-        animationTrigger: img.animationTrigger,
-        isExterior: img.isExterior // Simple boolean value
-      }))
-    };
+      projectsCount: subImages.length,
+      projectsWithFiles: subImages.filter(img => img.file && img.file.size > 0).length
+    });
     
-    console.log('Saving data:', data);
-    alert('Data saved! Check console for details.');
-  };
+    // Make API call
+    await addOrUpdateContainer(formData);
+    
+    alert('Data saved successfully!');
+    
+  } catch (error) {
+    console.error('Save failed:', error);
+    if (error instanceof Error) {
+      alert(`Save failed: ${error.message}`);
+    } else {
+      alert('Save failed: An unknown error occurred.');
+    }
+  }
+};
+
+
 
   // Modified loadSampleProject function to accept API data
   const loadSampleProject = (apiData = null): void => {
@@ -715,7 +765,7 @@ const ImageEditor: React.FC = () => {
       
       if (apiData) {
         // Load the API data into the editor
-        loadSampleProject(apiData);
+        // loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
     }

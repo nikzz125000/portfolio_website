@@ -38,5 +38,9 @@ namespace Repository.Services
         {
             return await _context.ProjectContainers.FindAsync(ContainerId);
         }
+        public async Task<List<ProjectContainer>> GetAll()
+        {
+            return await _context.ProjectContainers.ToListAsync();
+        }
     }
 }
