@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHomeImages } from "../../../api/useHomeImages";
+import { useContainerList } from "../../../api/useContainerList";
 
 interface ImageProject {
   id: number;
@@ -21,11 +22,13 @@ const ProjectListPage: React.FC = () => {
     };
   }
 
-  const { data, isPending, isSuccess } = useHomeImages("12345") as {
+  const { data, isPending, isSuccess } = useContainerList() as {
     data?: HomeImagesResponse;
     isPending: boolean;
     isSuccess: boolean;
   };
+
+  console.log("Home Images Data:", data, "Loading:", isPending);
 
   // Handle success in useEffect
   useEffect(() => {
