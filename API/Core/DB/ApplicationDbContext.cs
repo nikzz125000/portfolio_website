@@ -21,7 +21,7 @@ namespace Core.DB
         public DbSet<ExceptionLog> ExceptionLogs { get; set; }
         public DbSet<SessionResetPassword> SessionResetPasswords { get; set; }
 
-        public DbSet<Container> Containers { get; set; }
+        public DbSet<ProjectContainer> ProjectContainers { get; set; }
         public DbSet<Project> Projects { get; set; }
     }
 }

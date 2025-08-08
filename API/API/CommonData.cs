@@ -10,45 +10,23 @@
             _httpContextAccessor = httpContextAccessor;
         }
         public const string ErrorMessage = "Something went wrong please try again";
-        public const int PaperBillCalculationPercentage = 20;
-        public const int PaymentDueDays = 30;
         
-        // public const string ImageBaseUrl = "https://localhost:7026";
         public static string BaseUrl => GetBaseUrl(_httpContextAccessor);
 
         // File system paths - using Path.Combine for platform compatibility
-        public static string BannerPath => Path.Combine(_webRootPath, "Uploads", "Banner");
-        public static string ShopPath => Path.Combine(_webRootPath, "Uploads", "Shop");
-        public static string AdvertisementPath => Path.Combine(_webRootPath, "Uploads", "Advertisement");
-        public static string InvoicePath => Path.Combine(_webRootPath, "Uploads", "Invoice");
-        public static string CustomerProfilePath => Path.Combine(_webRootPath, "Uploads", "CustomerProfile");
+        public static string ProjectContainerPath => Path.Combine(_webRootPath, "Uploads", "Container");
+        public static string ProjectPath => Path.Combine(_webRootPath, "Uploads", "Project");
+
 
         // URL methods (URLs always use forward slashes regardless of platform)
-        public static string GetShopUrl(string fileName)
+        public static string GetProjectContainerUrl(string fileName)
         {
-            return $"{BaseUrl}/Uploads/Shop/{fileName}";
+            return $"{BaseUrl}/Uploads/Container/{fileName}";
         }
-
-        public static string GetAdvertisementUrl(string fileName)
+        public static string GetProjectUrl(string fileName)
         {
-            return $"{BaseUrl}/Uploads/Advertisement/{fileName}";
+            return $"{BaseUrl}/Uploads/Project/{fileName}";
         }
-
-        public static string GetInvoiceUrl(string fileName)
-        {
-            return $"{BaseUrl}/Uploads/Invoice/{fileName}";
-        }
-
-        public static string GetCustomerProfileUrl(string fileName)
-        {
-            return $"{BaseUrl}/Uploads/CustomerProfile/{fileName}";
-        }
-
-        public static string GetBannerUrl(string fileName)
-        {
-            return $"{BaseUrl}/Uploads/Banner/{fileName}";
-        }
-
         public static string GetBaseUrl(IHttpContextAccessor httpContextAccessor)
         {
             var request = httpContextAccessor?.HttpContext?.Request;

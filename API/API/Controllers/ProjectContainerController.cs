@@ -1,0 +1,58 @@
+﻿using API.Services;
+using AutoMapper;
+using Core.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Shared.Enums;
+using ViewModels;
+using ViewModels.Shared;
+
+namespace API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProjectContainerController : BaseController
+    {
+        readonly IContainerService _containerService;
+        public ProjectContainerController(IContainerService containerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
+        {
+            _containerService = containerService;
+        }
+
+        [Route("CreateOrModify")]
+        [HttpPost]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        public async Task<CommonEntityResponse> CreateOrModifyAsync([FromForm] ProjectContainerPostModel model)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                
+                if (model.ImageFile == null)
+                {
+                    response.CreateFailureResponse("Image file required");
+                    return response;
+                }
+
+                response = await _containerService.CreateOrModifyProjectContainer(model);
+
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/CreateOrModify";
+                log.ApiType = ApiType.Post;
+                //log.Parameters = $@"";
+                log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+    }
+}
