@@ -14,8 +14,8 @@ namespace API.Controllers
     [ApiController]
     public class ProjectContainerController : BaseController
     {
-        readonly IContainerService _containerService;
-        public ProjectContainerController(IContainerService containerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
+        readonly IProjectContainerService _containerService;
+        public ProjectContainerController(IProjectContainerService containerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
         {
             _containerService = containerService;
         }
@@ -82,6 +82,32 @@ namespace API.Controllers
             }
             return response;
         }
-        
+
+        [Route("Details/{ProjectContainerId}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
+        public async Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> getProjectContainers(int ProjectContainerId)
+        {
+            ModelEntityResponse<ProjectContainerDetailsViewModel> response = new ModelEntityResponse<ProjectContainerDetailsViewModel>();
+            try
+            {
+                response = await _containerService.GetContainerDetails(ProjectContainerId);
+
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 }

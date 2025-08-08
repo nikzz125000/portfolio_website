@@ -10,13 +10,13 @@ using ViewModels.Shared;
 
 namespace API.Services
 {
-    public interface IContainerService
+    public interface IProjectContainerService
     {
         Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
         Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
-       
+        Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId);
     }
-    public class ProjectContainerService : IContainerService
+    public class ProjectContainerService : IProjectContainerService
     {
         readonly IMapper _mapper;
         readonly IWebHostEnvironment _env;
@@ -147,6 +147,21 @@ namespace API.Services
             foreach (var item in res.Data)
             {
                 item.BackgroundImageUrl = CommonData.GetProjectContainerUrl(item.BackgroundImageFileName);
+            }
+            return res;
+        }
+
+        public async Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId)
+        {
+            ModelEntityResponse<ProjectContainerDetailsViewModel> res = new ModelEntityResponse<ProjectContainerDetailsViewModel>();
+            var containers = await _unitOfWork.ProjectContainers.GetById(ProjectContainerId);
+            res.Data = _mapper.Map<ProjectContainerDetailsViewModel>(containers);
+            res.Data.BackgroundImageUrl = CommonData.GetProjectContainerUrl(res.Data.BackgroundImageFileName);
+            var pojects = await _unitOfWork.Projects.GetByProjectContainerId(ProjectContainerId);
+            res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(containers);
+            foreach (var item in res.Data.Projects)
+            {
+                item.ProjectImageUrl = CommonData.GetProjectContainerUrl(item.ImageFileName);
             }
             return res;
         }
