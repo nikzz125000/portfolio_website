@@ -110,7 +110,16 @@ export const App = () => {
           </ProtectedRoute>
         }
       />
-
+<Route
+  path="/admin/sub_projects/:id"
+  element={
+    <ProtectedRoute roles={['admin']}>
+      <AdminLayout>
+        <ImageEditor />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
        <Route
         path="/admin/projects"
         element={

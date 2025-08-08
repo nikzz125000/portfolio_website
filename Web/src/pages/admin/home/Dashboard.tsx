@@ -1,32 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useHomeImages } from "../../../api/useHomeImages";
 import { useContainerList } from "../../../api/useContainerList";
 
 interface ImageProject {
-  id: number;
-  title: string;
+  backgroundImageAspectRatio: number;
+  backgroundImageFileName: string;
+  backgroundImageUrl: string;
+  projectContainerId: number;
   sortOrder: number;
-  image?: string; // Optional image URL
-  thumbnail?: string; // Optional thumbnail URL
+  title: string;
 }
 
 const ProjectListPage: React.FC = () => {
   // Initialize as empty array instead of undefined
   const [projects, setProjects] = useState<ImageProject[]>([]);
 
-  // Define the expected API response type
-  interface HomeImagesResponse {
-    data: {
-      data: ImageProject[];
-    };
-  }
+// Define the expected API response type
+interface ContainerListResponse {
+  data: ImageProject[];
+}
 
-  const { data, isPending, isSuccess } = useContainerList() as {
-    data?: HomeImagesResponse;
-    isPending: boolean;
-    isSuccess: boolean;
-  };
+const { data, isPending, isSuccess } = useContainerList() as {
+  data?: ContainerListResponse;
+  isPending: boolean;
+  isSuccess: boolean;
+};
 
   console.log("Home Images Data:", data, "Loading:", isPending);
 
@@ -34,14 +32,9 @@ const ProjectListPage: React.FC = () => {
   useEffect(() => {
     if (isSuccess && data) {
       // Add mock images to the projects if they don't have them
-      const projectsWithImages = (data?.data?.data as ImageProject[])?.map((project, index) => ({
-        ...project,
-        // Add mock images if not present (replace with your actual image URLs)
-        image: project.image || `https://images.unsplash.com/photo-${1500000000000 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`,
-        thumbnail: project.thumbnail || `https://images.unsplash.com/photo-${1500000000000 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`
-      })) || [];
       
-      setProjects(projectsWithImages);
+      
+      setProjects(data?.data);
       // Handle your success logic here
     }
   }, [isSuccess, data]);
@@ -54,23 +47,24 @@ const ProjectListPage: React.FC = () => {
   const handleAddProject = () => {
     // Navigate to /project/add or similar
     console.log("Navigate to add project form");
-    alert("Navigate to Add Project Page");
+    // alert("Navigate to Add Project Page");
     navigate("/admin/sub_projects"); // Example navigation
   };
 
   const handleEditProject = (projectId: number) => {
     // Navigate to /project/edit/:id
     console.log("Navigate to edit project:", projectId);
-    alert(`Navigate to Edit Project Page - ID: ${projectId}`);
+      navigate(`/admin/sub_projects/${projectId}`); // Example navigation
+    // alert(`Navigate to Edit Project Page - ID: ${projectId}`);
   };
 
   const handleDeleteProject = (projectId: number) => {
-    const project = projects.find((p) => p.id === projectId);
+    const project = projects.find((p) => p.projectContainerId === projectId);
     if (
       project &&
       window.confirm(`Are you sure you want to delete "${project.title}"?`)
     ) {
-      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      setProjects((prev) => prev.filter((p) => p.projectContainerId !== projectId));
     }
   };
 
@@ -188,7 +182,7 @@ const ProjectListPage: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {projects.map((project) => (
                   <tr
-                    key={project.id}
+                    key={project.projectContainerId}
                     className="hover:bg-gray-50 transition-colors duration-150"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -196,7 +190,7 @@ const ProjectListPage: React.FC = () => {
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
                             className="h-12 w-12 rounded-lg object-cover border border-gray-200 shadow-sm"
-                            src={project.thumbnail || project.image}
+                            src={ project.backgroundImageUrl}
                             alt={project.title}
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
@@ -208,7 +202,7 @@ const ProjectListPage: React.FC = () => {
                             {project.title}
                           </div>
                           <div className="text-sm text-gray-500">
-                            ID: {project.id}
+                            ID: {project.projectContainerId}
                           </div>
                         </div>
                       </div>
@@ -228,14 +222,14 @@ const ProjectListPage: React.FC = () => {
                           <span className="ml-1">Preview</span>
                         </button> */}
                         <button
-                          onClick={() => handleEditProject(project.id)}
+                          onClick={() => handleEditProject(project.projectContainerId)}
                           className="inline-flex items-center px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                           <EditIcon />
                           <span className="ml-1">Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteProject(project.id)}
+                          onClick={() => handleDeleteProject(project.projectContainerId)}
                           className="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           <DeleteIcon />
@@ -254,14 +248,14 @@ const ProjectListPage: React.FC = () => {
             <div className="divide-y divide-gray-200">
               {projects.map((project) => (
                 <div
-                  key={project.id}
+                  key={project.projectContainerId}
                   className="p-4 hover:bg-gray-50 transition-colors duration-150"
                 >
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
                       <img
                         className="h-16 w-16 rounded-lg object-cover border border-gray-200 shadow-sm"
-                        src={project.thumbnail || project.image}
+                        src={project.backgroundImageUrl }
                         alt={project.title}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
@@ -273,7 +267,7 @@ const ProjectListPage: React.FC = () => {
                         {project.title}
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        Sort Order: {project.sortOrder} | ID: {project.id}
+                        Sort Order: {project.sortOrder} | ID: {project.projectContainerId}
                       </div>
                     </div>
                     <div className="ml-4 flex-shrink-0">
@@ -285,13 +279,13 @@ const ProjectListPage: React.FC = () => {
                           <PreviewIcon />
                         </button>
                         <button
-                          onClick={() => handleEditProject(project.id)}
+                          onClick={() => handleEditProject(project.projectContainerId)}
                           className="inline-flex items-center px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-xs rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                           <EditIcon />
                         </button>
                         <button
-                          onClick={() => handleDeleteProject(project.id)}
+                          onClick={() => handleDeleteProject(project.projectContainerId)}
                           className="inline-flex items-center px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-xs rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           <DeleteIcon />
