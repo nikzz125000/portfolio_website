@@ -31,8 +31,8 @@ namespace API.CustomAttributes
             //var userService = context.HttpContext.RequestServices.GetService<IValidateUserService>();
             var userService = context.HttpContext.RequestServices.GetService(typeof(IValidateUserService)) as IValidateUserService;
             var _encryptor = context.HttpContext.RequestServices.GetService(typeof(IEncryptor)) as IEncryptor;  
-            var decriptedId = _encryptor.DecryptIDs(userId);
-            var userGuid = int.Parse(decriptedId);
+            //var decriptedId = _encryptor.DecryptIDs(userId);
+            var userGuid = int.Parse(userId);
             var res = await userService.GetBctUserDetails(userGuid);
             
 

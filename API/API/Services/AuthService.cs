@@ -53,7 +53,7 @@ namespace API.Services
             BctLoginResponseModel response = new();
 
             // valid password received; generate auth tokens
-            var userGUID = _encryptor.EncryptIDs(user.BctUserId.ToString());
+            var userGUID = user.BctUserId.ToString();
 
             var accessTokenData = GenerateBctUserAccessToken(user, userGUID, true);
             var refreshTokenData = GenerateRefreshToken();

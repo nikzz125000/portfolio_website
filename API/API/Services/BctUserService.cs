@@ -79,8 +79,8 @@ namespace API.Services
             if (BctUser != null)
             {
                 response.Data = _mapper.Map<BctUserViewModel>(BctUser);
-                response.Data.BctUserGUID = _encryptor.EncryptIDs(response.Data.BctUserId.ToString());
-                response.Data.BctUserId = 0;
+                //response.Data.BctUserGUID = _encryptor.EncryptIDs(response.Data.BctUserId.ToString());
+                //response.Data.BctUserId = 0;
                 if (response == null)
                 {
                     response = new ModelEntityResponse<BctUserViewModel>();

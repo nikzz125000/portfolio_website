@@ -13,6 +13,8 @@ namespace API.Services
     public interface IContainerService
     {
         Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
+        Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
+       
     }
     public class ProjectContainerService : IContainerService
     {
@@ -75,7 +77,7 @@ namespace API.Services
                     foreach (var item in model.Projects)
                     {
                         string ProjectImageFileName = "";
-                        if (item.Id == 0)
+                        if (item.ProjectId == 0)
                         {
                             project = _mapper.Map<ProjectPostModel, Project>(item);
                             project.ProjectContainerId = cantainerId;
@@ -85,7 +87,7 @@ namespace API.Services
                         else
                         {
                             // modify existing project
-                            project = await _unitOfWork.Projects.GetById(item.Id);
+                            project = await _unitOfWork.Projects.GetById(item.ProjectId);
                             project.XPosition = item.XPosition;
                             project.YPosition = item.YPosition;
                             project.HeightPercent = item.HeightPercent;
@@ -135,6 +137,11 @@ namespace API.Services
                 }
             }
             return response;
+        }
+
+        public Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()
+        {
+            throw new NotImplementedException();
         }
     }
 }

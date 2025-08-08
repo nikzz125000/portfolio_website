@@ -20,8 +20,7 @@ namespace ViewModels
 
     public class ProjectPostModel
     {
-        public int Id { get; set; }
-        public int ProjectContainerId { get; set; } // Foreign key
+        public int ProjectId { get; set; } // Foreign key
         public string Name { get; set; }
         public IFormFile? ImageFile { get; set; }
         public string? ProjectImageUrl { get; set; } // For the uploaded image URL
@@ -32,6 +31,14 @@ namespace ViewModels
         public string AnimationSpeed { get; set; }
         public string AnimationTrigger { get; set; }
         public bool IsExterior { get; set; }
+    }
+    public class ProjectContainerViewModel
+    {
+        public int ProjectContainerId { get; set; }
+        public string Title { get; set; }
+        public int SortOrder { get; set; }
+        public decimal? BackgroundImageAspectRatio { get; set; }
+        public string? BackgroundImageUrl { get; set; } // For the uploaded image URL
     }
 }
 
