@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useSaveContainer } from '../../../api/useSaveContainer';
 import { useParams } from 'react-router-dom';
 import { useContainerDetails } from '../../../api/useContainerDetails';
+import { useDeleteProject } from '../../../api/useDeleteProject';
 
 interface SubImage {
   id: number;
@@ -92,6 +93,7 @@ const ImageEditor: React.FC = () => {
   }, [backgroundImage?.aspectRatio]);
 
     const { mutate: addOrUpdateContainer} = useSaveContainer();
+      const { mutate: deleteProject} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -508,11 +510,24 @@ const ImageEditor: React.FC = () => {
     ));
   };
 
-  const deleteSubImage = (id: number): void => {
-    setSubImages(prev => prev.filter(img => img.id !== id));
-    if (selectedSubImage === id) {
+  const deleteSubImage = (imageId: number): void => {
+  deleteProject(
+  { 
+    containerId: id ? parseInt(id, 10) : 0, // from URL param (container)
+    projectId: typeof imageId === 'number' ? imageId : 0 // from selected project
+  },
+  {
+    onSuccess: () => {
+      console.log("Project deleted successfully");
+       setSubImages(prev => prev.filter(img => img.id !== imageId));
+    if (selectedSubImage === imageId) {
       setSelectedSubImage(null);
     }
+      // maybe refetch or navigate
+    }
+  }
+);
+   
   };
 
   const handleSave = async (): Promise<void> => {
@@ -598,25 +613,25 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
       setSortOrder(apiData.sortOrder || 1);
       
       // Set background image if exists
-      if (apiData.backgroundImage) {
-        const backgroundFile = new File([], apiData.backgroundImage.name || 'background.jpg');
+      if (apiData.backgroundImageUrl) {
+        const backgroundFile = new File([], apiData.backgroundImageFileName || 'background.jpg');
         setBackgroundImage({
           file: backgroundFile,
-          url: apiData.backgroundImage.url,
-          name: apiData.backgroundImage.name || 'Background Image',
-          aspectRatio: apiData.backgroundImage.aspectRatio || 1
+          url: apiData.backgroundImageUrl,
+          name: apiData.backgroundImageFileName || 'Background Image',
+          aspectRatio: apiData.backgroundImageAspectRatio || 1
         });
       }
       
       // Set sub images
-      if (apiData.subImages && Array.isArray(apiData.subImages)) {
-        const loadedSubImages = apiData.subImages.map(subImg => ({
-          id: subImg.id || Date.now() + Math.random(),
+      if (apiData.projects && Array.isArray(apiData.projects)) {
+        const loadedSubImages = apiData.projects.map(subImg => ({
+          id: subImg.projectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
-          url: subImg.url,
+          url: subImg.projectImageUrl,
           name: subImg.name || 'Unnamed Image',
-          x: subImg.x || 50,
-          y: subImg.y || 50,
+          x: subImg.xPosition || 50,
+          y: subImg.yPosition || 50,
           heightPercent: subImg.heightPercent || 20,
           animation: subImg.animation || 'none',
           animationSpeed: subImg.animationSpeed || 'normal',
@@ -631,61 +646,7 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
           setSelectedSubImage(loadedSubImages[0].id);
         }
       }
-    } else {
-      // Load default sample data (original logic)
-      const backgroundUrl = 'https://via.placeholder.com/800x400/4a90e2/ffffff?text=Sample+Background';
-      const backgroundName = 'Sample Background';
-      const backgroundFile = new File([], backgroundName);
-
-      setBackgroundImage({
-        file: backgroundFile,
-        url: backgroundUrl,
-        name: backgroundName,
-        aspectRatio: 2 // 800/400 = 2
-      });
-
-      setSubImages([
-        {
-          id: Date.now() + 1,
-          file: new File([], 'logo.png'),
-          url: 'https://via.placeholder.com/200x100/ff6b6b/ffffff?text=Fast+Logo',
-          name: 'Fast Logo',
-          x: 100,
-          y: 50,
-          heightPercent: 15,
-          animation: 'zoomIn',
-          animationSpeed: 'fast',
-          animationTrigger: 'once',
-          isExterior: true
-        },
-        {
-          id: Date.now() + 2,
-          file: new File([], 'banner.png'),
-          url: 'https://via.placeholder.com/300x150/4ecdc4/ffffff?text=Hover+Banner',
-          name: 'Hover Banner',
-          x: 300,
-          y: 120,
-          heightPercent: 20,
-          animation: 'pulse',
-          animationSpeed: 'normal',
-          animationTrigger: 'hover',
-          isExterior: false
-        },
-        {
-          id: Date.now() + 3,
-          file: new File([], 'icon.png'),
-          url: 'https://via.placeholder.com/150x150/45b7d1/ffffff?text=Continuous',
-          name: 'Continuous Icon',
-          x: 200,
-          y: 200,
-          heightPercent: 12,
-          animation: 'bounce',
-          animationSpeed: 'slow',
-          animationTrigger: 'continuous',
-          isExterior: true
-        }
-      ]);
-    }
+    } 
   };
 
   // Simulate API hook (replace with your actual hook)
@@ -702,10 +663,10 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
       console.log('Fetched data:', data.data);
       
       // If data.data is an array, get the first item
-      const apiData = Array.isArray(data.data) ? data.data : [];
+      const apiData =  data.data 
       
       if (apiData) {
-        // Load the API data into the editor
+       console.log(333, apiData);
          loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
