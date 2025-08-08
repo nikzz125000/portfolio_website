@@ -19,7 +19,7 @@ namespace Repository
         IBctUserCredentialRepository BctUserCredentials { get; }
         IBctUserRepository BctUsers { get; }
         ISessionResetPasswordRepository SessionResetPasswords { get; }
-        IContainerRepository Containers { get; }
+        IProjectContainerRepository ProjectContainers { get; }
         IProjectRepository Projects { get; }
     }
 }

@@ -21,7 +21,7 @@ namespace Repository
         private IBctUserRepository _bctUser;
         private IBctUserCredentialRepository _bctUserCredential;
         private ISessionResetPasswordRepository _sessionResetPassword;
-        private IContainerRepository _containers;
+        private IProjectContainerRepository _containers;
         private IProjectRepository _projects;
 
 
@@ -109,7 +109,7 @@ namespace Repository
             }
         }
 
-        public IContainerRepository Containers
+        public IProjectContainerRepository ProjectContainers
         {
             get
             {

@@ -17,7 +17,7 @@
         public static string BaseUrl => GetBaseUrl(_httpContextAccessor);
 
         // File system paths - using Path.Combine for platform compatibility
-        public static string BannerPath => Path.Combine(_webRootPath, "Uploads", "Banner");
+        public static string ProjectContainerPath => Path.Combine(_webRootPath, "Uploads", "Banner");
         public static string ShopPath => Path.Combine(_webRootPath, "Uploads", "Shop");
         public static string AdvertisementPath => Path.Combine(_webRootPath, "Uploads", "Advertisement");
         public static string InvoicePath => Path.Combine(_webRootPath, "Uploads", "Invoice");
