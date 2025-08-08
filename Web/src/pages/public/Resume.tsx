@@ -1,6 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 // Types for the resume data structure
+interface EducationEntry {
+  period: string;
+  institution: string;
+  location: string;
+  degree: string;
+}
+
+interface SkillCategory {
+  title: string;
+  items: string[];
+}
+
 interface ResumeData {
   personalInfo: {
     name: string;
@@ -10,13 +22,14 @@ interface ResumeData {
     bio: string;
     location: string;
     focus: string;
+    socials?: {
+      linkedin?: string;
+      instagram?: string;
+      behance?: string;
+      website?: string;
+    };
   };
-  education: {
-    period: string;
-    institution: string;
-    location: string;
-    degree: string;
-  };
+  education: EducationEntry[];
   experience: {
     period: string;
     title: string;
@@ -24,6 +37,7 @@ interface ResumeData {
     location?: string;
     description: string;
   }[];
+  skills?: SkillCategory[];
 }
 
 // Sample data - replace this with your API call
@@ -32,54 +46,64 @@ const sampleData: ResumeData = {
     name: "glen george",
     phone: "6263752727",
     email: "glenkgeorge@gmail.com",
-    photo: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
     bio: "I am a brown boy with a really white name. No, I am not lying, my name is actually Glen George. Originally from India, I grew up in the Middle-East and now currently in Los Angeles, California. I focus on experience driven design and creating a future that is also art.",
     location: "Los Angeles, California",
-    focus: "experience driven design"
+    focus: "experience driven design",
   },
-  education: {
-    period: "2019 - 2023",
-    institution: "ArtCenter College of Design",
-    location: "Pasadena, CA",
-    degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship."
-  },
+  education: [
+    {
+      period: "2019 - 2023",
+      institution: "ArtCenter College of Design",
+      location: "Pasadena, CA",
+      degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship.",
+    },
+  ],
   experience: [
     {
       period: "November 2023 - Present",
       title: "Junior Designer",
       company: "Pininfarina of America Corp.",
-      description: "Sketch, design and development support for client projects and internal projects varying all across North America. Working on Automotive, Marine and Industrial Design projects."
+      description:
+        "Sketch, design and development support for client projects and internal projects varying all across North America. Working on Automotive, Marine and Industrial Design projects.",
     },
     {
       period: "Spring 2023",
       title: "Industrial Design Intern",
       company: "Polaris, Minnesota",
-      description: "Sketch, design and development support for current projects in development including snowmobiles. Working with clay modelers to bring designs to life."
+      description:
+        "Sketch, design and development support for current projects in development including snowmobiles. Working with clay modelers to bring designs to life.",
     },
     {
       period: "Summer 2022",
       title: "Meyers Manx - Sponsored Project",
       company: "ArtCenter College of Design",
-      description: "Tasked with creating a concept that introduces the Iconic brand to a new generation with lifestyle experiences."
+      description:
+        "Tasked with creating a concept that introduces the Iconic brand to a new generation with lifestyle experiences.",
     },
     {
       period: "Spring 2022",
       title: "Teacher's Assistant - VISCOM 2",
       company: "ArtCenter College of Design",
-      description: "Weekly demos for students introducing new photoshop techniques."
+      description:
+        "Weekly demos for students introducing new photoshop techniques.",
     },
     {
       period: "Summer - Fall 2021",
       title: "Teacher's Assistant - Design Fundamentals 2",
       company: "ArtCenter College of Design",
-      description: "Helped students through critiques on understanding the fundamentals of type, color theory and composition."
-    }
-  ]
+      description:
+        "Helped students through critiques on understanding the fundamentals of type, color theory and composition.",
+    },
+  ],
 };
 
 const AnimatedResume: React.FC = () => {
   const [resumeData, setResumeData] = useState<ResumeData>(sampleData);
-  const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
+  const [visibleElements, setVisibleElements] = useState<Set<string>>(
+    new Set()
+  );
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -88,16 +112,16 @@ const AnimatedResume: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisibleElements(prev => new Set([...prev, entry.target.id]));
+            setVisibleElements((prev) => new Set([...prev, entry.target.id]));
           }
         });
       },
-      { threshold: 0.1, rootMargin: '50px' }
+      { threshold: 0.1, rootMargin: "50px" }
     );
 
     // Observe all animated elements
-    const elements = document.querySelectorAll('[data-animate]');
-    elements.forEach(el => observerRef.current?.observe(el));
+    const elements = document.querySelectorAll("[data-animate]");
+    elements.forEach((el) => observerRef.current?.observe(el));
 
     return () => observerRef.current?.disconnect();
   }, []);
@@ -110,12 +134,16 @@ const AnimatedResume: React.FC = () => {
       // const data = await response.json();
       // setResumeData(data);
     } catch (error) {
-      console.error('Error fetching resume data:', error);
+      console.error("Error fetching resume data:", error);
     }
   };
 
   useEffect(() => {
     fetchResumeData();
+    try {
+      const raw = localStorage.getItem("resumeData");
+      if (raw) setResumeData(JSON.parse(raw));
+    } catch {}
   }, []);
 
   return (
@@ -217,7 +245,7 @@ const AnimatedResume: React.FC = () => {
               id="photo"
               data-animate
               className={`photo-container w-80 h-96 mb-8 animate-zoom ${
-                visibleElements.has('photo') ? 'visible' : ''
+                visibleElements.has("photo") ? "visible" : ""
               }`}
             >
               <img
@@ -226,12 +254,12 @@ const AnimatedResume: React.FC = () => {
                 className="w-full h-full object-cover grayscale"
               />
             </div>
-            
+
             <h1
               id="name"
               data-animate
               className={`text-6xl font-bold mb-4 animate-left ${
-                visibleElements.has('name') ? 'visible' : ''
+                visibleElements.has("name") ? "visible" : ""
               }`}
             >
               {resumeData.personalInfo.name}
@@ -244,15 +272,52 @@ const AnimatedResume: React.FC = () => {
               id="contact"
               data-animate
               className={`text-right mb-8 animate-right ${
-                visibleElements.has('contact') ? 'visible' : ''
+                visibleElements.has("contact") ? "visible" : ""
               }`}
             >
-              <div className="text-xl font-semibold mb-2">{resumeData.personalInfo.phone}</div>
-              <div className="text-lg mb-4">{resumeData.personalInfo.email}</div>
-              <div className="flex justify-end space-x-3">
-                <div className="w-6 h-6 bg-black rounded-full"></div>
-                <div className="w-6 h-6 bg-black rounded-full"></div>
-                <div className="w-6 h-6 bg-black rounded-full"></div>
+              <div className="text-xl font-semibold mb-2">
+                {resumeData.personalInfo.phone}
+              </div>
+              <div className="text-lg mb-4">
+                {resumeData.personalInfo.email}
+              </div>
+              <div className="flex justify-end gap-3">
+                {resumeData.personalInfo.socials?.website && (
+                  <a
+                    href={resumeData.personalInfo.socials.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Website"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.linkedin && (
+                  <a
+                    href={resumeData.personalInfo.socials.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="LinkedIn"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.instagram && (
+                  <a
+                    href={resumeData.personalInfo.socials.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Instagram"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.behance && (
+                  <a
+                    href={resumeData.personalInfo.socials.behance}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Behance"
+                  />
+                )}
               </div>
             </div>
 
@@ -260,22 +325,35 @@ const AnimatedResume: React.FC = () => {
               id="bio"
               data-animate
               className={`text-lg leading-relaxed animate-right ${
-                visibleElements.has('bio') ? 'visible' : ''
+                visibleElements.has("bio") ? "visible" : ""
               }`}
             >
-              {resumeData.personalInfo.bio.split('. ').map((sentence, index) => {
-                if (sentence.includes(resumeData.personalInfo.focus)) {
-                  const parts = sentence.split(resumeData.personalInfo.focus);
+              {resumeData.personalInfo.bio
+                .split(". ")
+                .map((sentence, index) => {
+                  if (sentence.includes(resumeData.personalInfo.focus)) {
+                    const parts = sentence.split(resumeData.personalInfo.focus);
+                    return (
+                      <span key={index}>
+                        {parts[0]}
+                        <em className="italic">
+                          {resumeData.personalInfo.focus}
+                        </em>
+                        {parts[1]}
+                        {index <
+                        resumeData.personalInfo.bio.split(". ").length - 1
+                          ? ". "
+                          : ""}
+                      </span>
+                    );
+                  }
                   return (
-                    <span key={index}>
-                      {parts[0]}
-                      <em className="italic">{resumeData.personalInfo.focus}</em>
-                      {parts[1]}{index < resumeData.personalInfo.bio.split('. ').length - 1 ? '. ' : ''}
-                    </span>
+                    sentence +
+                    (index < resumeData.personalInfo.bio.split(". ").length - 1
+                      ? ". "
+                      : "")
                   );
-                }
-                return sentence + (index < resumeData.personalInfo.bio.split('. ').length - 1 ? '. ' : '');
-              })}
+                })}
             </div>
           </div>
         </div>
@@ -286,36 +364,44 @@ const AnimatedResume: React.FC = () => {
             id="education-title"
             data-animate
             className={`text-5xl font-bold mb-12 animate-left ${
-              visibleElements.has('education-title') ? 'visible' : ''
+              visibleElements.has("education-title") ? "visible" : ""
             }`}
           >
             education
           </h2>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative">
             {/* Vertical divider line */}
             <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
-            
+
             <div
               id="education-left"
               data-animate
               className={`pr-8 animate-left ${
-                visibleElements.has('education-left') ? 'visible' : ''
+                visibleElements.has("education-left") ? "visible" : ""
               }`}
             >
-              <div className="text-lg font-semibold mb-2">{resumeData.education.period}</div>
-              <div className="text-lg">{resumeData.education.institution}</div>
-              <div className="text-lg text-gray-600">{resumeData.education.location}</div>
+              {resumeData.education.map((ed, i) => (
+                <div key={i} className="mb-6">
+                  <div className="text-lg font-semibold mb-2">{ed.period}</div>
+                  <div className="text-lg">{ed.institution}</div>
+                  <div className="text-lg text-gray-600">{ed.location}</div>
+                </div>
+              ))}
             </div>
-            
+
             <div
               id="education-right"
               data-animate
               className={`pl-8 animate-right ${
-                visibleElements.has('education-right') ? 'visible' : ''
+                visibleElements.has("education-right") ? "visible" : ""
               }`}
             >
-              <div className="text-lg">{resumeData.education.degree}</div>
+              {resumeData.education.map((ed, i) => (
+                <div key={i} className="mb-6">
+                  <div className="text-lg">{ed.degree}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -326,35 +412,40 @@ const AnimatedResume: React.FC = () => {
             id="experience-title"
             data-animate
             className={`text-5xl font-bold mb-12 animate-left ${
-              visibleElements.has('experience-title') ? 'visible' : ''
+              visibleElements.has("experience-title") ? "visible" : ""
             }`}
           >
             experience
           </h2>
-          
+
           {resumeData.experience.map((exp, index) => (
-            <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12 relative">
+            <div
+              key={index}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12 relative"
+            >
               {/* Vertical divider line */}
               <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
-              
+
               <div
                 id={`exp-left-${index}`}
                 data-animate
                 className={`pr-8 animate-left ${
-                  visibleElements.has(`exp-left-${index}`) ? 'visible' : ''
+                  visibleElements.has(`exp-left-${index}`) ? "visible" : ""
                 }`}
               >
                 <div className="text-lg font-semibold mb-2">{exp.period}</div>
                 <div className="text-lg italic mb-1">{exp.title}</div>
                 <div className="text-lg font-semibold">{exp.company}</div>
-                {exp.location && <div className="text-lg text-gray-600">{exp.location}</div>}
+                {exp.location && (
+                  <div className="text-lg text-gray-600">{exp.location}</div>
+                )}
               </div>
-              
+
               <div
                 id={`exp-right-${index}`}
                 data-animate
                 className={`pl-8 animate-right ${
-                  visibleElements.has(`exp-right-${index}`) ? 'visible' : ''
+                  visibleElements.has(`exp-right-${index}`) ? "visible" : ""
                 }`}
               >
                 <div className="text-lg leading-relaxed">{exp.description}</div>

@@ -28,3 +28,6 @@ README.md
 !.git/config
 !.git/packed-refs
 !.git/refs/heads/**
+# Keep local uploads out of the build context
+API/API/wwwroot/Uploads/**
+API/API/appsettings.*.Development.json
