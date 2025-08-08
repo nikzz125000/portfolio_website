@@ -93,7 +93,6 @@ namespace API.Controllers
             {
                 int userId = await getCurrentUserID();
                 response = await _bctUserService.GetBctUserDetails(userId);
-                //response.Data.BctUserId = 0;
 
             }
             catch (Exception e)
