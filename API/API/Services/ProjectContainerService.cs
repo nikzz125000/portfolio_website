@@ -15,6 +15,7 @@ namespace API.Services
         Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
         Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
         Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId);
+        Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> GetAllContainerDetails();
         Task<CommonEntityResponse> DeleteProject(int ProjectId);
 
     }
@@ -164,15 +165,37 @@ namespace API.Services
         public async Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId)
         {
             ModelEntityResponse<ProjectContainerDetailsViewModel> res = new ModelEntityResponse<ProjectContainerDetailsViewModel>();
-            var containers = await _unitOfWork.ProjectContainers.GetById(ProjectContainerId);
-            res.Data = _mapper.Map<ProjectContainerDetailsViewModel>(containers);
+            var container = await _unitOfWork.ProjectContainers.GetById(ProjectContainerId);
+            res.Data = _mapper.Map<ProjectContainerDetailsViewModel>(container);
             res.Data.BackgroundImageUrl = CommonData.GetProjectContainerUrl(res.Data.BackgroundImageFileName);
-            var pojects = await _unitOfWork.Projects.GetByProjectContainerId(ProjectContainerId);
-            res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(pojects);
+            var projects = await _unitOfWork.Projects.GetByProjectContainerId(ProjectContainerId);
+            res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(projects);
             foreach (var item in res.Data.Projects)
             {
                 item.ProjectImageUrl = CommonData.GetProjectUrl(item.ImageFileName);
             }
+            return res;
+        }
+
+        public async Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> GetAllContainerDetails()
+        {
+            ModelEntityResponse<List<ProjectContainerDetailsViewModel>> res = new ModelEntityResponse<List<ProjectContainerDetailsViewModel>>();
+            var containers = await _unitOfWork.ProjectContainers.GetAll();
+            var result = new List<ProjectContainerDetailsViewModel>();
+            foreach (var c in containers)
+            {
+                var vm = _mapper.Map<ProjectContainerDetailsViewModel>(c);
+                vm.BackgroundImageUrl = CommonData.GetProjectContainerUrl(vm.BackgroundImageFileName);
+                var projects = await _unitOfWork.Projects.GetByProjectContainerId(c.ProjectContainerId);
+                vm.Projects = _mapper.Map<List<ProjectViewModel>>(projects);
+                foreach (var p in vm.Projects)
+                {
+                    p.ProjectImageUrl = CommonData.GetProjectUrl(p.ImageFileName);
+                }
+                result.Add(vm);
+            }
+            res.Data = result;
+            res.CreateSuccessResponse();
             return res;
         }
     }
