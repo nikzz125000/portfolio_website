@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  api:
+    container_name: portfolio-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: portfolio-api:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8060
+      # Optionally override connection string at runtime via env var
+      # - ConnectionStrings__DefaultConnection=Server=host.docker.internal\\SQLEXPRESS;Database=portfolio;Integrated Security=true;TrustServerCertificate=true;
+    ports:
+      - "8060:8060"
+    volumes:
+      # Persist/uploads from container to host
+      - ./API/API/wwwroot/Uploads:/app/wwwroot/Uploads
+    restart: unless-stopped
