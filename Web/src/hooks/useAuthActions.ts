@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, } from 'react';
+
+
+// useAuthActions.ts
+import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import type { AuthUser } from '../types/auth';
+import { useLogin } from '../api/auth';
+import { useGetUserDetails } from '../api/useGetUserDetails';
 
 export const useAuthActions = () => {
   const { user, setUser } = useAuth();
@@ -9,18 +13,20 @@ export const useAuthActions = () => {
 
   const initializeAuth = async () => {
     try {
-      // Check for stored token
       const token = localStorage.getItem('token');
-      if (token) {
-        // In a real app, you would validate the token with your backend
-        // For now, we'll simulate a user
-        const mockUser: AuthUser = {
-          id: '1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          role: 'admin'
+      const storedUser = localStorage.getItem('user');
+      
+      if (token && storedUser) {
+        console.log(34, JSON.parse(storedUser))
+        const userData = JSON.parse(storedUser);
+        // Map your UserResponse to AuthUser format
+        const authUser: AuthUser = {
+          id: userData.bctUserId.toString(),
+          name: `${userData.firstName} ${userData.lastName}`,
+          email: userData.emailId,
+          role: userData.userType === 1 ? 'admin' : 'user' // Adjust mapping as needed
         };
-        setUser(mockUser);
+        setUser(authUser);
       }
     } catch (error) {
       console.error('Auth initialization failed:', error);
@@ -29,32 +35,59 @@ export const useAuthActions = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const login = async (email: string, password: string) => {
-  try {
+  const { mutate: loginApi, isPending: isLoginPending } = useLogin();
+  const { mutate: userDetailsApi, isPending: isUserDetailsPending } = useGetUserDetails();
 
+  const login = async (userName: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    return new Promise((resolve) => {
+      loginApi(
+        { userName, password },
+        {
+          onSuccess: (loginResult) => {
+            console.log('Login success:', loginResult);
+            
+            // Store token from login response
+            if (loginResult?.data?.accessToken) {
+              localStorage.setItem('token', loginResult.data.accessToken);
+            }
 
-    // In a real app, you would make an API call here
-    const mockUser: AuthUser = {
-      id: '1',
-      name: 'John Doe',
-      email,
-      role: "admin",
-    };
-
-    localStorage.setItem('token', 'mock-token');
-     localStorage.setItem('user', JSON.stringify(mockUser));
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: 'Login failed' };
-  }
-};
-
+            // Now fetch user details
+            userDetailsApi(undefined, {
+              onSuccess: (userDetails) => {
+                console.log('User details success:', userDetails);
+                
+                // Map UserResponse to AuthUser
+                const authUser: AuthUser = {
+                  id: userDetails?.data?.bctUserId?.toString(),
+                  name: `${userDetails?.data?.firstName} ${userDetails?.data?.lastName}`,
+                  email: userDetails?.data?.emailId,
+                  role: userDetails?.data?.userType === 1 ? 'admin' : 'user' // Adjust mapping as needed
+                };
+                
+                // Set user in context
+                setUser(authUser);
+                
+                resolve({ success: true });
+              },
+              onError: (userDetailsError) => {
+                console.error('User details error:', userDetailsError);
+                // Even if user details fail, login was successful
+                resolve({ success: false, error: 'Failed to load user details' });
+              }
+            });
+          },
+          onError: (loginError) => {
+            console.error('Login error:', loginError);
+            resolve({ success: false, error: 'Login failed' });
+          },
+        }
+      );
+    });
+  };
 
   const logout = () => {
     localStorage.removeItem('token');
-     localStorage.removeItem('user');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
@@ -63,6 +96,7 @@ export const useAuthActions = () => {
     login,
     logout,
     initializeAuth,
-    isLoading
+    isLoading: isLoading || isLoginPending || isUserDetailsPending
   };
-}; 
+};
+

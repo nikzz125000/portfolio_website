@@ -79,8 +79,8 @@ namespace API.Services
             if (BctUser != null)
             {
                 response.Data = _mapper.Map<BctUserViewModel>(BctUser);
-                response.Data.BctUserGUID = _encryptor.EncryptIDs(response.Data.BctUserId.ToString());
-                response.Data.BctUserId = 0;
+                //response.Data.BctUserGUID = _encryptor.EncryptIDs(response.Data.BctUserId.ToString());
+                //response.Data.BctUserId = 0;
                 if (response == null)
                 {
                     response = new ModelEntityResponse<BctUserViewModel>();
@@ -100,13 +100,13 @@ namespace API.Services
             var currentPassword = _encryptor.EncryptByHash(model.CurrentPassword);
             model.CurrentPassword = currentPassword;
             int userId = 0;
-            if (model.UserGUID == "" || model.UserGUID == null)
+            if (model.UserId <=0 )
             {
                 userId = currentUser.BctUserId;
             }
             else
             {
-                userId = int.Parse(_encryptor.DecryptIDs(model.UserGUID));
+                userId = model.UserId;
             }
             BctUser user = await _unitOfWork.BctUsers.GetUserByUserIdAndPassword(userId, currentPassword);
             

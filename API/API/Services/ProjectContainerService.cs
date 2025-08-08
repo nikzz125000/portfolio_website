@@ -12,7 +12,9 @@ namespace API.Services
 {
     public interface IContainerService
     {
-        Task<CommonEntityResponse> CreateOrModifyContainer(ProjectContainerPostModel model);
+        Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
+        Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
+       
     }
     public class ProjectContainerService : IContainerService
     {
@@ -31,28 +33,28 @@ namespace API.Services
             _encryptor = encryptor;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<CommonEntityResponse> CreateOrModifyContainer(ProjectContainerPostModel model)
+        public async Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model)
         {
             //Uploading Files 
-            string fileUrl = string.Empty;
-            string OldImageURL = "";
-
+            string BackgroundImageFileName = string.Empty;
+            string ContainorOldImageURL = "";
+            List<string> ProjectContainorOldImageURL = new List<string>();
             if (model.ImageFile != null)
             {
-                fileUrl = await _media.SaveFile(CommonData.ProjectContainerPath, model.ImageFile);
+                BackgroundImageFileName = await _media.SaveFile(CommonData.ProjectContainerPath, model.ImageFile);
             }
 
             CommonEntityResponse response = new CommonEntityResponse();
             ProjectContainer? container = new ProjectContainer();
-            if (model.ContainerId != 0)
+            if (model.ProjectContainerId != 0)
             {
                 //modify existing
-                container = await _unitOfWork.ProjectContainers.GetById(model.ContainerId);
+                container = await _unitOfWork.ProjectContainers.GetById(model.ProjectContainerId);
                 if (model.ImageFile != null)
                 {
                     // for removing old image from directory
-                    OldImageURL = container.BackgroundImageFileName;
-                    container.BackgroundImageFileName = fileUrl;
+                    ContainorOldImageURL = container.BackgroundImageFileName;
+                    container.BackgroundImageFileName = BackgroundImageFileName;
                 }
                 container.Title = model.Title;
                 container.UpdatedDate = DateTime.UtcNow;
@@ -62,7 +64,7 @@ namespace API.Services
             {
                 //add new
                 container = _mapper.Map<ProjectContainerPostModel, ProjectContainer>(model);
-                container.BackgroundImageFileName = fileUrl;
+                container.BackgroundImageFileName = BackgroundImageFileName;
                 container.CreatedDate = DateTime.UtcNow;
                 container.UpdatedDate = DateTime.UtcNow;
             }
@@ -70,14 +72,57 @@ namespace API.Services
             {
                 try
                 {
-                    //var Parameters = JsonConvert.SerializeObject(banner, Formatting.Indented);
                     int cantainerId = await _unitOfWork.ProjectContainers.CreateOrModify(container);
+                    Project project = new Project();
+                    foreach (var item in model.Projects)
+                    {
+                        string ProjectImageFileName = "";
+                        if (item.ProjectId == 0)
+                        {
+                            project = _mapper.Map<ProjectPostModel, Project>(item);
+                            project.ProjectContainerId = cantainerId;
+                            ProjectImageFileName = await _media.SaveFile(CommonData.ProjectPath, item.ImageFile);
+                            project.ImageFileName = ProjectImageFileName;
+                        }
+                        else
+                        {
+                            // modify existing project
+                            project = await _unitOfWork.Projects.GetById(item.ProjectId);
+                            project.XPosition = item.XPosition;
+                            project.YPosition = item.YPosition;
+                            project.HeightPercent = item.HeightPercent;
+                            project.Animation = item.Animation;
+                            project.AnimationSpeed = item.AnimationSpeed;
+                            project.AnimationTrigger = item.AnimationTrigger;
+                            project.IsExterior = item.IsExterior;
+
+                            if (model.ImageFile != null)
+                            {
+                                ProjectImageFileName = await _media.SaveFile(CommonData.ProjectPath, item.ImageFile);
+
+                                ProjectContainorOldImageURL.Add(project.ImageFileName);
+                                project.ImageFileName = ProjectImageFileName;
+                            }
+
+                        }
+                        await _unitOfWork.Projects.CreateOrModify(project);
+
+                    }
+
                     transaction.Commit();
                     response.CreateSuccessResponse("Project container created successfully");
-                    if (!string.IsNullOrWhiteSpace(OldImageURL))
+                    if (!string.IsNullOrWhiteSpace(ContainorOldImageURL))
                     {
-                        string url = Path.Combine(CommonData.ProjectContainerPath, OldImageURL);
+                        string url = Path.Combine(CommonData.ProjectContainerPath, ContainorOldImageURL);
                         _media.RemoveFile(url);
+                    }
+                    if(ProjectContainorOldImageURL.Count > 0)
+                    {
+                        foreach (var item in ProjectContainorOldImageURL)
+                        {
+                            string url = Path.Combine(CommonData.ProjectPath, item);
+                            _media.RemoveFile(url);
+                        }
                     }
                     response.EntityId = cantainerId;
                 }
@@ -87,13 +132,16 @@ namespace API.Services
                     Console.WriteLine($"Error: {ex.Message}");
 
                     transaction.Rollback();
-                    // remove added image
                     string url = Path.Combine(CommonData.ProjectContainerPath, container.BackgroundImageFileName);
-
                     _media.RemoveFile(url);
                 }
             }
             return response;
+        }
+
+        public Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()
+        {
+            throw new NotImplementedException();
         }
     }
 }

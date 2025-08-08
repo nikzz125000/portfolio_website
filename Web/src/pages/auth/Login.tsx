@@ -7,7 +7,7 @@ import { FormField } from '../../components/FormField';
 import { Button, Box, Typography, Alert, Paper, Link } from '@mui/material';
 
 interface FormData {
-  email: string;
+  userName: string;
   password: string;
 }
 
@@ -24,24 +24,24 @@ const Login = () => {
   const { login } = useAuthActions();
   const navigate = useNavigate();
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      const result = await login(data.email, data.password);
-      console.log(result)
-      if (result.success) {
-        // Redirect to admin dashboard after successful login
-        navigate('/admin/dashboard');
-      } else {
-        setError('root', {
-          message: result.error || 'Login failed. Please try again.',
-        });
-      }
-    } catch (error) {
+ const onSubmit = async (data: FormData) => {
+  try {
+    const result = await login(data.userName, data.password);
+    console.log(55, result);
+    if (result.success) {
+      // Redirect to admin dashboard after successful login
+      navigate('/admin/dashboard');
+    } else {
       setError('root', {
-        message: 'An unexpected error occurred. Please try again.',
+        message: result.error || 'Login failed. Please try again.',
       });
     }
-  };
+  } catch (error) {
+    setError('root', {
+      message: 'An unexpected error occurred. Please try again.',
+    });
+  }
+};
 
   return (
     <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" bgcolor="#f5f5f5">
@@ -58,19 +58,15 @@ const Login = () => {
           )}
 
           <FormField
-            label="Email"
+            label="Username"
             required
-            error={errors.email}
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Please enter a valid email address'
-              }
+            error={errors.userName}
+            {...register('userName', {
+              required: 'Username is required',
             })}
-            type="email"
-            autoComplete="email"
-            placeholder="Email address"
+           
+            autoComplete="userName"
+            placeholder="Username address"
             disabled={isSubmitting}
           />
 

@@ -45,8 +45,9 @@ namespace Core.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
+        public string ImageFileName { get; set; }
 
         // Navigation property
-        public virtual ProjectContainer Container { get; set; } = null!;
+        // public virtual ProjectContainer Container { get; set; } = null!;
     }
 }
