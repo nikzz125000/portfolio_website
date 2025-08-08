@@ -17,6 +17,7 @@ export const useAuthActions = () => {
       const storedUser = localStorage.getItem('user');
       
       if (token && storedUser) {
+        console.log(34, JSON.parse(storedUser))
         const userData = JSON.parse(storedUser);
         // Map your UserResponse to AuthUser format
         const authUser: AuthUser = {
@@ -57,10 +58,10 @@ export const useAuthActions = () => {
                 
                 // Map UserResponse to AuthUser
                 const authUser: AuthUser = {
-                  id: userDetails.bctUserId.toString(),
-                  name: `${userDetails.firstName} ${userDetails.lastName}`,
-                  email: userDetails.emailId,
-                  role: userDetails.userType === 1 ? 'admin' : 'user' // Adjust mapping as needed
+                  id: userDetails?.data?.bctUserId?.toString(),
+                  name: `${userDetails?.data?.firstName} ${userDetails?.data?.lastName}`,
+                  email: userDetails?.data?.emailId,
+                  role: userDetails?.data?.userType === 1 ? 'admin' : 'user' // Adjust mapping as needed
                 };
                 
                 // Set user in context
