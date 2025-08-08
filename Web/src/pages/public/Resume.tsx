@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 
 // Types for the resume data structure
+interface EducationEntry {
+  period: string;
+  institution: string;
+  location: string;
+  degree: string;
+}
+
+interface SkillCategory {
+  title: string;
+  items: string[];
+}
+
 interface ResumeData {
   personalInfo: {
     name: string;
@@ -10,13 +22,14 @@ interface ResumeData {
     bio: string;
     location: string;
     focus: string;
+    socials?: {
+      linkedin?: string;
+      instagram?: string;
+      behance?: string;
+      website?: string;
+    };
   };
-  education: {
-    period: string;
-    institution: string;
-    location: string;
-    degree: string;
-  };
+  education: EducationEntry[];
   experience: {
     period: string;
     title: string;
@@ -24,6 +37,7 @@ interface ResumeData {
     location?: string;
     description: string;
   }[];
+  skills?: SkillCategory[];
 }
 
 // Sample data - replace this with your API call
@@ -38,12 +52,14 @@ const sampleData: ResumeData = {
     location: "Los Angeles, California",
     focus: "experience driven design",
   },
-  education: {
-    period: "2019 - 2023",
-    institution: "ArtCenter College of Design",
-    location: "Pasadena, CA",
-    degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship.",
-  },
+  education: [
+    {
+      period: "2019 - 2023",
+      institution: "ArtCenter College of Design",
+      location: "Pasadena, CA",
+      degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship.",
+    },
+  ],
   experience: [
     {
       period: "November 2023 - Present",
@@ -265,10 +281,43 @@ const AnimatedResume: React.FC = () => {
               <div className="text-lg mb-4">
                 {resumeData.personalInfo.email}
               </div>
-              <div className="flex justify-end space-x-3">
-                <div className="w-6 h-6 bg-black rounded-full"></div>
-                <div className="w-6 h-6 bg-black rounded-full"></div>
-                <div className="w-6 h-6 bg-black rounded-full"></div>
+              <div className="flex justify-end gap-3">
+                {resumeData.personalInfo.socials?.website && (
+                  <a
+                    href={resumeData.personalInfo.socials.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Website"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.linkedin && (
+                  <a
+                    href={resumeData.personalInfo.socials.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="LinkedIn"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.instagram && (
+                  <a
+                    href={resumeData.personalInfo.socials.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Instagram"
+                  />
+                )}
+                {resumeData.personalInfo.socials?.behance && (
+                  <a
+                    href={resumeData.personalInfo.socials.behance}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 bg-black rounded-full inline-block"
+                    title="Behance"
+                  />
+                )}
               </div>
             </div>
 
@@ -332,13 +381,13 @@ const AnimatedResume: React.FC = () => {
                 visibleElements.has("education-left") ? "visible" : ""
               }`}
             >
-              <div className="text-lg font-semibold mb-2">
-                {resumeData.education.period}
-              </div>
-              <div className="text-lg">{resumeData.education.institution}</div>
-              <div className="text-lg text-gray-600">
-                {resumeData.education.location}
-              </div>
+              {resumeData.education.map((ed, i) => (
+                <div key={i} className="mb-6">
+                  <div className="text-lg font-semibold mb-2">{ed.period}</div>
+                  <div className="text-lg">{ed.institution}</div>
+                  <div className="text-lg text-gray-600">{ed.location}</div>
+                </div>
+              ))}
             </div>
 
             <div
@@ -348,7 +397,11 @@ const AnimatedResume: React.FC = () => {
                 visibleElements.has("education-right") ? "visible" : ""
               }`}
             >
-              <div className="text-lg">{resumeData.education.degree}</div>
+              {resumeData.education.map((ed, i) => (
+                <div key={i} className="mb-6">
+                  <div className="text-lg">{ed.degree}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
