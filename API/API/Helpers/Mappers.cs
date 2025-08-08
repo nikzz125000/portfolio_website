@@ -19,6 +19,9 @@ namespace API.Helpers
             CreateMap<BctUser, BctUserRegistrationModel>().ReverseMap();
             CreateMap<ProjectContainer, ProjectContainerPostModel>().ReverseMap();
             CreateMap<Project, ProjectPostModel>().ReverseMap();
+            CreateMap<ProjectContainer, ProjectContainerViewModel>().ReverseMap();
+
+            
         }
     }
 }

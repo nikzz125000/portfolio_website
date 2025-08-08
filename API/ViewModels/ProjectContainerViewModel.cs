@@ -7,6 +7,16 @@ using System.Threading.Tasks;
 
 namespace ViewModels
 {
+    //public class ProjectContainerPostModel
+    //{
+    //    public int ProjectContainerId { get; set; }
+    //    public IFormFile? ImageFile { get; set; }
+    //    public string Title { get; set; }
+    //    public int SortOrder { get; set; }
+    //    public decimal? BackgroundImageAspectRatio { get; set; }
+    //    public string? BackgroundImageUrl { get; set; } // For the uploaded image URL
+    //    public List<ProjectPostModel> Projects { get; set; } = new List<ProjectPostModel>();
+    //}
     public class ProjectContainerPostModel
     {
         public int ProjectContainerId { get; set; }
