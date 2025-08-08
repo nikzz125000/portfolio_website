@@ -15,6 +15,8 @@ namespace API.Services
         Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
         Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
         Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId);
+        Task<CommonEntityResponse> DeleteProject(int ProjectId);
+
     }
     public class ProjectContainerService : IProjectContainerService
     {
@@ -137,6 +139,14 @@ namespace API.Services
                 }
             }
             return response;
+        }
+
+        public async Task<CommonEntityResponse> DeleteProject(int ProjectId)
+        {
+            CommonEntityResponse res = new CommonEntityResponse();
+            await _unitOfWork.Projects.DeleteProject(ProjectId);
+            res.CreateSuccessResponse();
+            return res;
         }
 
         public async Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()

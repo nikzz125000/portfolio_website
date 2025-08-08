@@ -109,5 +109,30 @@ namespace API.Controllers
             }
             return response;
         }
+        [Route("Project/Delete/{ProjectContainerId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        public async Task<CommonEntityResponse> deleteProject(int ProjectId)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _containerService.DeleteProject(ProjectId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Project/Delete";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 }
