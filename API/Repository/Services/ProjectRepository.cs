@@ -16,5 +16,26 @@ namespace Repository.Services
             _context = context;
             _config = config;
         }
+        public async Task<int> CreateOrModify(Project model)
+        {
+
+            if (model.ProjectContainerId != 0)
+            {
+                //Upadte 
+                _context.Projects.Update(model);
+
+            }
+            else
+            {
+                //Add new
+                _context.Projects.Add(model);
+            }
+            await _context.SaveChangesAsync();
+            return model.ProjectId;
+        }
+        public async Task<Project?> GetById(int ProjectId)
+        {
+            return await _context.Projects.FindAsync(ProjectId);
+        }
     }
 }

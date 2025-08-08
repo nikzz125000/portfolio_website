@@ -5,6 +5,8 @@ namespace Repository.Interfaces
 {
     public interface IProjectRepository
     {
-        // Add any Project specific repository methods here
+        Task<int> CreateOrModify(Project model);
+        Task<Project?> GetById(int ProjectId);
+
     }
 }

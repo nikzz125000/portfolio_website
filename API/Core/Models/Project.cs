@@ -12,12 +12,10 @@ namespace Core.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int ProjectId { get; set; }
 
         [ForeignKey("Container")]
-        public int ContainerId { get; set; }
-
-        public int ProjectId { get; set; }
+        public int ProjectContainerId { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -49,6 +47,6 @@ namespace Core.Models
         public bool IsActive { get; set; } = true;
 
         // Navigation property
-        public virtual Container Container { get; set; } = null!;
+        public virtual ProjectContainer Container { get; set; } = null!;
     }
 }
