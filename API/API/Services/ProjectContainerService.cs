@@ -15,6 +15,8 @@ namespace API.Services
         Task<CommonEntityResponse> CreateOrModifyProjectContainer(ProjectContainerPostModel model);
         Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers();
         Task<ModelEntityResponse<ProjectContainerDetailsViewModel>> GetContainerDetails(int ProjectContainerId);
+        Task<CommonEntityResponse> DeleteProject(int ProjectId);
+
     }
     public class ProjectContainerService : IProjectContainerService
     {
@@ -139,6 +141,14 @@ namespace API.Services
             return response;
         }
 
+        public async Task<CommonEntityResponse> DeleteProject(int ProjectId)
+        {
+            CommonEntityResponse res = new CommonEntityResponse();
+            await _unitOfWork.Projects.DeleteProject(ProjectId);
+            res.CreateSuccessResponse();
+            return res;
+        }
+
         public async Task<ModelEntityResponse<List<ProjectContainerViewModel>>> GetAllContainers()
         {
             ModelEntityResponse<List<ProjectContainerViewModel>> res = new ModelEntityResponse<List<ProjectContainerViewModel>>();
@@ -158,7 +168,7 @@ namespace API.Services
             res.Data = _mapper.Map<ProjectContainerDetailsViewModel>(containers);
             res.Data.BackgroundImageUrl = CommonData.GetProjectContainerUrl(res.Data.BackgroundImageFileName);
             var pojects = await _unitOfWork.Projects.GetByProjectContainerId(ProjectContainerId);
-            res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(containers);
+            res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(pojects);
             foreach (var item in res.Data.Projects)
             {
                 item.ProjectImageUrl = CommonData.GetProjectContainerUrl(item.ImageFileName);

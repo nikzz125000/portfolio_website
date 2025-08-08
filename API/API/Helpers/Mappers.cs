@@ -20,7 +20,8 @@ namespace API.Helpers
             CreateMap<ProjectContainer, ProjectContainerPostModel>().ReverseMap();
             CreateMap<Project, ProjectPostModel>().ReverseMap();
             CreateMap<ProjectContainer, ProjectContainerViewModel>().ReverseMap();
-
+            CreateMap<ProjectContainer, ProjectContainerDetailsViewModel>().ReverseMap();
+            CreateMap<Project, ProjectViewModel>().ReverseMap();
             
         }
     }
