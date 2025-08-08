@@ -35,7 +35,7 @@ namespace API.Controllers
                     return response;
                 }
 
-                response = await _containerService.CreateOrModifyContainer(model);
+                response = await _containerService.CreateOrModifyProjectContainer(model);
 
             }
             catch (Exception e)
