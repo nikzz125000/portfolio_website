@@ -1,7 +1,10 @@
 # Base image for running the application
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 80
+# Expose HTTP port used by the app
+EXPOSE 8060
+# Ensure Kestrel listens on the exposed port by default (can be overridden at runtime)
+ENV ASPNETCORE_URLS=http://+:8060
 
 # Build image with SDK
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

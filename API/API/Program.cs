@@ -155,7 +155,11 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseHttpsRedirection();
+// Only enforce HTTPS redirection outside Development, so containerized dev works over HTTP
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 
@@ -179,8 +183,8 @@ app.UseAuthorization();
 // Configure the HTTP request pipeline
 // if (app.Environment.IsDevelopment())
 // {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 // }
 
 app.MapControllers();
