@@ -59,7 +59,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
   };
 
   const handleDeleteProject = (projectId: number) => {
-    const project = projects.find((p) => p.projectContainerId === projectId);
+    const project = projects?.find((p) => p.projectContainerId === projectId);
     if (
       project &&
       window.confirm(`Are you sure you want to delete "${project.title}"?`)
@@ -180,7 +180,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {projects.map((project) => (
+                {projects?.map((project) => (
                   <tr
                     key={project.projectContainerId}
                     className="hover:bg-gray-50 transition-colors duration-150"
@@ -246,7 +246,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
           {/* Mobile Card View */}
           <div className="md:hidden">
             <div className="divide-y divide-gray-200">
-              {projects.map((project) => (
+              {projects?.map((project) => (
                 <div
                   key={project.projectContainerId}
                   className="p-4 hover:bg-gray-50 transition-colors duration-150"
@@ -299,7 +299,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
           </div>
 
           {/* Empty State */}
-          {projects.length === 0 && !isPending && (
+          {projects?.length === 0 && !isPending && (
             <div className="text-center py-12">
               <div className="text-gray-500 mb-4">
                 <div className="mx-auto mb-4 w-12 h-12 opacity-20 flex items-center justify-center">
@@ -339,7 +339,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
 
         {/* Footer Info */}
         <div className="mt-6 text-center text-sm text-gray-500">
-          Total Projects: {projects.length}
+          Total Projects: {projects?.length}
         </div>
       </div>
     </div>
