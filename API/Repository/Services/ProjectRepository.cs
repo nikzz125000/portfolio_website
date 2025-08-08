@@ -37,5 +37,9 @@ namespace Repository.Services
         {
             return await _context.Projects.FindAsync(ProjectId);
         }
+        public async Task<List<Project>> GetByProjectContainerId(int ProjectContainerId)
+        {
+            return await _context.Projects.Where(x => x.ProjectContainerId == ProjectContainerId).ToListAsync();
+        }
     }
 }

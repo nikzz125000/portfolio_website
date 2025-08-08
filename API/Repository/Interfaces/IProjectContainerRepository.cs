@@ -7,5 +7,6 @@ namespace Repository.Interfaces
     {
         Task<int> CreateOrModify(ProjectContainer container);
         Task<ProjectContainer?> GetById(int ContainerId);
+        Task<List<ProjectContainer>> GetAll();
     }
 }
