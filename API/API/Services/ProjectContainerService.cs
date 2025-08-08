@@ -171,7 +171,7 @@ namespace API.Services
             res.Data.Projects = _mapper.Map<List<ProjectViewModel>>(pojects);
             foreach (var item in res.Data.Projects)
             {
-                item.ProjectImageUrl = CommonData.GetProjectContainerUrl(item.ImageFileName);
+                item.ProjectImageUrl = CommonData.GetProjectUrl(item.ImageFileName);
             }
             return res;
         }
