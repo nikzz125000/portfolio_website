@@ -23,5 +23,8 @@ namespace Core.DB
 
         public DbSet<ProjectContainer> ProjectContainers { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Resume> Resumes { get; set; }
+
+        
     }
 }

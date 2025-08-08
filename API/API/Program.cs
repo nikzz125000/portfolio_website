@@ -73,6 +73,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommonService, CommonService>();
 builder.Services.AddScoped<IBctUserService, BctUserService>();
 builder.Services.AddScoped<IProjectContainerService, ProjectContainerService>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
 
 
 // Configure IdentityServer and JWT Authentication

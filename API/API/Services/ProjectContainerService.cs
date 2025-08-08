@@ -98,7 +98,7 @@ namespace API.Services
                             project.AnimationTrigger = item.AnimationTrigger;
                             project.IsExterior = item.IsExterior;
 
-                            if (model.ImageFile != null)
+                            if (item.ImageFile != null)
                             {
                                 ProjectImageFileName = await _media.SaveFile(CommonData.ProjectPath, item.ImageFile);
 

@@ -16,6 +16,7 @@
         // File system paths - using Path.Combine for platform compatibility
         public static string ProjectContainerPath => Path.Combine(_webRootPath, "Uploads", "Container");
         public static string ProjectPath => Path.Combine(_webRootPath, "Uploads", "Project");
+        public static string PhotoPath => Path.Combine(_webRootPath, "Uploads", "Photo");
 
 
         // URL methods (URLs always use forward slashes regardless of platform)
@@ -26,6 +27,10 @@
         public static string GetProjectUrl(string fileName)
         {
             return $"{BaseUrl}/Uploads/Project/{fileName}";
+        }
+        public static string GetPhotoUrl(string fileName)
+        {
+            return $"{BaseUrl}/Uploads/Photo/{fileName}";
         }
         public static string GetBaseUrl(IHttpContextAccessor httpContextAccessor)
         {

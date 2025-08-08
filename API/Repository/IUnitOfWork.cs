@@ -21,5 +21,6 @@ namespace Repository
         ISessionResetPasswordRepository SessionResetPasswords { get; }
         IProjectContainerRepository ProjectContainers { get; }
         IProjectRepository Projects { get; }
+        IResumeRepository Resumes { get; }
     }
 }

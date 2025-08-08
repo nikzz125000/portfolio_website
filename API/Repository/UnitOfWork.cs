@@ -23,6 +23,7 @@ namespace Repository
         private ISessionResetPasswordRepository _sessionResetPassword;
         private IProjectContainerRepository _containers;
         private IProjectRepository _projects;
+        private IResumeRepository _resumes;
 
 
         public ApplicationDbContext _context { get; }
@@ -130,6 +131,18 @@ namespace Repository
                     _projects = new ProjectRepository(_context,_config);
                 }
                 return _projects;
+            }
+        }
+
+        public IResumeRepository Resumes
+        {
+            get
+            {
+                if (_resumes == null)
+                {
+                    _resumes = new ResumeRepository(_context, _config);
+                }
+                return _resumes;
             }
         }
 
