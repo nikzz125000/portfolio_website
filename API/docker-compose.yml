@@ -13,7 +13,7 @@ services:
       # Optionally override connection string at runtime via env var
       # - ConnectionStrings__DefaultConnection=Server=host.docker.internal\\SQLEXPRESS;Database=portfolio;Integrated Security=true;TrustServerCertificate=true;
     ports:
-      - "8060:8060"
+      - "7027:8060"
     volumes:
       # Persist/uploads from container to host
       - ./API/API/wwwroot/Uploads:/app/wwwroot/Uploads

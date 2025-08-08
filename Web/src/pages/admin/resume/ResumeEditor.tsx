@@ -137,6 +137,7 @@ const ResumeEditor: React.FC = () => {
   }, []);
 
   const handleSave = () => {
+    console.log(JSON.stringify(data));
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
   };
 
