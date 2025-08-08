@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\Advertisement\**" />
+    <Compile Remove="wwwroot\Barcodes\**" />
+    <Compile Remove="wwwroot\Profile\**" />
+    <Compile Remove="wwwroot\QRScans\**" />
+    <Content Remove="wwwroot\Advertisement\**" />
+    <Content Remove="wwwroot\Barcodes\**" />
+    <Content Remove="wwwroot\Profile\**" />
+    <Content Remove="wwwroot\QRScans\**" />
+    <EmbeddedResource Remove="wwwroot\Advertisement\**" />
+    <EmbeddedResource Remove="wwwroot\Barcodes\**" />
+    <EmbeddedResource Remove="wwwroot\Profile\**" />
+    <EmbeddedResource Remove="wwwroot\QRScans\**" />
+    <EntityDeploy Remove="wwwroot\Advertisement\**" />
+    <EntityDeploy Remove="wwwroot\Barcodes\**" />
+    <EntityDeploy Remove="wwwroot\Profile\**" />
+    <EntityDeploy Remove="wwwroot\QRScans\**" />
+    <None Remove="wwwroot\Advertisement\**" />
+    <None Remove="wwwroot\Barcodes\**" />
+    <None Remove="wwwroot\Profile\**" />
+    <None Remove="wwwroot\QRScans\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Barcode" Version="2024.9.7" />
+    <PackageReference Include="Cronos" Version="0.11.0" />
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Twilio" Version="7.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Repository\Repository.csproj" />
+    <ProjectReference Include="..\ViewModels\ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\Uploads\" />
+  </ItemGroup>
+
+</Project>
