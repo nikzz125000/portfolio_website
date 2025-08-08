@@ -531,12 +531,19 @@ const ImageEditor: React.FC = () => {
   };
 
   const handleSave = async (): Promise<void> => {
+    function getProjectId(id: number) {
+  // If id is a Date.now() timestamp, return 0
+  if (id > 1_000_000_000_000) {
+    return "0";
+  }
+  return id?.toString();
+}
   try {
     // Create FormData object for multipart/form-data
     const formData = new FormData();
     
     // Add basic fields
-    formData.append('ProjectContainerId', '0');
+    formData.append('ProjectContainerId', !id? '0' : id);
     formData.append('Title', title);
     formData.append('SortOrder', sortOrder.toString());
     
@@ -551,13 +558,14 @@ const ImageEditor: React.FC = () => {
     }
     
     // Add background image URL
-    formData.append('BackgroundImageUrl', '');
-    
+    if (!backgroundImage?.file) {
+    formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
+    }
     // Add each project individually using indexed notation
     subImages.forEach((img, index) => {
-      formData.append(`Projects[${index}][ProjectId]`, '0'); // Assuming new projects have ID 0
+      formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id)); // Assuming new projects have ID 0
 formData.append(`Projects[${index}][Name]`, img.name);
-formData.append(`Projects[${index}][ProjectImageUrl]`, ''); // or img.url if available
+// or img.url if available
 formData.append(`Projects[${index}][XPosition]`, Math.round(img.x).toString());
 formData.append(`Projects[${index}][YPosition]`, Math.round(img.y).toString());
 formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
@@ -569,7 +577,10 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
       // Add image file if exists
       if (img.file && img.file.size > 0) {
         formData.append(`Projects[${index}].ImageFile`, img.file);
+      }else{
+        formData.append(`Projects[${index}][ProjectImageUrl]`, img.projectImageUrl); 
       }
+
     });
     
     // Show loading state
@@ -581,12 +592,12 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
         aspectRatio: backgroundImage.aspectRatio,
         hasFile: !!backgroundImage.file
       } : null,
-      projectsCount: subImages.length,
+      projectsCount: subImages,
       projectsWithFiles: subImages.filter(img => img.file && img.file.size > 0).length
     });
     
     // Make API call
-    await addOrUpdateContainer(formData);
+     await addOrUpdateContainer(formData);
     
     alert('Data saved successfully!');
     
