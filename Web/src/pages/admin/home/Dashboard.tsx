@@ -26,34 +26,34 @@ const { data, isPending, isSuccess } = useContainerList() as {
   isSuccess: boolean;
 };
 
-  console.log("Home Images Data:", data, "Loading:", isPending);
+
 
   // Handle success in useEffect
   useEffect(() => {
-    if (isSuccess && data) {
+    if (data && data.data && data.data?.length > 0 && isSuccess) {
       // Add mock images to the projects if they don't have them
-      
-      
-      setProjects(data?.data);
+      console.log(70, data.data, "Loading:", isPending);
+
+      setProjects(data.data);
       // Handle your success logic here
     }
   }, [isSuccess, data]);
 
-  console.log("Home Images:", projects, "Loading:", isPending);
+  console.log(69, projects, "Loading:", isPending);
 
   const navigate = useNavigate();
 
   // Navigation handlers (in real app, these would use router)
   const handleAddProject = () => {
     // Navigate to /project/add or similar
-    console.log("Navigate to add project form");
+
     // alert("Navigate to Add Project Page");
     navigate("/admin/sub_projects"); // Example navigation
   };
 
   const handleEditProject = (projectId: number) => {
     // Navigate to /project/edit/:id
-    console.log("Navigate to edit project:", projectId);
+  
       navigate(`/admin/sub_projects/${projectId}`); // Example navigation
     // alert(`Navigate to Edit Project Page - ID: ${projectId}`);
   };

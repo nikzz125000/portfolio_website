@@ -702,11 +702,11 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
       console.log('Fetched data:', data.data);
       
       // If data.data is an array, get the first item
-      const apiData = Array.isArray(data.data) ? data.data[0] : data.data;
+      const apiData = Array.isArray(data.data) ? data.data : [];
       
       if (apiData) {
         // Load the API data into the editor
-        // loadSampleProject(apiData);
+         loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
     }
