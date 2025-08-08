@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import type { JSX } from 'react';
 
 export const ProtectedRoute = ({ children, roles }: { children: JSX.Element; roles?: string[] }) => {
-  const user=localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
+  const user=localStorage.getItem('authToken') ? JSON.parse(localStorage.getItem('authToken')!) : null;
 
   console.log(600,user, roles);
 

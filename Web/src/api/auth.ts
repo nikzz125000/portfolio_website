@@ -3,7 +3,7 @@ import api from '../utils/axios';
 
 
 interface LoginCredentials {
-  email: string;
+  userName: string;
   password: string;
 }
 
@@ -26,10 +26,11 @@ export const useLogin = () => {
       const response = await api.post('/auth/login', credentials);
       return response.data;
     },
-    onSuccess: (data) => {
-      // Store tokens on successful login
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('refreshToken', data.refreshToken);
+    onSuccess: (data:any) => {
+      console.log(data)
+      localStorage.setItem('authToken', data?.data.accessToken);
+      localStorage.setItem('refreshToken', data?.data?.refreshToken);
+       return data;
     },
   });
 };
