@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useSaveContainer } from '../../../api/useSaveContainer';
 
 interface SubImage {
   id: number;
@@ -87,6 +88,8 @@ const ImageEditor: React.FC = () => {
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, [backgroundImage?.aspectRatio]);
+
+    const { mutate: addOrUpdateContainer} = useSaveContainer();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -510,30 +513,156 @@ const ImageEditor: React.FC = () => {
     }
   };
 
-  const handleSave = (): void => {
-    const data = {
+  const handleSave = async (): Promise<void> => {
+  try {
+    // Create FormData object for multipart/form-data
+    const formData = new FormData();
+    
+    // Add basic fields
+    formData.append('ProjectContainerId', '1'); // You may want to make this dynamic
+    formData.append('Title', title);
+    formData.append('SortOrder', sortOrder.toString());
+    
+    // Add background image file if exists
+    if (backgroundImage?.file) {
+      formData.append('ImageFile', backgroundImage.file);
+    }
+    
+    // Add background image aspect ratio
+    if (backgroundImage?.aspectRatio) {
+      if (!backgroundImage?.file && backgroundImage?.aspectRatio !== undefined) {
+        formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
+      }
+    }
+    
+    // Add background image URL (if you have it from API)
+    if (!backgroundImage?.file) {
+      formData.append('BackgroundImageUrl', "");
+    }
+    
+    // Add projects array
+      const projectsData = subImages.map((img, index) => ({
+      projectId: img.id,
+      name: img.name,
+      imageFile: (img.file && img.file.size > 0) ? img.file : null,
+      projectImageUrl:  "",
+      xPosition: Math.round(img.x),
+      yPosition: Math.round(img.y),
+      heightPercent: img.heightPercent,
+      animation: img.animation,
+      animationSpeed: img.animationSpeed,
+      animationTrigger: img.animationTrigger,
+      isExterior: img.isExterior
+    }));
+    
+    // Add projects as JSON string
+    formData.append('Projects', JSON.stringify(projectsData));
+    
+    // Add individual project image files
+    
+    
+    // Show loading state
+    console.log('Saving data...', {
       title,
       sortOrder,
       backgroundImage: backgroundImage ? {
         name: backgroundImage.name,
         aspectRatio: backgroundImage.aspectRatio
       } : null,
-      subImages: subImages.map(img => ({
+      subImages: projectsData
+    });
+    
+    // Make API call
+   addOrUpdateContainer(formData);
+    
+   
+    // alert('Data saved successfully!');
+    
+  } catch (error) {
+    console.error('Save failed:', error);
+    if (error instanceof Error) {
+      alert(`Save failed: ${error.message}`);
+    } else {
+      alert('Save failed: An unknown error occurred.');
+    }
+  }
+};
+
+// Alternative version if you prefer to send JSON instead of FormData
+// Note: This won't work for file uploads - you'd need to handle file uploads separately
+const handleSaveAsJSON = async (): Promise<void> => {
+  try {
+    const data = {
+      ProjectContainerId: 1, // Make this dynamic as needed
+      ImageFile: null, // Handle file upload separately
+      Title: title,
+      SortOrder: sortOrder,
+      BackgroundImageAspectRatio: backgroundImage?.aspectRatio || null,
+      BackgroundImageUrl: backgroundImage?.url || '',
+      Projects: subImages.map(img => ({
         id: img.id,
         name: img.name,
-        x: img.x,
-        y: img.y,
+        imageFile: null, // Handle file upload separately
+        projectImageId: img.id,
+        projectImageUrl: img.url,
+        x: Math.round(img.x),
+        y: Math.round(img.y),
         heightPercent: img.heightPercent,
         animation: img.animation,
         animationSpeed: img.animationSpeed,
         animationTrigger: img.animationTrigger,
-        isExterior: img.isExterior // Simple boolean value
+        isExterior: img.isExterior
       }))
     };
     
-    console.log('Saving data:', data);
-    alert('Data saved! Check console for details.');
-  };
+    console.log('Saving data as JSON:', data);
+    
+    const response = await fetch('/api/your-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('Save successful:', result);
+    alert('Data saved successfully!');
+    
+  } catch (error) {
+    console.error('Save failed:', error);
+    alert(`Save failed: ${error.message}`);
+  }
+};
+
+  // const handleSave = (): void => {
+  //   const data = {
+  //     title,
+  //     sortOrder,
+  //     backgroundImage: backgroundImage ? {
+  //       name: backgroundImage.name,
+  //       aspectRatio: backgroundImage.aspectRatio
+  //     } : null,
+  //     subImages: subImages.map(img => ({
+  //       id: img.id,
+  //       name: img.name,
+  //       x: img.x,
+  //       y: img.y,
+  //       heightPercent: img.heightPercent,
+  //       animation: img.animation,
+  //       animationSpeed: img.animationSpeed,
+  //       animationTrigger: img.animationTrigger,
+  //       isExterior: img.isExterior // Simple boolean value
+  //     }))
+  //   };
+    
+  //   console.log('Saving data:', data);
+  //   alert('Data saved! Check console for details.');
+  // };
 
   // Modified loadSampleProject function to accept API data
   const loadSampleProject = (apiData = null): void => {
@@ -715,7 +844,7 @@ const ImageEditor: React.FC = () => {
       
       if (apiData) {
         // Load the API data into the editor
-        loadSampleProject(apiData);
+        // loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
     }
