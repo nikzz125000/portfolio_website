@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useSaveContainer } from '../../../api/useSaveContainer';
+import { useParams } from 'react-router-dom';
+import { useContainerDetails } from '../../../api/useContainerDetails';
 
 interface SubImage {
   id: number;
@@ -687,85 +689,24 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
   };
 
   // Simulate API hook (replace with your actual hook)
-  const useHomeImagesDetail = () => {
-    const [data, setData] = useState(null);
-    const [isSuccess, setIsSuccess] = useState(false);
-    
-    useEffect(() => {
-      // Simulate API call with your data
-      setTimeout(() => {
-        const mockApiData = {
-          data: {
-            id: 1,
-            title: "Hero Section",
-            sortOrder: 1,
-            backgroundImage: {
-              name: "hero-bg.jpg",
-              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-              aspectRatio: 2
-            },
-            subImages: [
-              {
-                id: 1,
-                name: "Main Logo",
-                url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-                x: 50,
-                y: 25,
-                heightPercent: 12,
-                animation: "fadeInDown",
-                animationSpeed: "normal",
-                animationTrigger: "once",
-                isExterior: true
-              },
-              {
-                id: 2,
-                name: "Hero Text",
-                url: "https://via.placeholder.com/500x200/ff6b6b/ffffff?text=WELCOME+TO+OUR+SITE",
-                x: 50,
-                y: 45,
-                heightPercent: 20,
-                animation: "fadeInUp",
-                animationSpeed: "slow",
-                animationTrigger: "once",
-                isExterior: false
-              },
-              {
-                id: 3,
-                name: "CTA Button",
-                url: "https://via.placeholder.com/200x80/4ecdc4/ffffff?text=GET+STARTED",
-                x: 50,
-                y: 70,
-                heightPercent: 8,
-                animation: "pulse",
-                animationSpeed: "normal",
-                animationTrigger: "hover",
-                isExterior: true
-              }
-            ]
-          }
-        };
-        setData(mockApiData);
-        setIsSuccess(true);
-      }, 1000);
-    }, []);
-    
-    return { data, isSuccess };
-  };
+  const { id } = useParams<{ id: string }>(); 
 
-  const { data, isSuccess } = useHomeImagesDetail();
+  const { data, isSuccess } = useContainerDetails(id ? parseInt(id, 10) : 0);
 
   // Handle success in useEffect - loads API data
+
+  console.log(700,data)
   useEffect(() => {
     if (isSuccess && data && data.data) {
       setIsLoadingApiData(true);
       console.log('Fetched data:', data.data);
       
       // If data.data is an array, get the first item
-      const apiData = Array.isArray(data.data) ? data.data[0] : data.data;
+      const apiData = Array.isArray(data.data) ? data.data : [];
       
       if (apiData) {
         // Load the API data into the editor
-        // loadSampleProject(apiData);
+         loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
     }

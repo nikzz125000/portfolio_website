@@ -1,20 +1,19 @@
-
 import { useQuery } from "@tanstack/react-query";
 import api from "../utils/axios";
 
 
-export const useContainerList = () => {
+export const useContainerDetails = (containerId:number) => {
   return useQuery({
     queryKey: [
       "Container/List",
     ],
     queryFn: async () => {
       const response = await api.get(
-        `ProjectContainer/List`
+        `ProjectContainer/Details/${containerId}` // Assuming the endpoint is like this
       );
       return response.data;
     },
-    enabled: true,
+    enabled: !!containerId,
       // ✅ Forces a refetch every time the component is mounted
     refetchOnMount: true,
     // ✅ Also refetch if the window is focused
