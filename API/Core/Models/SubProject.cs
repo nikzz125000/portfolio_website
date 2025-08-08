@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+using Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class Project : WebSiteEntity
+    public class SubProject : WebSiteEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ProjectId { get; set; }
-
-        [ForeignKey("ProjectContainer")]
-        public int ProjectContainerId { get; set; }
+        public int SubProjectId { get; set; }
+        [ForeignKey("SubProjectContainer")]
+        public int SubProjectContainerId { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -46,8 +41,9 @@ namespace Core.Models
 
         public bool IsActive { get; set; } = true;
         public string ImageFileName { get; set; }
+        public ProjectType MyProperType { get; set; }
 
-        // Navigation property
-        // public virtual ProjectContainer Container { get; set; } = null!;
+        //Navigation property
+        public virtual SubProjectContainer SubProjectContainer { get; set; } = null!;
     }
-}
+} 

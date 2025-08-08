@@ -73,6 +73,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommonService, CommonService>();
 builder.Services.AddScoped<IBctUserService, BctUserService>();
 builder.Services.AddScoped<IProjectContainerService, ProjectContainerService>();
+builder.Services.AddScoped<ISubProjectContainerService, SubProjectContainerService>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 
 
