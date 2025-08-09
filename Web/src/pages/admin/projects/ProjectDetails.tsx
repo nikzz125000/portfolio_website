@@ -712,7 +712,7 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
   };
 
 
-  const { data, isSuccess } = useContainerDetails(currentItemId);
+  const { data, isSuccess } = useContainerDetails(7);
 
   console.log(700, currentItemId);
   useEffect(() => {
