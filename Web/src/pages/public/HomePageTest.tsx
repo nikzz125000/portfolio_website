@@ -403,6 +403,7 @@ const Homepage: React.FC = () => {
     
     const classes = [
       'animated-image',
+      'animated-element',
       subImage.animation,
       `speed-${subImage.animationSpeed || 'normal'}`,
       `trigger-${subImage.animationTrigger || 'once'}`
@@ -669,14 +670,12 @@ const Homepage: React.FC = () => {
     }
 
     .clickable-sub-image:hover {
-      transform: scale(1.2) !important;
-      filter: brightness(1.3) saturate(1.2) drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+      filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
       z-index: 50 !important;
       animation: glowPulse 15s infinite;
     }
 
     .clickable-sub-image:active {
-      transform: scale(1.1) !important;
     }
 
     .section-background {
@@ -694,14 +693,14 @@ const Homepage: React.FC = () => {
     .sub-image-container.dimmed {
       opacity: 0.2;
       filter: blur(2px) grayscale(0.5);
-      transform: translate(-50%, -50%) scale(0.95);
+      transform: scale(0.95);
     }
 
     .sub-image-container.highlighted {
       opacity: 1;
       filter: none;
       z-index: 50;
-      transform: translate(-50%, -50%) scale(1);
+      transform: scale(1);
     }
 
     .centered-logo {
