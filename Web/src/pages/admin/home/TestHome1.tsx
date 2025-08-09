@@ -9,10 +9,9 @@ interface SubImage {
   file: File;
   url: string;
   name: string;
-  x: number;
-  y: number;
-  xPercent?: number; // Temporary field for loading
-  yPercent?: number; // Temporary field for loading
+  // FIXED: Always store as percentages internally for true responsiveness
+  xPercent: number;
+  yPercent: number;
   heightPercent: number;
   animation: string;
   animationSpeed: string;
@@ -71,53 +70,60 @@ const ImageEditor: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subImageInputRef = useRef<HTMLInputElement>(null);
 
-  // Monitor preview area size
+  // FIXED: Calculate background dimensions using full-width approach like Homepage
+  const calculateBackgroundDimensions = useCallback(() => {
+    if (backgroundRef.current && backgroundImage?.aspectRatio) {
+      const containerWidth = backgroundRef.current.clientWidth;
+      // Use same approach as Homepage: full-width, calculated height
+      const calculatedHeight = containerWidth / backgroundImage.aspectRatio;
+      
+      return {
+        width: containerWidth,
+        height: calculatedHeight
+      };
+    }
+    return { width: 0, height: 0 };
+  }, [backgroundImage?.aspectRatio]);
+
+  // Monitor preview area size and update dimensions responsively
   useEffect(() => {
     const updateDimensions = () => {
-      if (backgroundRef.current) {
-        const containerWidth = backgroundRef.current.clientWidth;
-        let containerHeight = containerWidth;
-        
-        if (backgroundImage?.aspectRatio) {
-          containerHeight = containerWidth / backgroundImage.aspectRatio;
-        }
-        
-        setBackgroundDimensions({
-          width: containerWidth,
-          height: containerHeight
-        });
+      const newDimensions = calculateBackgroundDimensions();
+      if (newDimensions.width > 0 && newDimensions.height > 0) {
+        setBackgroundDimensions(newDimensions);
       }
     };
 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [backgroundImage?.aspectRatio]);
-
-  // Convert percentages to pixels after background dimensions are set
-  useEffect(() => {
-    if (backgroundDimensions.width > 0 && backgroundDimensions.height > 0) {
-      setSubImages(prev => prev.map(img => {
-        if (img.xPercent !== undefined && img.yPercent !== undefined) {
-          console.log('Converting percentages to pixels:', {
-            xPercent: img.xPercent,
-            yPercent: img.yPercent,
-            dimensions: backgroundDimensions,
-            calculatedX: (img.xPercent / 100) * backgroundDimensions.width,
-            calculatedY: (img.yPercent / 100) * backgroundDimensions.height
-          });
-          return {
-            ...img,
-            x: (img.xPercent / 100) * backgroundDimensions.width,
-            y: (img.yPercent / 100) * backgroundDimensions.height,
-            xPercent: undefined,
-            yPercent: undefined
-          };
-        }
-        return img;
-      }));
+    
+    // Also listen for container size changes (like sidebar collapse)
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (backgroundRef.current) {
+      resizeObserver.observe(backgroundRef.current);
     }
-  }, [backgroundDimensions]);
+
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      resizeObserver.disconnect();
+    };
+  }, [calculateBackgroundDimensions]);
+
+  // FIXED: Convert percentages to pixels for display (helper function)
+  const getPixelPosition = (xPercent: number, yPercent: number) => {
+    return {
+      x: (xPercent / 100) * backgroundDimensions.width,
+      y: (yPercent / 100) * backgroundDimensions.height
+    };
+  };
+
+  // FIXED: Convert pixels to percentages (helper function)
+  const getPercentagePosition = (x: number, y: number) => {
+    return {
+      xPercent: backgroundDimensions.width > 0 ? (x / backgroundDimensions.width) * 100 : 0,
+      yPercent: backgroundDimensions.height > 0 ? (y / backgroundDimensions.height) * 100 : 0
+    };
+  };
 
   const { mutate: addOrUpdateContainer} = useSaveContainer();
   const { mutate: deleteProject} = useDeleteProject();
@@ -482,8 +488,8 @@ const ImageEditor: React.FC = () => {
             file,
             url: e.target.result as string,
             name: file.name,
-            x: 50,
-            y: 50,
+            xPercent: 50, // FIXED: Store as percentage from start
+            yPercent: 50, // FIXED: Store as percentage from start
             heightPercent: 20,
             animation: 'none',
             animationSpeed: 'normal',
@@ -502,13 +508,17 @@ const ImageEditor: React.FC = () => {
     return (heightPercent / 100) * backgroundDimensions.width;
   };
 
+  // FIXED: Handle dragging with percentage-based positioning for true responsiveness
   const handleMouseDown = useCallback((e: React.MouseEvent, index: number): void => {
     e.preventDefault();
     const rect = backgroundRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const startX = e.clientX - rect.left - subImages[index].x;
-    const startY = e.clientY - rect.top - subImages[index].y;
+    const currentImg = subImages[index];
+    const currentPos = getPixelPosition(currentImg.xPercent, currentImg.yPercent);
+    
+    const startX = e.clientX - rect.left - currentPos.x;
+    const startY = e.clientY - rect.top - currentPos.y;
 
     setDragState({ isDragging: true, dragIndex: index });
     setSelectedSubImage(subImages[index].id);
@@ -516,8 +526,12 @@ const ImageEditor: React.FC = () => {
     const handleMouseMove = (e: MouseEvent): void => {
       const newX = Math.max(0, Math.min(backgroundDimensions.width - 50, e.clientX - rect.left - startX));
       const newY = Math.max(0, Math.min(backgroundDimensions.height - 50, e.clientY - rect.top - startY));
+      
+      // FIXED: Convert to percentages and store for true responsiveness
+      const newPos = getPercentagePosition(newX, newY);
+      
       setSubImages(prev => prev.map((img, i) => 
-        i === index ? { ...img, x: newX, y: newY } : img
+        i === index ? { ...img, xPercent: newPos.xPercent, yPercent: newPos.yPercent } : img
       ));
     };
 
@@ -529,7 +543,7 @@ const ImageEditor: React.FC = () => {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [subImages, backgroundDimensions]);
+  }, [subImages, backgroundDimensions, getPixelPosition, getPercentagePosition]);
 
   const updateSubImageProperty = (id: number, property: keyof SubImage, value: string | number | boolean): void => {
     setSubImages(prev => prev.map(img => 
@@ -562,6 +576,7 @@ const ImageEditor: React.FC = () => {
     return id?.toString();
   }
 
+  // FIXED: Save with percentages (no conversion needed)
   const handleSave = async (): Promise<void> => {
     try {
       const formData = new FormData();
@@ -582,20 +597,18 @@ const ImageEditor: React.FC = () => {
         formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
       }
       
-      // Convert pixel positions to percentages before saving
+      // FIXED: Save percentages directly (no conversion needed)
       subImages.forEach((img, index) => {
         formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
         formData.append(`Projects[${index}][Name]`, img.name);
         
-  const xPercent = Math.round((img.x / backgroundDimensions.width) * 100);
-const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
+        const xPercent = Math.round(img.xPercent);
+        const yPercent = Math.round(img.yPercent);
         
         console.log('Saving position as percentages:', {
-          originalX: img.x,
-          originalY: img.y,
-          dimensions: backgroundDimensions,
           xPercent,
-          yPercent
+          yPercent,
+          dimensions: backgroundDimensions
         });
         
         formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
@@ -627,7 +640,7 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
     }
   };
 
-  // FIXED: Store percentages temporarily, convert to pixels after dimensions are ready
+  // FIXED: Load data and store as percentages
   const loadSampleProject = (apiData = null): void => {
     if (apiData) {
       console.log('Loading API data:', apiData);
@@ -636,7 +649,6 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
       setSortOrder(apiData.sortOrder || 1);
       
       if (apiData.backgroundImageUrl) {
-        // const backgroundFile = new File([], apiData.backgroundImageFileName || 'background.jpg');
         setBackgroundImage({
           file: null,
           url: apiData.backgroundImageUrl,
@@ -652,10 +664,8 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
           file: new File([], subImg.name || 'image.png'),
           url: subImg.projectImageUrl,
           name: subImg.name || 'Unnamed Image',
-          xPercent: subImg.xPosition || 50,
-          yPercent: subImg.yPosition || 50,
-          x: 50, // Will be calculated after dimensions are ready
-          y: 50, // Will be calculated after dimensions are ready
+          xPercent: subImg.xPosition || 50, // FIXED: Store as percentages
+          yPercent: subImg.yPosition || 50, // FIXED: Store as percentages
           heightPercent: subImg.heightPercent || 20,
           animation: subImg.animation || 'none',
           animationSpeed: subImg.animationSpeed || 'normal',
@@ -766,7 +776,7 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
       border: '2px solid #ddd',
       position: 'relative',
       overflow: 'hidden',
-      backgroundSize: 'cover',
+      backgroundSize: '100% auto', // FIXED: Full width like Homepage
       backgroundPosition: 'center top',
       backgroundColor: '#f9f9f9'
     },
@@ -924,40 +934,44 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
         </div>
 
         <div style={styles.formGroup}>
-          {subImages.map((img) => (
-            <div
-              key={img.id}
-              style={{
-                ...styles.subImageItem,
-                ...(selectedSubImage === img.id ? styles.selectedItem : {})
-              }}
-              onClick={() => setSelectedSubImage(img.id)}
-            >
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                  {img.name}
-                </div>
-                <div style={{ fontSize: '11px', color: '#666' }}>
-                  x: {Math.round(img.x)}, y: {Math.round(img.y)}, size: {img.heightPercent}%
-                </div>
-                {img.animation !== 'none' && (
-                  <div style={styles.speedIndicator}>
-                    {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
-                  </div>
-                )}
-              </div>
-              <button
-                style={styles.buttonDanger}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  deleteSubImage(img.id);
+          {subImages.map((img) => {
+            const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+            return (
+              <div
+                key={img.id}
+                style={{
+                  ...styles.subImageItem,
+                  ...(selectedSubImage === img.id ? styles.selectedItem : {})
                 }}
-                type="button"
+                onClick={() => setSelectedSubImage(img.id)}
               >
-                🗑️
-              </button>
-            </div>
-          ))}
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    {img.name}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#666' }}>
+                    {/* FIXED: Show both percentage and pixel positions */}
+                    x: {Math.round(pixelPos.x)}px ({Math.round(img.xPercent)}%), y: {Math.round(pixelPos.y)}px ({Math.round(img.yPercent)}%), size: {img.heightPercent}%
+                  </div>
+                  {img.animation !== 'none' && (
+                    <div style={styles.speedIndicator}>
+                      {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
+                    </div>
+                  )}
+                </div>
+                <button
+                  style={styles.buttonDanger}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    deleteSubImage(img.id);
+                  }}
+                  type="button"
+                >
+                  🗑️
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {selectedImageData && (
@@ -1047,8 +1061,9 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
               </>
             )}
 
+            {/* FIXED: Show both pixel and percentage positions */}
             <p style={{ fontSize: '12px', color: '#666' }}>
-              Position: x: {Math.round(selectedImageData.x)}, y: {Math.round(selectedImageData.y)}
+              Position: x: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).x)}px ({Math.round(selectedImageData.xPercent)}%), y: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).y)}px ({Math.round(selectedImageData.yPercent)}%)
             </p>
           </div>
         )}
@@ -1088,50 +1103,54 @@ const yPercent = Math.round((img.y / backgroundDimensions.height) * 100);
             </div>
           )}
           
-          {subImages.map((img, index) => (
-            <div
-              key={img.id}
-              onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
-              style={{
-                ...styles.draggableImage,
-                left: img.x,
-                top: img.y,
-                cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
-                ...(selectedSubImage === img.id ? styles.selectedImage : {}),
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (!dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = '#1976d2';
-                }
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (selectedSubImage !== img.id && !dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = 'transparent';
-                }
-              }}
-            >
-              <img
-                src={img.url}
-                alt={img.name}
-                className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+          {/* FIXED: Render images using percentage-based positioning */}
+          {subImages.map((img, index) => {
+            const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+            return (
+              <div
+                key={img.id}
+                onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
                 style={{
-                  height: `${getActualHeight(img.heightPercent)}px`,
-                  width: 'auto',
-                  display: 'block',
-                  userSelect: 'none',
-                  pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                  ...styles.draggableImage,
+                  left: pixelPos.x,
+                  top: pixelPos.y,
+                  cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
+                  ...(selectedSubImage === img.id ? styles.selectedImage : {}),
                 }}
-              />
-              {selectedSubImage === img.id && (
-                <div style={styles.tag}>
-                  {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
-                  {img.animation !== 'none' ? 
-                    ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
-                    : ' draggable'}
-                </div>
-              )}
-            </div>
-          ))}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (!dragState.isDragging) {
+                    (e.target as HTMLDivElement).style.borderColor = '#1976d2';
+                  }
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (selectedSubImage !== img.id && !dragState.isDragging) {
+                    (e.target as HTMLDivElement).style.borderColor = 'transparent';
+                  }
+                }}
+              >
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+                  style={{
+                    height: `${getActualHeight(img.heightPercent)}px`,
+                    width: 'auto',
+                    display: 'block',
+                    userSelect: 'none',
+                    pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                  }}
+                />
+                {selectedSubImage === img.id && (
+                  <div style={styles.tag}>
+                    {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
+                    {img.animation !== 'none' ? 
+                      ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
+                      : ' draggable'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         
         {backgroundImage && (

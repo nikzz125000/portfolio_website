@@ -32,6 +32,39 @@ interface SectionData {
   subImages?: SubImage[];
 }
 
+// FIXED: Same unified coordinate system as ImageEditor
+const createUnifiedCoordinateSystem = (aspectRatio: number | undefined) => {
+  const getImageDimensions = (containerWidth: number) => {
+    if (!aspectRatio || aspectRatio <= 0) {
+      return { width: containerWidth, height: containerWidth * 0.5625 }; // Default 16:9
+    }
+    
+    // Calculate height based on full width display
+    const imageHeight = containerWidth / aspectRatio;
+    return { width: containerWidth, height: imageHeight };
+  };
+  
+  const getPixelFromPercent = (xPercent: number, yPercent: number, containerWidth: number) => {
+    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+    return {
+      x: (xPercent / 100) * imageWidth,
+      y: (yPercent / 100) * imageHeight,
+      imageWidth,
+      imageHeight
+    };
+  };
+  
+  const getPercentFromPixel = (x: number, y: number, containerWidth: number) => {
+    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+    return {
+      xPercent: imageWidth > 0 ? (x / imageWidth) * 100 : 0,
+      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0
+    };
+  };
+  
+  return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
+};
+
 const Homepage: React.FC = () => {
   const [sections, setSections] = useState<SectionData[]>([]);
   const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
@@ -41,6 +74,7 @@ const Homepage: React.FC = () => {
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
@@ -76,17 +110,42 @@ const Homepage: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // FIXED: Calculate total content height with consistent logic
+  // FIXED: Same background strategy as ImageEditor
+  const getBackgroundStyle = (section: SectionData) => {
+    if (!section.backgroundImageUrl) return {};
+    
+    return {
+      backgroundImage: `url(${section.backgroundImageUrl})`,
+      backgroundSize: '100% auto', // Same as ImageEditor
+      backgroundPosition: 'center top',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'scroll'
+    };
+  };
+
+  // FIXED: Same section dimension calculation as ImageEditor
+  const getSectionDimensions = (section: SectionData) => {
+    const containerWidth = window.innerWidth;
+    const coordinateSystem = createUnifiedCoordinateSystem(section.backgroundImageAspectRatio);
+    const { width, height } = coordinateSystem.getImageDimensions(containerWidth);
+    
+    // Ensure minimum viewport height but respect image proportions
+    const sectionHeight = Math.max(height, window.innerHeight);
+    
+    return {
+      width: containerWidth,
+      height: sectionHeight,
+      imageHeight: height // Actual image height for positioning
+    };
+  };
+
+  // FIXED: Calculate total height using unified system
   useEffect(() => {
     if (sections.length > 0) {
       let height = 0;
       sections.forEach((section) => {
-        // FIXED: Use same calculation as preview
-        const containerWidth = window.innerWidth;
-        const sectionHeight = section.backgroundImageAspectRatio
-          ? containerWidth / section.backgroundImageAspectRatio  // Simplified calculation
-          : viewportHeight;
-        height += sectionHeight;
+        const dimensions = getSectionDimensions(section);
+        height += dimensions.height;
       });
       height += 200; // Add footer height
       setTotalHeight(height);
@@ -96,11 +155,12 @@ const Homepage: React.FC = () => {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
       
-      console.log('Total height calculated:', {
+      console.log('Unified coordinate system total height calculated:', {
         totalHeight: height,
         sectionsCount: sections.length,
         viewportHeight,
-        windowWidth: window.innerWidth
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight
       });
     }
   }, [sections, viewportHeight]);
@@ -127,7 +187,7 @@ const Homepage: React.FC = () => {
     animationFrameId.current = requestAnimationFrame(smoothScrollStep);
   };
 
-  // FIXED: Handle wheel events for custom scrolling with better bounds checking
+  // Handle wheel events for custom scrolling
   useEffect(() => {
     if (totalHeight === 0) return;
 
@@ -139,16 +199,6 @@ const Homepage: React.FC = () => {
       
       const newScrollY = targetScrollY.current + scrollAmount;
       targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
-      
-      // Debug scroll issues
-      if (targetScrollY.current === maxScroll) {
-        console.log('Reached scroll bottom:', {
-          totalHeight,
-          windowHeight: window.innerHeight,
-          maxScroll,
-          currentScroll: targetScrollY.current
-        });
-      }
       
       if (!isScrolling.current) {
         isScrolling.current = true;
@@ -257,7 +307,7 @@ const Homepage: React.FC = () => {
     };
   }, [isMenuOpen]);
 
-  // FIXED: Load data from API
+  // Load data from API
   useEffect(() => {
     if (data?.data) {
       console.log('Raw API Data:', data.data);
@@ -281,10 +331,11 @@ const Homepage: React.FC = () => {
     }
   }, [data]);
 
-  // Handle window resize
+  // FIXED: Handle window resize - force re-render by updating viewport height
   useEffect(() => {
     const handleResize = () => {
       setViewportHeight(window.innerHeight);
+      // Force a re-render which will recalculate all positions
     };
 
     window.addEventListener('resize', handleResize);
@@ -346,7 +397,7 @@ const Homepage: React.FC = () => {
     };
   }, [sections]);
 
-  // FIXED: Animation classes function to handle API data structure
+  // Animation classes function to handle API data structure
   const getAnimationClasses = (subImage: any): string => {
     if (subImage.animation === 'none' || !subImage.animation) return '';
     
@@ -360,19 +411,22 @@ const Homepage: React.FC = () => {
     return classes.join(' ');
   };
 
-  // FIXED: Calculate image dimensions to match preview behavior
+  // FIXED: Calculate image dimensions using unified coordinate system
   const calculateImageDimensions = (
     containerWidth: number,
-    containerHeight: number,
-    heightPercent: number
+    heightPercent: number,
+    aspectRatio: number | undefined
   ) => {
-    // FIXED: Use containerWidth for height calculation (matching preview)
-    const height = (heightPercent / 100) * containerWidth;
+    const coordinateSystem = createUnifiedCoordinateSystem(aspectRatio);
+    const { width: imageWidth } = coordinateSystem.getImageDimensions(containerWidth);
+    
+    // FIXED: Use imageWidth for height calculation (same as ImageEditor)
+    const height = (heightPercent / 100) * imageWidth;
     return {
       width: 'auto',
       height: `${height}px`,
-      maxWidth: `${containerWidth * 0.8}px`,
-      maxHeight: `${containerHeight * 0.8}px`
+      maxWidth: `${containerWidth * 0.9}px`,
+      maxHeight: `${window.innerHeight * 0.9}px`
     };
   };
 
@@ -804,6 +858,63 @@ const Homepage: React.FC = () => {
     .connect-button:active {
       transform: translateY(0);
     }
+
+    /* FIXED: Unified coordinate system debugging */
+    .coordinate-debug {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      z-index: 1001;
+      font-family: monospace;
+      line-height: 1.3;
+    }
+
+    .section-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      border: 2px dashed rgba(255,255,255,0.3);
+      z-index: 5;
+    }
+
+    /* FIXED: Ensure no gaps between sections */
+    section {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      display: block !important;
+    }
+
+    /* FIXED: Mobile optimization for unified coordinate system */
+    @media (max-width: 768px) {
+      section {
+        width: 100vw !important;
+      }
+      
+      .centered-logo img {
+        height: 80px !important;
+      }
+      
+      .coordinate-debug {
+        font-size: 9px !important;
+        padding: 4px !important;
+      }
+    }
+
+    /* FIXED: Ensure smooth scrolling container */
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
   `;
 
   return (
@@ -923,26 +1034,22 @@ const Homepage: React.FC = () => {
           willChange: 'transform'
         }}
       >
-        {/* FIXED: Main Content Sections with consistent positioning */}
+        {/* FIXED: Unified coordinate system responsive sections */}
         {sections?.map((section, sectionIndex) => {
-          // FIXED: Use consistent calculation
-          const containerWidth = window.innerWidth;
-          const sectionHeight = section.backgroundImageAspectRatio
-            ? containerWidth / section.backgroundImageAspectRatio
-            : viewportHeight;
+          // FIXED: Calculate proper dimensions using unified system
+          const dimensions = getSectionDimensions(section);
+          const bgStyle = getBackgroundStyle(section);
+          const coordinateSystem = createUnifiedCoordinateSystem(section.backgroundImageAspectRatio);
 
           return (
             <section
               key={section.projectContainerId}
               style={{
                 position: 'relative',
-                width: containerWidth,
-                height: `${sectionHeight}px`,
+                width: '100vw',
+                height: `${dimensions.height}px`,
                 minHeight: '100vh',
-                backgroundImage: section.backgroundImageUrl ? `url(${section.backgroundImageUrl})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center top', // FIXED: Match preview positioning
-                backgroundAttachment: 'scroll',
+                ...bgStyle,
                 overflow: 'hidden'
               }}
             >
@@ -962,6 +1069,18 @@ const Homepage: React.FC = () => {
                 }}
               />
 
+              {/* FIXED: Debug info for unified coordinate system */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="coordinate-debug">
+                  Screen: {window.innerWidth}×{window.innerHeight}<br/>
+                  Image Ratio: {section.backgroundImageAspectRatio?.toFixed(2) || 'N/A'}<br/>
+                  Section Height: {dimensions.height}px<br/>
+                  Image Height: {dimensions.imageHeight}px<br/>
+                  BgSize: 100% auto (unified)<br/>
+                  Coordinate System: Unified
+                </div>
+              )}
+
               {/* Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
                 <div className="centered-logo" onClick={handleCenteredLogoClick}>
@@ -973,27 +1092,33 @@ const Homepage: React.FC = () => {
                 </div>
               )}
 
-              {/* FIXED: Sub Images with consistent positioning */}
+              {/* FIXED: Sub-images positioned using unified coordinate system */}
               {section.projects?.map((subImage) => {
-                // Use same container dimensions as calculated above
-                const xPos = (subImage.xPosition / 100) * containerWidth; 
-                const yPos = (subImage.yPosition / 100) * sectionHeight; // Use sectionHeight consistently
+                // FIXED: Use unified coordinate system for positioning
+                const containerWidth = window.innerWidth;
+                const { x: pixelX, y: pixelY } = coordinateSystem.getPixelFromPercent(
+                  subImage.xPosition, 
+                  subImage.yPosition, 
+                  containerWidth
+                );
                 
                 const imageDimensions = calculateImageDimensions(
                   containerWidth,
-                  sectionHeight, // Use sectionHeight consistently
-                  subImage.heightPercent
+                  subImage.heightPercent,
+                  section.backgroundImageAspectRatio
                 );
 
-                console.log('Homepage sub image positioning:', {
+                console.log('Unified coordinate system positioning:', {
                   name: subImage.name,
                   xPosition: subImage.xPosition,
                   yPosition: subImage.yPosition,
-                  calculatedX: xPos,
-                  calculatedY: yPos,
                   containerWidth,
-                  sectionHeight,
-                  aspectRatio: section.backgroundImageAspectRatio
+                  imageHeight: dimensions.imageHeight,
+                  sectionHeight: dimensions.height,
+                  finalX: pixelX,
+                  finalY: pixelY,
+                  aspectRatio: section.backgroundImageAspectRatio?.toFixed(2),
+                  coordinateSystem: 'unified'
                 });
 
                 const isHovered = hoveredImageId === subImage.projectId;
@@ -1007,8 +1132,8 @@ const Homepage: React.FC = () => {
                     }`}
                     style={{
                       position: 'absolute',
-                      left: `${xPos}px`,
-                      top: `${yPos}px`,
+                      left: `${pixelX}px`,  // Real-time calculation using unified system
+                      top: `${pixelY}px`,   // Real-time calculation using unified system
                       zIndex: isHovered ? 50 : 10,
                       transform: 'translate(-50%, -50%)'
                     }}
