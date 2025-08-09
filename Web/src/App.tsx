@@ -10,7 +10,7 @@ import { ProtectedRoute } from "./auth/ProtectedRoute";
 import MainLayout from "./layout/MainLayout";
 
 import { LoadingSpinner } from "./components/ui/LoadingSpinner";
-import HomePage from "./pages/public/HomePage";
+
 import ContactPage from "./pages/public/ContactPage";
 import AboutPage from "./pages/public/AboutPage";
 import AdminLayout from "./layout/AdminLayout";
@@ -19,6 +19,9 @@ import ImageEditor from "./pages/admin/home/SubProject";
 import ProjectDetailstList from "./pages/admin/projects/ProjectDetailstList";
 import AnimatedResume from "./pages/public/Resume";
 import ResumeEditor from "./pages/admin/resume/ResumeEditor";
+import ImageEditorTest from "./pages/admin/home/TestHome1";
+import Homepage from "./pages/public/HomePageTest";
+
 
 // Public pages
 
@@ -40,7 +43,7 @@ export const App = () => {
         path="/"
         element={
           <MainLayout>
-            <HomePage />
+            <Homepage />
           </MainLayout>
         }
       />
@@ -103,7 +106,19 @@ export const App = () => {
         element={
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
-              <ImageEditor />
+              {/* <ImageEditor /> */}
+               <ImageEditorTest />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+       <Route
+        path="/admin/test"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminLayout>
+              <ImageEditorTest />
             </AdminLayout>
           </ProtectedRoute>
         }
@@ -114,7 +129,8 @@ export const App = () => {
         element={
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
-              <ImageEditor />
+              {/* <ImageEditor /> */}
+               <ImageEditorTest />
             </AdminLayout>
           </ProtectedRoute>
         }
@@ -168,7 +184,7 @@ export const App = () => {
         path="*"
         element={
           <MainLayout>
-            <HomePage />
+            <Homepage />
           </MainLayout>
         }
       />
