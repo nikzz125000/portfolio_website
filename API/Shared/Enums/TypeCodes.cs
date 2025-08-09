@@ -153,4 +153,9 @@ namespace Shared.Enums
         NOTE_UPDATED,
         NOTE_DELETED,
     }
+    public enum ProjectType
+    {
+        Interior=1,
+        Exterior=2,
+    }
 }

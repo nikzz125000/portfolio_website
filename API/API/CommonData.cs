@@ -18,6 +18,9 @@
         public static string ProjectPath => Path.Combine(_webRootPath, "Uploads", "Project");
         public static string PhotoPath => Path.Combine(_webRootPath, "Uploads", "Photo");
 
+        public static string SubProjectContainerPath => Path.Combine(_webRootPath, "Uploads", "SubContainer");
+        public static string SubProjectPath => Path.Combine(_webRootPath, "Uploads", "SubProject");
+
 
         // URL methods (URLs always use forward slashes regardless of platform)
         public static string GetProjectContainerUrl(string fileName)
@@ -31,6 +34,14 @@
         public static string GetPhotoUrl(string fileName)
         {
             return $"{BaseUrl}/Uploads/Photo/{fileName}";
+        }
+        public static string GetSubProjectContainerUrl(string fileName)
+        {
+            return $"{BaseUrl}/Uploads/SubContainer/{fileName}";
+        }
+        public static string GetSubProjectUrl(string fileName)
+        {
+            return $"{BaseUrl}/Uploads/SubProject/{fileName}";
         }
         public static string GetBaseUrl(IHttpContextAccessor httpContextAccessor)
         {

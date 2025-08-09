@@ -8,25 +8,25 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class Container : WebSiteEntity
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    //public class Container : WebSiteEntity
+    //{
+    //    [Key]
+    //    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    //    public int Id { get; set; }
 
-        [Required]
-        [MaxLength(255)]
-        public string Title { get; set; } = string.Empty;
+    //    [Required]
+    //    [MaxLength(255)]
+    //    public string Title { get; set; } = string.Empty;
 
-        public int SortOrder { get; set; } = 1;
+    //    public int SortOrder { get; set; } = 1;
 
-        [MaxLength(255)]
-        public string? BackgroundImageFileName { get; set; }
+    //    [MaxLength(255)]
+    //    public string? BackgroundImageFileName { get; set; }
 
-        public decimal? BackgroundImageAspectRatio { get; set; }
+    //    public decimal? BackgroundImageAspectRatio { get; set; }
 
-        public bool IsActive { get; set; } = true;
+    //    public bool IsActive { get; set; } = true;
 
-        public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
-    }
+    //    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+    //}
 }

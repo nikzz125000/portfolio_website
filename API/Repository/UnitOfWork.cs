@@ -24,6 +24,8 @@ namespace Repository
         private IProjectContainerRepository _containers;
         private IProjectRepository _projects;
         private IResumeRepository _resumes;
+        private ISubProjectContainerRepository _subProjectContainers;
+        private ISubProjectRepository _subProjects;
 
 
         public ApplicationDbContext _context { get; }
@@ -143,6 +145,30 @@ namespace Repository
                     _resumes = new ResumeRepository(_context, _config);
                 }
                 return _resumes;
+            }
+        }
+
+        public ISubProjectContainerRepository SubProjectContainers
+        {
+            get
+            {
+                if (_subProjectContainers == null)
+                {
+                    _subProjectContainers = new SubProjectContainerRepository(_context, _config);
+                }
+                return _subProjectContainers;
+            }
+        }
+
+        public ISubProjectRepository SubProjects
+        {
+            get
+            {
+                if (_subProjects == null)
+                {
+                    _subProjects = new SubProjectRepository(_context, _config);
+                }
+                return _subProjects;
             }
         }
 

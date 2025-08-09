@@ -22,5 +22,7 @@ namespace Repository
         IProjectContainerRepository ProjectContainers { get; }
         IProjectRepository Projects { get; }
         IResumeRepository Resumes { get; }
+        ISubProjectContainerRepository SubProjectContainers { get; }
+        ISubProjectRepository SubProjects { get; }
     }
 }
