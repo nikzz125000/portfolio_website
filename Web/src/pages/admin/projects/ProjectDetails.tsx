@@ -1,12 +1,17 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useSaveContainer } from '../../../api/useSaveContainer';
+import { useContainerDetails } from '../../../api/useContainerDetails';
+import { useDeleteProject } from '../../../api/useDeleteProject';
+import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
 
 interface SubImage {
   id: number;
   file: File;
   url: string;
   name: string;
-  x: number;
-  y: number;
+  // FIXED: Always store as percentages internally for true responsiveness
+  xPercent: number;
+  yPercent: number;
   heightPercent: number;
   animation: string;
   animationSpeed: string;
@@ -15,10 +20,11 @@ interface SubImage {
 }
 
 interface BackgroundImage {
-  file: File;
+  file: File|null;
   url: string;
   name: string;
   aspectRatio?: number;
+  backgroundImageUrl?: string;
   isExterior?: boolean;
 }
 
@@ -44,7 +50,7 @@ interface TriggerOption {
   description: string;
 }
 
-const ProjectDetails: React.FC = () => {
+const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) => {
   // Read isExIn from URL parameters
   const getIsExInFromUrl = (): boolean => {
     if (typeof window !== 'undefined') {
@@ -77,28 +83,63 @@ const ProjectDetails: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subImageInputRef = useRef<HTMLInputElement>(null);
 
-  // Monitor preview area size
+  // FIXED: Calculate background dimensions using full-width approach like Homepage
+  const calculateBackgroundDimensions = useCallback(() => {
+    if (backgroundRef.current && backgroundImage?.aspectRatio) {
+      const containerWidth = backgroundRef.current.clientWidth;
+      // Use same approach as Homepage: full-width, calculated height
+      const calculatedHeight = containerWidth / backgroundImage.aspectRatio;
+      
+      return {
+        width: containerWidth,
+        height: calculatedHeight
+      };
+    }
+    return { width: 0, height: 0 };
+  }, [backgroundImage?.aspectRatio]);
+
+  // Monitor preview area size and update dimensions responsively
   useEffect(() => {
     const updateDimensions = () => {
-      if (backgroundRef.current) {
-        const containerWidth = backgroundRef.current.clientWidth;
-        let containerHeight = containerWidth;
-        
-        if (backgroundImage?.aspectRatio) {
-          containerHeight = containerWidth / backgroundImage.aspectRatio;
-        }
-        
-        setBackgroundDimensions({
-          width: containerWidth,
-          height: containerHeight
-        });
+      const newDimensions = calculateBackgroundDimensions();
+      if (newDimensions.width > 0 && newDimensions.height > 0) {
+        setBackgroundDimensions(newDimensions);
       }
     };
 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [backgroundImage?.aspectRatio]);
+    
+    // Also listen for container size changes (like sidebar collapse)
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (backgroundRef.current) {
+      resizeObserver.observe(backgroundRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      resizeObserver.disconnect();
+    };
+  }, [calculateBackgroundDimensions]);
+
+  // FIXED: Convert percentages to pixels for display (helper function)
+  const getPixelPosition = (xPercent: number, yPercent: number) => {
+    return {
+      x: (xPercent / 100) * backgroundDimensions.width,
+      y: (yPercent / 100) * backgroundDimensions.height
+    };
+  };
+
+  // FIXED: Convert pixels to percentages (helper function)
+  const getPercentagePosition = (x: number, y: number) => {
+    return {
+      xPercent: backgroundDimensions.width > 0 ? (x / backgroundDimensions.width) * 100 : 0,
+      yPercent: backgroundDimensions.height > 0 ? (y / backgroundDimensions.height) * 100 : 0
+    };
+  };
+
+  const { mutate: addOrUpdateContainer} = useSaveSubProjectContainer();
+  const { mutate: deleteProject} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -300,44 +341,81 @@ const ProjectDetails: React.FC = () => {
       animation-fill-mode: both;
     }
 
-    .speed-very-slow .animated-image { animation-duration: 4s !important; }
-    .speed-slow .animated-image { animation-duration: 2.5s !important; }
-    .speed-normal .animated-image { animation-duration: 1.5s !important; }
-    .speed-fast .animated-image { animation-duration: 0.8s !important; }
-    .speed-very-fast .animated-image { animation-duration: 0.4s !important; }
+    .speed-very-slow { animation-duration: 4s !important; }
+    .speed-slow { animation-duration: 2.5s !important; }
+    .speed-normal { animation-duration: 1.5s !important; }
+    .speed-fast { animation-duration: 0.8s !important; }
+    .speed-very-fast { animation-duration: 0.4s !important; }
 
-    .trigger-continuous .animated-image { animation-iteration-count: infinite; }
-    .trigger-once .animated-image { animation-iteration-count: 1; }
-    .trigger-hover .animated-image { animation-play-state: paused; }
-    .trigger-hover:hover .animated-image { animation-play-state: running; }
+    .trigger-continuous { animation-iteration-count: infinite; }
+    .trigger-once { animation-iteration-count: 1; }
+    .trigger-hover { animation-play-state: paused; }
+    .trigger-hover:hover { animation-play-state: running; }
 
-    .animated-image.fadeIn { animation-name: fadeIn; }
-    .animated-image.fadeInUp { animation-name: fadeInUp; }
-    .animated-image.fadeInDown { animation-name: fadeInDown; }
-    .animated-image.slideInLeft { animation-name: slideInLeft; }
-    .animated-image.slideInRight { animation-name: slideInRight; }
-    .animated-image.slideInUp { animation-name: slideInUp; }
-    .animated-image.slideInDown { animation-name: slideInDown; }
-    .animated-image.zoomIn { animation-name: zoomIn; }
-    .animated-image.zoomInUp { animation-name: zoomInUp; }
-    .animated-image.zoomInDown { animation-name: zoomInDown; }
-    .animated-image.bounce { animation-name: bounce; animation-iteration-count: infinite; }
-    .animated-image.bounceIn { animation-name: bounceIn; }
-    .animated-image.bounceInUp { animation-name: bounceInUp; }
-    .animated-image.bounceInDown { animation-name: bounceInDown; }
-    .animated-image.shake { animation-name: shake; animation-iteration-count: infinite; }
-    .animated-image.pulse { animation-name: pulse; animation-iteration-count: infinite; }
-    .animated-image.heartbeat { animation-name: heartbeat; animation-iteration-count: infinite; }
-    .animated-image.swing { animation-name: swing; transform-origin: top center; }
-    .animated-image.rotate { animation-name: rotate; animation-iteration-count: infinite; animation-timing-function: linear; }
-    .animated-image.rotateIn { animation-name: rotateIn; }
-    .animated-image.flip { animation-name: flip; animation-iteration-count: infinite; }
-    .animated-image.flipInX { animation-name: flipInX; }
-    .animated-image.flipInY { animation-name: flipInY; }
-    .animated-image.rubberBand { animation-name: rubberBand; }
-    .animated-image.wobble { animation-name: wobble; }
-    .animated-image.jello { animation-name: jello; }
-    .animated-image.tada { animation-name: tada; }
+    .animated-image.bounce.trigger-continuous,
+    .animated-image.shake.trigger-continuous,
+    .animated-image.pulse.trigger-continuous,
+    .animated-image.heartbeat.trigger-continuous,
+    .animated-image.rotate.trigger-continuous,
+    .animated-image.flip.trigger-continuous { 
+      animation-iteration-count: infinite; 
+    }
+
+    .animated-image.bounce.trigger-once,
+    .animated-image.shake.trigger-once,
+    .animated-image.pulse.trigger-once,
+    .animated-image.heartbeat.trigger-once,
+    .animated-image.rotate.trigger-once,
+    .animated-image.flip.trigger-once { 
+      animation-iteration-count: 3; 
+    }
+
+    .animated-image.bounce.trigger-hover,
+    .animated-image.shake.trigger-hover,
+    .animated-image.pulse.trigger-hover,
+    .animated-image.heartbeat.trigger-hover,
+    .animated-image.rotate.trigger-hover,
+    .animated-image.flip.trigger-hover { 
+      animation-iteration-count: infinite;
+      animation-play-state: paused;
+    }
+
+    .animated-image.bounce.trigger-hover:hover,
+    .animated-image.shake.trigger-hover:hover,
+    .animated-image.pulse.trigger-hover:hover,
+    .animated-image.heartbeat.trigger-hover:hover,
+    .animated-image.rotate.trigger-hover:hover,
+    .animated-image.flip.trigger-hover:hover { 
+      animation-play-state: running;
+    }
+
+    .animated-image.fadeIn { animation-name: fadeIn; animation-duration: 1s; }
+    .animated-image.fadeInUp { animation-name: fadeInUp; animation-duration: 1s; }
+    .animated-image.fadeInDown { animation-name: fadeInDown; animation-duration: 1s; }
+    .animated-image.slideInLeft { animation-name: slideInLeft; animation-duration: 1s; }
+    .animated-image.slideInRight { animation-name: slideInRight; animation-duration: 1s; }
+    .animated-image.slideInUp { animation-name: slideInUp; animation-duration: 1s; }
+    .animated-image.slideInDown { animation-name: slideInDown; animation-duration: 1s; }
+    .animated-image.zoomIn { animation-name: zoomIn; animation-duration: 1s; }
+    .animated-image.zoomInUp { animation-name: zoomInUp; animation-duration: 1s; }
+    .animated-image.zoomInDown { animation-name: zoomInDown; animation-duration: 1s; }
+    .animated-image.bounce { animation-name: bounce; animation-duration: 2s; animation-iteration-count: infinite; }
+    .animated-image.bounceIn { animation-name: bounceIn; animation-duration: 1s; }
+    .animated-image.bounceInUp { animation-name: bounceInUp; animation-duration: 1s; }
+    .animated-image.bounceInDown { animation-name: bounceInDown; animation-duration: 1s; }
+    .animated-image.shake { animation-name: shake; animation-duration: 1s; animation-iteration-count: infinite; }
+    .animated-image.pulse { animation-name: pulse; animation-duration: 2s; animation-iteration-count: infinite; }
+    .animated-image.heartbeat { animation-name: heartbeat; animation-duration: 1.3s; animation-iteration-count: infinite; }
+    .animated-image.swing { animation-name: swing; animation-duration: 1s; transform-origin: top center; }
+    .animated-image.rotate { animation-name: rotate; animation-duration: 2s; animation-iteration-count: infinite; animation-timing-function: linear; }
+    .animated-image.rotateIn { animation-name: rotateIn; animation-duration: 1s; }
+    .animated-image.flip { animation-name: flip; animation-duration: 1s; animation-iteration-count: infinite; }
+    .animated-image.flipInX { animation-name: flipInX; animation-duration: 1s; }
+    .animated-image.flipInY { animation-name: flipInY; animation-duration: 1s; }
+    .animated-image.rubberBand { animation-name: rubberBand; animation-duration: 1s; }
+    .animated-image.wobble { animation-name: wobble; animation-duration: 1s; }
+    .animated-image.jello { animation-name: jello; animation-duration: 1s; }
+    .animated-image.tada { animation-name: tada; animation-duration: 1s; }
 
     .loading-overlay {
       position: absolute;
@@ -388,16 +466,6 @@ const ProjectDetails: React.FC = () => {
       cursor: pointer;
     }
 
-    .mandatory-field {
-      border: 2px solid #f44336 !important;
-    }
-
-    .error-message {
-      color: #f44336;
-      font-size: 12px;
-      margin-top: 5px;
-    }
-
     .isexin-badge {
       background: #2196f3;
       color: white;
@@ -420,7 +488,7 @@ const ProjectDetails: React.FC = () => {
             const aspectRatio = img.width / img.height;
             setBackgroundImage({
               file,
-              url: e.target && e.target.result ? (e.target.result as string) : '',
+              url: e.target.result as string,
               name: file.name,
               aspectRatio,
               isExterior: true
@@ -444,8 +512,8 @@ const ProjectDetails: React.FC = () => {
             file,
             url: e.target.result as string,
             name: file.name,
-            x: 50,
-            y: 50,
+            xPercent: 50, // FIXED: Store as percentage from start
+            yPercent: 50, // FIXED: Store as percentage from start
             heightPercent: 20,
             animation: 'none',
             animationSpeed: 'normal',
@@ -464,13 +532,17 @@ const ProjectDetails: React.FC = () => {
     return (heightPercent / 100) * backgroundDimensions.width;
   };
 
+  // FIXED: Handle dragging with percentage-based positioning for true responsiveness
   const handleMouseDown = useCallback((e: React.MouseEvent, index: number): void => {
     e.preventDefault();
     const rect = backgroundRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const startX = e.clientX - rect.left - subImages[index].x;
-    const startY = e.clientY - rect.top - subImages[index].y;
+    const currentImg = subImages[index];
+    const currentPos = getPixelPosition(currentImg.xPercent, currentImg.yPercent);
+    
+    const startX = e.clientX - rect.left - currentPos.x;
+    const startY = e.clientY - rect.top - currentPos.y;
 
     setDragState({ isDragging: true, dragIndex: index });
     setSelectedSubImage(subImages[index].id);
@@ -478,8 +550,12 @@ const ProjectDetails: React.FC = () => {
     const handleMouseMove = (e: MouseEvent): void => {
       const newX = Math.max(0, Math.min(backgroundDimensions.width - 50, e.clientX - rect.left - startX));
       const newY = Math.max(0, Math.min(backgroundDimensions.height - 50, e.clientY - rect.top - startY));
+      
+      // FIXED: Convert to percentages and store for true responsiveness
+      const newPos = getPercentagePosition(newX, newY);
+      
       setSubImages(prev => prev.map((img, i) => 
-        i === index ? { ...img, x: newX, y: newY } : img
+        i === index ? { ...img, xPercent: newPos.xPercent, yPercent: newPos.yPercent } : img
       ));
     };
 
@@ -491,7 +567,7 @@ const ProjectDetails: React.FC = () => {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [subImages, backgroundDimensions]);
+  }, [subImages, backgroundDimensions, getPixelPosition, getPercentagePosition]);
 
   const updateSubImageProperty = (id: number, property: keyof SubImage, value: string | number | boolean): void => {
     setSubImages(prev => prev.map(img => 
@@ -503,107 +579,156 @@ const ProjectDetails: React.FC = () => {
     setBackgroundImage(prev => prev ? { ...prev, [property]: value } : null);
   };
 
-  const deleteSubImage = (id: number): void => {
-    setSubImages(prev => prev.filter(img => img.id !== id));
-    if (selectedSubImage === id) {
-      setSelectedSubImage(null);
-    }
-  };
-
-  const validateSave = (): boolean => {
-    if (isExIn && !backgroundImage) {
-      alert('Background image is mandatory when isExIn is enabled!');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSave = (): void => {
-    if (!validateSave()) return;
-
-    const data = {
-      title,
-      sortOrder,
-      isExIn,
-      backgroundImage: backgroundImage ? {
-        name: backgroundImage.name,
-        aspectRatio: backgroundImage.aspectRatio,
-        isExterior: backgroundImage.isExterior
-      } : null,
-      subImages: subImages.map(img => ({
-        id: img.id,
-        name: img.name,
-        x: img.x,
-        y: img.y,
-        heightPercent: img.heightPercent,
-        animation: img.animation,
-        animationSpeed: img.animationSpeed,
-        animationTrigger: img.animationTrigger,
-        ...(isExIn ? {} : { isExterior: img.isExterior })
-      }))
-    };
-    
-    console.log('Saving data:', data);
-    alert('Data saved! Check console for details.');
-  };
-
-  const loadSampleProject = (): void => {
-    const backgroundUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80';
-    const backgroundName = 'Sample Background';
-    const backgroundFile = new File([], backgroundName);
-
-    setBackgroundImage({
-      file: backgroundFile,
-      url: backgroundUrl,
-      name: backgroundName,
-      aspectRatio: 2,
-      isExterior: true
-    });
-
-    setSubImages([
-      {
-        id: Date.now() + 1,
-        file: new File([], 'logo.png'),
-        url: 'https://via.placeholder.com/200x100/ff6b6b/ffffff?text=Fast+Logo',
-        name: 'Fast Logo',
-        x: 100,
-        y: 50,
-        heightPercent: 15,
-        animation: 'zoomIn',
-        animationSpeed: 'fast',
-        animationTrigger: 'once',
-        isExterior: true
+  const deleteSubImage = (imageId: number): void => {
+    deleteProject(
+      { 
+        containerId: id ? parseInt(id, 10) : 0,
+        projectId: typeof imageId === 'number' ? imageId : 0
       },
       {
-        id: Date.now() + 2,
-        file: new File([], 'banner.png'),
-        url: 'https://via.placeholder.com/300x150/4ecdc4/ffffff?text=Hover+Banner',
-        name: 'Hover Banner',
-        x: 300,
-        y: 120,
-        heightPercent: 20,
-        animation: 'pulse',
-        animationSpeed: 'normal',
-        animationTrigger: 'hover',
-        isExterior: false
-      },
-      {
-        id: Date.now() + 3,
-        file: new File([], 'icon.png'),
-        url: 'https://via.placeholder.com/150x150/45b7d1/ffffff?text=Continuous',
-        name: 'Continuous Icon',
-        x: 200,
-        y: 200,
-        heightPercent: 12,
-        animation: 'bounce',
-        animationSpeed: 'slow',
-        animationTrigger: 'continuous',
-        isExterior: true
+        onSuccess: () => {
+          console.log("Project deleted successfully");
+          setSubImages(prev => prev.filter(img => img.id !== imageId));
+          if (selectedSubImage === imageId) {
+            setSelectedSubImage(null);
+          }
+        }
       }
-    ]);
-    
-    setSelectedSubImage(Date.now() + 1);
+    );
   };
+
+  function getProjectId(id: number) {
+    if (id > 1_000_000_000_000) {
+      return "0";
+    }
+    return id?.toString();
+  }
+
+  // FIXED: Save with percentages (no conversion needed)
+  const handleSave = async (): Promise<void> => {
+    try {
+      const formData = new FormData();
+      
+      formData.append('ProjectContainerId', !currentItemId ? '0' : currentItemId);
+      formData.append('Title', title);
+      formData.append('SortOrder', sortOrder.toString());
+      
+      if (backgroundImage?.file) {
+        formData.append('ImageFile', backgroundImage.file);
+      }
+      
+      if (backgroundImage?.aspectRatio !== undefined) {
+        formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
+      }
+      
+      if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
+        formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
+      }
+      
+      // FIXED: Save percentages directly (no conversion needed)
+      subImages.forEach((img, index) => {
+        formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
+        formData.append(`Projects[${index}][Name]`, img.name);
+        
+        const xPercent = Math.round(img.xPercent);
+        const yPercent = Math.round(img.yPercent);
+        
+        console.log('Saving position as percentages:', {
+          xPercent,
+          yPercent,
+          dimensions: backgroundDimensions
+        });
+        
+        formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
+        formData.append(`Projects[${index}][YPosition]`, yPercent.toString());
+        
+        formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
+        formData.append(`Projects[${index}][Animation]`, img.animation);
+        formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
+        formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
+        formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+        
+        if (img.file && img.file.size > 0) {
+          formData.append(`Projects[${index}].ImageFile`, img.file);
+        } else if (img.url) {
+          formData.append(`Projects[${index}][ProjectImageUrl]`, img.url); 
+        }
+      });
+      
+      await addOrUpdateContainer(formData);
+      alert('Data saved successfully!');
+      
+    } catch (error) {
+      console.error('Save failed:', error);
+      if (error instanceof Error) {
+        alert(`Save failed: ${error.message}`);
+      } else {
+        alert('Save failed: An unknown error occurred.');
+      }
+    }
+  };
+
+  // FIXED: Load data and store as percentages
+  const loadSampleProject = (apiData = null): void => {
+    if (apiData) {
+      console.log('Loading API data:', apiData);
+      
+      setTitle(apiData.title || '');
+      setSortOrder(apiData.sortOrder || 1);
+      
+      if (apiData.backgroundImageUrl) {
+        setBackgroundImage({
+          file: null,
+          url: apiData.backgroundImageUrl,
+          name: apiData.backgroundImageFileName || 'Background Image',
+          aspectRatio: apiData.backgroundImageAspectRatio || 1,
+          backgroundImageUrl: apiData.backgroundImageUrl,
+          isExterior: true
+        });
+      }
+      
+      if (apiData.projects && Array.isArray(apiData.projects)) {
+        const loadedSubImages = apiData.projects.map(subImg => ({
+          id: subImg.projectId || Date.now() + Math.random(),
+          file: new File([], subImg.name || 'image.png'),
+          url: subImg.projectImageUrl,
+          name: subImg.name || 'Unnamed Image',
+          xPercent: subImg.xPosition || 50, // FIXED: Store as percentages
+          yPercent: subImg.yPosition || 50, // FIXED: Store as percentages
+          heightPercent: subImg.heightPercent || 20,
+          animation: subImg.animation || 'none',
+          animationSpeed: subImg.animationSpeed || 'normal',
+          animationTrigger: subImg.animationTrigger || 'once',
+          isExterior: subImg.isExterior !== undefined ? subImg.isExterior : true
+        }));
+        
+        setSubImages(loadedSubImages);
+        
+        if (loadedSubImages.length > 0) {
+          setSelectedSubImage(loadedSubImages[0].id);
+        }
+      }
+    } 
+  };
+
+
+  const { data, isSuccess } = useContainerDetails(currentItemId);
+
+  console.log(700, currentItemId);
+  useEffect(() => {
+    if (isSuccess && data && data.data) {
+      setIsLoadingApiData(true);
+      console.log('Fetched data:', data.data);
+      
+      const apiData = data.data;
+      
+      if (apiData) {
+        console.log(333, apiData);
+        loadSampleProject(apiData);
+        setIsLoadingApiData(false);
+      }
+    }
+  }, [isSuccess, data]);
 
   const selectedImageData = subImages.find(img => img.id === selectedSubImage);
 
@@ -611,26 +736,26 @@ const ProjectDetails: React.FC = () => {
     container: {
       fontFamily: 'Arial, sans-serif',
       display: 'flex',
-      minHeight: '100vh',
+      height: '100vh',
       backgroundColor: '#f5f5f5'
     },
     leftPanel: {
       width: '380px',
       backgroundColor: 'white',
-      padding: '20px 20px 120px 20px',
+      padding: '20px 20px 150px 20px',
       borderRight: '1px solid #ddd',
       overflowY: 'auto',
       maxHeight: '100vh',
-      boxSizing: 'border-box',
-      position: 'relative'
+      position: 'relative',
+      boxSizing: 'border-box'
     },
     rightPanel: {
       flex: 1,
       padding: '20px',
       backgroundColor: 'white',
       margin: '20px',
-      minHeight: 'calc(100vh - 40px)',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      maxHeight: 'calc(100vh - 40px)'
     },
     formGroup: {
       marginBottom: '15px'
@@ -679,13 +804,12 @@ const ProjectDetails: React.FC = () => {
     },
     previewArea: {
       width: '100%',
-      height: `${backgroundDimensions.height}px`,
+      height: `${Math.min(backgroundDimensions.height, 600)}px`,
       minHeight: '300px',
+      maxHeight: '600px',
       border: '2px solid #ddd',
       position: 'relative',
-      overflow: 'hidden',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center top',
+      overflow: 'auto',
       backgroundColor: '#f9f9f9'
     },
     subImageItem: {
@@ -766,22 +890,13 @@ const ProjectDetails: React.FC = () => {
       <style>{animationStyles}</style>
       
       <div style={styles.leftPanel}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ marginTop: 0, marginBottom: 0 }}>Image Editor</h2>
-          {/* {isExIn && <span className="isexin-badge">isExIn Mode</span>} */}
-        </div>
-
-        {/* URL Parameter Info */}
-        {/* <div style={{
-          backgroundColor: isExIn ? '#e3f2fd' : '#f5f5f5',
-          padding: '12px',
-          borderRadius: '4px',
-          marginBottom: '20px',
-          fontSize: '12px'
-        }}>
-          <strong>URL Parameter:</strong> isExIn = {isExIn ? 'true' : 'false'}<br />
-          {isExIn && <span style={{ color: '#1976d2' }}>Interior/Exterior mode enabled</span>}
-        </div> */}
+        {isLoadingApiData && (
+          <div style={styles.loadingBadge}>
+            Loading API Data...
+          </div>
+        )}
+        
+        <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Image Editor</h2>
 
         <div style={styles.formGroup}>
           <label style={styles.label}>Title:</label>
@@ -805,9 +920,7 @@ const ProjectDetails: React.FC = () => {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>
-            Background Image {isExIn && <span style={{color: '#f44336'}}>*</span>}:
-          </label>
+          <label style={styles.label}>Background Image:</label>
           <input
             type="file"
             accept="image/*"
@@ -816,20 +929,12 @@ const ProjectDetails: React.FC = () => {
             ref={fileInputRef}
           />
           <button
-            style={{
-              ...styles.button,
-              ...(isExIn && !backgroundImage ? { border: '2px solid #f44336' } : {})
-            }}
+            style={styles.button}
             onClick={() => fileInputRef.current?.click()}
             type="button"
           >
             📁 Upload Background
           </button>
-          {isExIn && !backgroundImage && (
-            <div className="error-message">
-              Background image is mandatory when isExIn is enabled
-            </div>
-          )}
           {backgroundImage && (
             <div style={{ fontSize: '12px', color: '#666', margin: '5px 0' }}>
               <p style={{ margin: '2px 0' }}>{backgroundImage.name}</p>
@@ -874,7 +979,7 @@ const ProjectDetails: React.FC = () => {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Sub Images:</label>
+          <label style={styles.label}>Projects:</label>
           <input
             type="file"
             accept="image/*"
@@ -887,50 +992,49 @@ const ProjectDetails: React.FC = () => {
             onClick={() => subImageInputRef.current?.click()}
             type="button"
           >
-            ➕ Add Sub Image
+            ➕ Add Projects
           </button>
         </div>
 
         <div style={styles.formGroup}>
-          {subImages.map((img) => (
-            <div
-              key={img.id}
-              style={{
-                ...styles.subImageItem,
-                ...(selectedSubImage === img.id ? styles.selectedItem : {})
-              }}
-              onClick={() => setSelectedSubImage(img.id)}
-            >
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                  {img.name}
-                  {!isExIn && (
-                    <span className={img.isExterior ? 'exterior-badge' : 'interior-badge'}>
-                      {img.isExterior ? 'EXTERIOR' : 'INTERIOR'}
-                    </span>
+          {subImages.map((img) => {
+            const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+            return (
+              <div
+                key={img.id}
+                style={{
+                  ...styles.subImageItem,
+                  ...(selectedSubImage === img.id ? styles.selectedItem : {})
+                }}
+                onClick={() => setSelectedSubImage(img.id)}
+              >
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    {img.name}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#666' }}>
+                    {/* FIXED: Show both percentage and pixel positions */}
+                    x: {Math.round(pixelPos.x)}px ({Math.round(img.xPercent)}%), y: {Math.round(pixelPos.y)}px ({Math.round(img.yPercent)}%), size: {img.heightPercent}%
+                  </div>
+                  {img.animation !== 'none' && (
+                    <div style={styles.speedIndicator}>
+                      {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
+                    </div>
                   )}
                 </div>
-                <div style={{ fontSize: '11px', color: '#666' }}>
-                  x: {Math.round(img.x)}, y: {Math.round(img.y)}, size: {img.heightPercent}%
-                </div>
-                {img.animation !== 'none' && (
-                  <div style={styles.speedIndicator}>
-                    {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
-                  </div>
-                )}
+                <button
+                  style={styles.buttonDanger}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    deleteSubImage(img.id);
+                  }}
+                  type="button"
+                >
+                  🗑️
+                </button>
               </div>
-              <button
-                style={styles.buttonDanger}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  deleteSubImage(img.id);
-                }}
-                type="button"
-              >
-                🗑️
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {selectedImageData && (
@@ -938,22 +1042,19 @@ const ProjectDetails: React.FC = () => {
             <hr style={{ margin: '20px 0' }} />
             <h3 style={{ fontSize: '16px', marginBottom: '15px' }}>Edit Selected Image</h3>
             
-            {/* Only show checkbox when isExIn is false */}
-            {!isExIn && (
-              <div className="checkbox-container">
-                <input
-                  type="checkbox"
-                  id={`exterior-${selectedImageData.id}`}
-                  checked={selectedImageData.isExterior}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    updateSubImageProperty(selectedImageData.id, 'isExterior', e.target.checked)
-                  }
-                />
-                <label htmlFor={`exterior-${selectedImageData.id}`}>
-                  Have Exterior / Interior
-                </label>
-              </div>
-            )}
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id={`exterior-${selectedImageData.id}`}
+                checked={selectedImageData.isExterior}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  updateSubImageProperty(selectedImageData.id, 'isExterior', e.target.checked)
+                }
+              />
+              <label htmlFor={`exterior-${selectedImageData.id}`}>
+                Have Exterior / Interior
+              </label>
+            </div>
             
             <label style={styles.label}>Size: {selectedImageData.heightPercent}% of background width</label>
             <input
@@ -1023,21 +1124,12 @@ const ProjectDetails: React.FC = () => {
               </>
             )}
 
+            {/* FIXED: Show both pixel and percentage positions */}
             <p style={{ fontSize: '12px', color: '#666' }}>
-              Position: x: {Math.round(selectedImageData.x)}, y: {Math.round(selectedImageData.y)}
+              Position: x: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).x)}px ({Math.round(selectedImageData.xPercent)}%), y: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).y)}px ({Math.round(selectedImageData.yPercent)}%)
             </p>
           </div>
         )}
-
-        {/* <div style={styles.formGroup}>
-          <button
-            style={{ ...styles.buttonSecondary, width: '100%', marginBottom: '10px' }}
-            onClick={() => loadSampleProject()}
-            type="button"
-          >
-            📋 Load Sample Data (Demo)
-          </button>
-        </div> */}
 
         <button
           style={{ ...styles.button, backgroundColor: '#4caf50', marginTop: '20px' }}
@@ -1049,80 +1141,100 @@ const ProjectDetails: React.FC = () => {
       </div>
 
       <div style={styles.rightPanel}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-          <h3 style={{ marginTop: 0, marginBottom: 0 }}>Preview</h3>
-          {isExIn && (
-            <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#666' }}>
-              <span className="isexin-badge">isExIn: Background Required</span>
-            </div>
-          )}
-        </div>
+        <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Preview</h3>
         <div
           ref={backgroundRef}
           style={{
             ...styles.previewArea,
-            backgroundImage: backgroundImage ? `url(${backgroundImage.url})` : 'none',
-            cursor: dragState.isDragging ? 'grabbing' : 'default',
-            ...(isExIn && !backgroundImage ? { border: '2px dashed #f44336' } : {})
+            cursor: dragState.isDragging ? 'grabbing' : 'default'
           }}
         >
-          {!backgroundImage && (
-            <div style={styles.emptyState}>
-              <h3>{isExIn ? '⚠️ Background image required' : 'Upload a background image'}</h3>
-              <p>{isExIn ? '(Mandatory when isExIn=true)' : 'to see the preview'}</p>
-            </div>
-          )}
-          
-          {subImages.map((img, index) => (
-            <div
-              key={img.id}
-              onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
-              style={{
-                ...styles.draggableImage,
-                left: img.x,
-                top: img.y,
-                cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
-                ...(selectedSubImage === img.id ? styles.selectedImage : {}),
-              }}
-              className={`${img.animation !== 'none' ? `speed-${img.animationSpeed} trigger-${img.animationTrigger}` : ''}`}
-              onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (!dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = '#1976d2';
-                }
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (selectedSubImage !== img.id && !dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = 'transparent';
-                }
-              }}
-            >
-              <img
-                src={img.url}
-                alt={img.name}
-                className={`animated-image ${img.animation !== 'none' ? img.animation : ''}`}
-                style={{
-                  height: `${getActualHeight(img.heightPercent)}px`,
-                  width: 'auto',
-                  display: 'block',
-                  userSelect: 'none',
-                  pointerEvents: 'none'
-                }}
-              />
-              {selectedSubImage === img.id && (
-                <div style={styles.tag}>
-                  {isExIn ? '' : (img.isExterior ? '🏠 EXT | ' : '🏠 INT | ')}
-                  {img.animation !== 'none' ? 
-                    `${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
-                    : 'draggable'}
+          {/* Inner container that maintains the actual background image dimensions */}
+          <div
+            style={{
+              width: '100%',
+              height: `${backgroundDimensions.height}px`,
+              minHeight: '300px',
+              position: 'relative',
+              backgroundImage: backgroundImage ? `url(${backgroundImage.url})` : 'none',
+              backgroundSize: '100% auto',
+              backgroundPosition: 'center top',
+              backgroundRepeat: 'no-repeat'
+            }}
+          >
+            {isLoadingApiData && (
+              <div className="loading-overlay">
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', marginBottom: '10px' }}>⏳</div>
+                  <div>Loading API Data...</div>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            )}
+            
+            {!backgroundImage && !isLoadingApiData && (
+              <div style={styles.emptyState}>
+                <h3>Upload a background image</h3>
+                <p>to see the preview</p>
+              </div>
+            )}
+            
+            {/* FIXED: Render images using percentage-based positioning */}
+            {subImages.map((img, index) => {
+              const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+              return (
+                <div
+                  key={img.id}
+                  onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
+                  style={{
+                    ...styles.draggableImage,
+                    left: pixelPos.x,
+                    top: pixelPos.y,
+                    cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
+                    ...(selectedSubImage === img.id ? styles.selectedImage : {}),
+                  }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                    if (!dragState.isDragging) {
+                      (e.target as HTMLDivElement).style.borderColor = '#1976d2';
+                    }
+                  }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                    if (selectedSubImage !== img.id && !dragState.isDragging) {
+                      (e.target as HTMLDivElement).style.borderColor = 'transparent';
+                    }
+                  }}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.name}
+                    className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+                    style={{
+                      height: `${getActualHeight(img.heightPercent)}px`,
+                      width: 'auto',
+                      display: 'block',
+                      userSelect: 'none',
+                      pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                    }}
+                  />
+                  {selectedSubImage === img.id && (
+                    <div style={styles.tag}>
+                      {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
+                      {img.animation !== 'none' ? 
+                        ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
+                        : ' draggable'}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
         
         {backgroundImage && (
           <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
             Canvas Size: {backgroundDimensions.width} × {backgroundDimensions.height}px 
+            {backgroundDimensions.height > 600 && (
+              <span style={{ color: '#ff9800' }}> (Preview limited to 600px height - scroll to see full image)</span>
+            )}
             {backgroundImage.aspectRatio && (
               <span> | Aspect Ratio: {backgroundImage.aspectRatio.toFixed(2)}:1</span>
             )}

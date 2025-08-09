@@ -113,17 +113,6 @@ export const App = () => {
         }
       />
 
-       <Route
-        path="/admin/test"
-        element={
-          <ProtectedRoute roles={["admin"]}>
-            <AdminLayout>
-              <ImageEditorTest />
-            </AdminLayout>
-          </ProtectedRoute>
-        }
-      />
-
       <Route
         path="/admin/sub_projects/:id"
         element={

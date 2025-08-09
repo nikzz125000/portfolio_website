@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import ProjectDetails from "./ProjectDetails";
+import { useSubProjectContainerList } from "../../../api/useSubProjectContainerList";
+import { useNavigate } from "react-router-dom";
 
 interface ImageProject {
   id: number;
@@ -53,579 +55,9 @@ interface TriggerOption {
   description: string;
 }
 
-// Mock API hook
-const useHomeImages = (projectId: string) => {
-  const [data, setData] = useState<any>(undefined);
-  const [isPending, setIsPending] = useState(true);
-  const [isSuccess, setIsSuccess] = useState(false);
 
-  useEffect(() => {
-    setTimeout(() => {
-      const mockData = {
-        data: {
-          data: [
-            { id: 1, title: "Hero Section", sortOrder: 1 },
-            { id: 2, title: "About Us Gallery", sortOrder: 2 },
-            { id: 3, title: "Services Showcase", sortOrder: 3 },
-            { id: 4, title: "Team Photos", sortOrder: 4 },
-            { id: 5, title: "Contact Banner", sortOrder: 5 }
-          ]
-        }
-      };
-      setData(mockData);
-      setIsPending(false);
-      setIsSuccess(true);
-    }, 1000);
-  }, [projectId]);
 
-  return { data, isPending, isSuccess };
-};
 
-// Enhanced Image Editor Component
-const ProjectImageEditor: React.FC<{
-  mode: 'add' | 'edit';
-  projectId?: number;
-  currentProject?: ImageProject;
-  onClose: () => void;
-}> = ({ mode, projectId, currentProject, onClose }) => {
-  const existingData = {
-    title: currentProject?.title || 'Sample Project',
-    sortOrder: currentProject?.sortOrder || 1,
-    backgroundImage: null,
-    subImages: []
-  };
-
-  const [title, setTitle] = useState<string>(existingData.title || '');
-  const [sortOrder, setSortOrder] = useState<number>(existingData.sortOrder || 1);
-  const [backgroundImage, setBackgroundImage] = useState<BackgroundImage | null>(null);
-  const [subImages, setSubImages] = useState<SubImage[]>([]);
-  const [selectedSubImage, setSelectedSubImage] = useState<number | null>(null);
-  const [dragState, setDragState] = useState<DragState>({ isDragging: false, dragIndex: -1 });
-  const [backgroundDimensions, setBackgroundDimensions] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
-  const [isLoadingApiData, setIsLoadingApiData] = useState<boolean>(false);
-  const [isExIn, setIsExIn] = useState<boolean>(false);
-  
-  const backgroundRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const subImageInputRef = useRef<HTMLInputElement>(null);
-
-  // Monitor preview area size
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (backgroundRef.current) {
-        const containerWidth = backgroundRef.current.clientWidth;
-        let containerHeight = containerWidth * 0.6; // 16:10 aspect ratio
-        
-        if (backgroundImage?.aspectRatio) {
-          containerHeight = containerWidth / backgroundImage.aspectRatio;
-        }
-        
-        setBackgroundDimensions({
-          width: containerWidth,
-          height: containerHeight
-        });
-      }
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [backgroundImage?.aspectRatio]);
-
-  const animationOptions: AnimationOption[] = [
-    { value: 'none', label: 'No Animation' },
-    { value: 'fadeIn', label: 'Fade In' },
-    { value: 'fadeInUp', label: 'Fade In Up' },
-    { value: 'fadeInDown', label: 'Fade In Down' },
-    { value: 'slideInLeft', label: 'Slide In Left' },
-    { value: 'slideInRight', label: 'Slide In Right' },
-    { value: 'bounce', label: 'Bounce' },
-    { value: 'pulse', label: 'Pulse' },
-    { value: 'zoomIn', label: 'Zoom In' }
-  ];
-
-  const triggerOptions: TriggerOption[] = [
-    { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
-    { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
-    { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
-  ];
-
-  const speedOptions: SpeedOption[] = [
-    { value: 'very-slow', label: 'Very Slow', duration: '4s' },
-    { value: 'slow', label: 'Slow', duration: '2.5s' },
-    { value: 'normal', label: 'Normal', duration: '1.5s' },
-    { value: 'fast', label: 'Fast', duration: '0.8s' },
-    { value: 'very-fast', label: 'Very Fast', duration: '0.4s' }
-  ];
-
-  const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        if (e.target?.result) {
-          const img = new Image();
-          img.onload = () => {
-            const aspectRatio = img.width / img.height;
-            setBackgroundImage({
-              file,
-              url: e.target.result as string,
-              name: file.name,
-              aspectRatio,
-              isExterior: true
-            });
-          };
-          img.src = e.target.result as string;
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubImageUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        if (e.target?.result) {
-          const newSubImage: SubImage = {
-            id: Date.now(),
-            file,
-            url: e.target.result as string,
-            name: file.name,
-            x: 50,
-            y: 50,
-            heightPercent: 20,
-            animation: 'none',
-            animationSpeed: 'normal',
-            animationTrigger: 'continuous',
-            isExterior: true
-          };
-          setSubImages([...subImages, newSubImage]);
-          setSelectedSubImage(newSubImage.id);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const getActualHeight = (heightPercent: number): number => {
-    return (heightPercent / 100) * backgroundDimensions.width;
-  };
-
-  const handleMouseDown = useCallback((e: React.MouseEvent, index: number): void => {
-    e.preventDefault();
-    const rect = backgroundRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const startX = e.clientX - rect.left - subImages[index].x;
-    const startY = e.clientY - rect.top - subImages[index].y;
-
-    setDragState({ isDragging: true, dragIndex: index });
-    setSelectedSubImage(subImages[index].id);
-
-    const handleMouseMove = (e: MouseEvent): void => {
-      const newX = Math.max(0, Math.min(backgroundDimensions.width - 50, e.clientX - rect.left - startX));
-      const newY = Math.max(0, Math.min(backgroundDimensions.height - 50, e.clientY - rect.top - startY));
-      setSubImages(prev => prev.map((img, i) => 
-        i === index ? { ...img, x: newX, y: newY } : img
-      ));
-    };
-
-    const handleMouseUp = (): void => {
-      setDragState({ isDragging: false, dragIndex: -1 });
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [subImages, backgroundDimensions]);
-
-  const updateSubImageProperty = (id: number, property: keyof SubImage, value: string | number | boolean): void => {
-    setSubImages(prev => prev.map(img => 
-      img.id === id ? { ...img, [property]: value } : img
-    ));
-  };
-
-  const updateBackgroundProperty = (property: keyof BackgroundImage, value: string | number | boolean): void => {
-    setBackgroundImage(prev => prev ? { ...prev, [property]: value } : null);
-  };
-
-  const deleteSubImage = (id: number): void => {
-    setSubImages(prev => prev.filter(img => img.id !== id));
-    if (selectedSubImage === id) {
-      setSelectedSubImage(null);
-    }
-  };
-
-  const validateSave = (): boolean => {
-    if (isExIn && !backgroundImage) {
-      alert('Background image is mandatory when isExIn is enabled!');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSave = (): void => {
-    if (!validateSave()) return;
-
-    const data = {
-      title,
-      sortOrder,
-      isExIn,
-      backgroundImage: backgroundImage ? {
-        name: backgroundImage.name,
-        aspectRatio: backgroundImage.aspectRatio,
-        isExterior: backgroundImage.isExterior
-      } : null,
-      subImages: subImages.map(img => ({
-        id: img.id,
-        name: img.name,
-        x: img.x,
-        y: img.y,
-        heightPercent: img.heightPercent,
-        animation: img.animation,
-        animationSpeed: img.animationSpeed,
-        animationTrigger: img.animationTrigger,
-        ...(isExIn ? {} : { isExterior: img.isExterior })
-      }))
-    };
-    
-    console.log('Saving data:', data);
-    alert(`${mode === 'add' ? 'Project created' : 'Project updated'} successfully!`);
-    onClose();
-  };
-
-  const selectedImageData = subImages.find(img => img.id === selectedSubImage);
-
-  return (
-    <div className="h-full flex">
-      {/* Left Panel - Controls */}
-      <div className="w-96 bg-white border-r border-gray-200 overflow-y-auto">
-        <div className="p-6 space-y-6">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Project Settings</h3>
-            
-            {/* Title */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter project title"
-              />
-            </div>
-
-            {/* Sort Order */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
-              <input
-                type="number"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                min="1"
-              />
-            </div>
-
-            {/* isExIn Toggle */}
-            <div className="mb-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isExIn"
-                  checked={isExIn}
-                  onChange={(e) => setIsExIn(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isExIn" className="ml-2 block text-sm text-gray-700">
-                  Enable Exterior/Interior Mode
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Background Image */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Background Image {isExIn && <span className="text-red-500">*</span>}
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleBackgroundUpload}
-              ref={fileInputRef}
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              📁 Upload Background
-            </button>
-            {backgroundImage && (
-              <div className="mt-2 text-xs text-gray-600">
-                <p>{backgroundImage.name}</p>
-                {backgroundImage.aspectRatio && (
-                  <p>Aspect Ratio: {backgroundImage.aspectRatio.toFixed(2)}:1</p>
-                )}
-              </div>
-            )}
-
-            {/* Background Type Selection */}
-            {isExIn && backgroundImage && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Background Type</label>
-                <div className="flex space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="backgroundType"
-                      value="exterior"
-                      checked={backgroundImage.isExterior === true}
-                      onChange={() => updateBackgroundProperty('isExterior', true)}
-                      className="mr-2"
-                    />
-                    🏠 Exterior
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="backgroundType"
-                      value="interior"
-                      checked={backgroundImage.isExterior === false}
-                      onChange={() => updateBackgroundProperty('isExterior', false)}
-                      className="mr-2"
-                    />
-                    🏠 Interior
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sub Images */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Sub Images</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleSubImageUpload}
-              ref={subImageInputRef}
-              className="hidden"
-            />
-            <button
-              onClick={() => subImageInputRef.current?.click()}
-              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              ➕ Add Sub Image
-            </button>
-
-            {/* Sub Images List */}
-            <div className="mt-4 space-y-2">
-              {subImages.map((img) => (
-                <div
-                  key={img.id}
-                  className={`flex items-center justify-between p-3 border rounded-md cursor-pointer ${
-                    selectedSubImage === img.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                  }`}
-                  onClick={() => setSelectedSubImage(img.id)}
-                >
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">{img.name}</div>
-                    <div className="text-xs text-gray-500">
-                      x: {Math.round(img.x)}, y: {Math.round(img.y)}, size: {img.heightPercent}%
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteSubImage(img.id);
-                    }}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Selected Image Controls */}
-          {selectedImageData && (
-            <div className="border-t pt-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Edit Selected Image</h4>
-              
-              {!isExIn && (
-                <div className="mb-4">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`exterior-${selectedImageData.id}`}
-                      checked={selectedImageData.isExterior}
-                      onChange={(e) => updateSubImageProperty(selectedImageData.id, 'isExterior', e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor={`exterior-${selectedImageData.id}`} className="ml-2 block text-sm text-gray-700">
-                      Is Exterior
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Size: {selectedImageData.heightPercent}%
-                </label>
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  value={selectedImageData.heightPercent}
-                  onChange={(e) => updateSubImageProperty(selectedImageData.id, 'heightPercent', Number(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Animation</label>
-                <select
-                  value={selectedImageData.animation}
-                  onChange={(e) => updateSubImageProperty(selectedImageData.id, 'animation', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {animationOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedImageData.animation !== 'none' && (
-                <>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Speed</label>
-                    <select
-                      value={selectedImageData.animationSpeed}
-                      onChange={(e) => updateSubImageProperty(selectedImageData.id, 'animationSpeed', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {speedOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Trigger</label>
-                    <select
-                      value={selectedImageData.animationTrigger}
-                      onChange={(e) => updateSubImageProperty(selectedImageData.id, 'animationTrigger', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {triggerOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="pt-6 border-t space-y-3">
-            <button
-              onClick={handleSave}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              💾 {mode === 'add' ? 'Create Project' : 'Update Project'}
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel - Preview */}
-      <div className="flex-1 bg-gray-50 p-6">
-        <div className="h-full flex flex-col">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Preview</h3>
-          <div className="flex-1 flex items-center justify-center">
-            <div
-              ref={backgroundRef}
-              className="relative w-full max-w-4xl border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
-              style={{
-                height: `${backgroundDimensions.height}px`,
-                maxHeight: 'calc(100vh - 200px)',
-                backgroundImage: backgroundImage ? `url(${backgroundImage.url})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundColor: '#f9f9f9'
-              }}
-            >
-              {!backgroundImage && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                  <div className="text-center">
-                    <h4 className="text-lg font-medium">Upload a background image</h4>
-                    <p className="text-sm">to see the preview</p>
-                  </div>
-                </div>
-              )}
-
-              {subImages.map((img, index) => (
-                <div
-                  key={img.id}
-                  onMouseDown={(e) => handleMouseDown(e, index)}
-                  className={`absolute cursor-grab border-2 border-transparent rounded ${
-                    selectedSubImage === img.id ? 'border-blue-500' : ''
-                  }`}
-                  style={{
-                    left: img.x,
-                    top: img.y,
-                    cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab'
-                  }}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.name}
-                    style={{
-                      height: `${getActualHeight(img.heightPercent)}px`,
-                      width: 'auto',
-                      display: 'block',
-                      userSelect: 'none',
-                      pointerEvents: 'none'
-                    }}
-                    className="rounded shadow-sm"
-                  />
-                  {selectedSubImage === img.id && (
-                    <div className="absolute -top-6 left-0 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                      {img.name}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {backgroundImage && (
-            <div className="mt-4 text-sm text-gray-600 text-center">
-              Canvas: {backgroundDimensions.width} × {backgroundDimensions.height}px
-              {backgroundImage.aspectRatio && ` | Ratio: ${backgroundImage.aspectRatio.toFixed(2)}:1`}
-              {isExIn && backgroundImage.isExterior !== undefined && ` | Type: ${backgroundImage.isExterior ? 'Exterior' : 'Interior'}`}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Drawer Component
 // Updated ProjectDrawer Component with header overlap fix
@@ -635,7 +67,9 @@ const ProjectDrawer: React.FC<{
   mode: 'add' | 'edit';
   projectId?: number;
   currentProject?: ImageProject;
-}> = ({ isOpen, onClose, mode, projectId, currentProject }) => {
+}> = ({ isOpen, onClose, mode, projectId,  }) => {
+
+
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -695,7 +129,7 @@ const ProjectDrawer: React.FC<{
 
         {/* Drawer Content - with proper overflow handling */}
         <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
-          <ProjectDetails/>
+          <ProjectDetails currentItemId={projectId||0}/>
         </div>
 
         {/* Footer - sticky at bottom */}
@@ -714,39 +148,46 @@ const ProjectDrawer: React.FC<{
   );
 };
 
+interface SubProjectContainerItem {
+  subProjectContainerId: number;
+  projectId: number;
+  title: string;
+  sortOrder: number;
+  backgroundImageAspectRatio: number;
+  backgroundImageUrl: string;
+  backgroundImageFileName: string;
+}
+
+interface ApiResponse {
+  data: SubProjectContainerItem[];
+}
+
 const ProjectDetailsList: React.FC = () => {
-  const [projects, setProjects] = useState<ImageProject[]>([]);
+  const [projects, setProjects] = useState<SubProjectContainerItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
+  const [selectedProjectId, setSelectedProjectId] = useState<number>(0);
 
-  interface HomeImagesResponse {
-    data: {
-      data: ImageProject[];
-    };
-  }
+  
+  const navigate = useNavigate();
 
-  const { data, isPending, isSuccess } = useHomeImages("12345") as {
-    data?: HomeImagesResponse;
+  const { data, isPending, isSuccess } = useSubProjectContainerList() as {
+    data?: ApiResponse;
     isPending: boolean;
     isSuccess: boolean;
   };
 
   useEffect(() => {
-    if (isSuccess && data) {
-      const projectsWithImages = (data?.data?.data as ImageProject[])?.map((project, index) => ({
-        ...project,
-        image: project.image || `https://images.unsplash.com/photo-${1500000000000 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`,
-        thumbnail: project.thumbnail || `https://images.unsplash.com/photo-${1500000000000 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`
-      })) || [];
-      
-      setProjects(projectsWithImages);
+    if (isSuccess && data?.data) {
+      setProjects(data.data);
     }
   }, [isSuccess, data]);
 
-  const navigate = (path: string) => {
-    console.log('Navigate to:', path);
-  };
+  
+
+  // const navigateTo = (path: string) => {
+  //   console.log('Navigate to:', path);
+  // };
 
   // Modal handlers
   const handleAddProject = () => {
@@ -776,9 +217,9 @@ const ProjectDetailsList: React.FC = () => {
     }
   };
 
-  const handlePreviewProject = (project: ImageProject) => {
-    console.log("Preview project:", project);
-    alert(`Preview: ${project.title}`);
+  const handlePreviewProject = (projectId: number) => {
+   setSelectedProjectId(projectId);
+   setIsModalOpen(true);
   };
 
   const currentProject = selectedProjectId 
@@ -883,7 +324,7 @@ const ProjectDetailsList: React.FC = () => {
                             {project.title}
                           </div>
                           <div className="text-sm text-gray-500">
-                            ID: {project.id}
+                            ID: {project.subProjectContainerId}
                           </div>
                         </div>
                       </div>
@@ -896,21 +337,21 @@ const ProjectDetailsList: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end space-x-2">
                         <button
-                          onClick={() => handlePreviewProject(project)}
+                          onClick={() => handlePreviewProject(project.subProjectContainerId)}
                           className="inline-flex items-center px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
                           <PreviewIcon />
                           <span className="ml-1">Preview</span>
                         </button>
                         <button
-                          onClick={() => handleEditProject(project.id)}
+                          onClick={() => handleEditProject(project.subProjectContainerId)}
                           className="inline-flex items-center px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                           <EditIcon />
                           <span className="ml-1">Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteProject(project.id)}
+                          onClick={() => handleDeleteProject(project.subProjectContainerId)}
                           className="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           <DeleteIcon />
@@ -1030,7 +471,7 @@ const ProjectDetailsList: React.FC = () => {
         onClose={handleCloseModal}
         mode={modalMode}
         projectId={selectedProjectId}
-        currentProject={currentProject}
+       
       />
     </div>
   );
