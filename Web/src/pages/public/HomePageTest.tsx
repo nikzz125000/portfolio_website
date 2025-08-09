@@ -402,7 +402,7 @@ const Homepage: React.FC = () => {
     if (subImage.animation === 'none' || !subImage.animation) return '';
     
     const classes = [
-      'animated-element',
+      'animated-image',
       subImage.animation,
       `speed-${subImage.animationSpeed || 'normal'}`,
       `trigger-${subImage.animationTrigger || 'once'}`
@@ -1134,8 +1134,7 @@ const Homepage: React.FC = () => {
                       position: 'absolute',
                       left: `${pixelX}px`,  // Real-time calculation using unified system
                       top: `${pixelY}px`,   // Real-time calculation using unified system
-                      zIndex: isHovered ? 50 : 10,
-                      transform: 'translate(-50%, -50%)'
+                      zIndex: isHovered ? 50 : 10
                     }}
                   >
                     <img

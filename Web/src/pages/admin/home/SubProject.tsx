@@ -9,20 +9,22 @@ interface SubImage {
   file: File;
   url: string;
   name: string;
-  x: number;
-  y: number;
+  // FIXED: Always store as percentages internally for true responsiveness
+  xPercent: number;
+  yPercent: number;
   heightPercent: number;
   animation: string;
   animationSpeed: string;
   animationTrigger: string;
-  isExterior: boolean; // Boolean value for exterior/interior
+  isExterior: boolean;
 }
 
 interface BackgroundImage {
-  file: File;
+  file: File|null;
   url: string;
   name: string;
   aspectRatio?: number;
+  backgroundImageUrl?: string;
 }
 
 interface DragState {
@@ -68,32 +70,63 @@ const ImageEditor: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subImageInputRef = useRef<HTMLInputElement>(null);
 
-  // Monitor preview area size
+  // FIXED: Calculate background dimensions using full-width approach like Homepage
+  const calculateBackgroundDimensions = useCallback(() => {
+    if (backgroundRef.current && backgroundImage?.aspectRatio) {
+      const containerWidth = backgroundRef.current.clientWidth;
+      // Use same approach as Homepage: full-width, calculated height
+      const calculatedHeight = containerWidth / backgroundImage.aspectRatio;
+      
+      return {
+        width: containerWidth,
+        height: calculatedHeight
+      };
+    }
+    return { width: 0, height: 0 };
+  }, [backgroundImage?.aspectRatio]);
+
+  // Monitor preview area size and update dimensions responsively
   useEffect(() => {
     const updateDimensions = () => {
-      if (backgroundRef.current) {
-        const containerWidth = backgroundRef.current.clientWidth;
-        let containerHeight = containerWidth;
-        
-        // If we have a background image, calculate height based on its aspect ratio
-        if (backgroundImage?.aspectRatio) {
-          containerHeight = containerWidth / backgroundImage.aspectRatio;
-        }
-        
-        setBackgroundDimensions({
-          width: containerWidth,
-          height: containerHeight
-        });
+      const newDimensions = calculateBackgroundDimensions();
+      if (newDimensions.width > 0 && newDimensions.height > 0) {
+        setBackgroundDimensions(newDimensions);
       }
     };
 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [backgroundImage?.aspectRatio]);
+    
+    // Also listen for container size changes (like sidebar collapse)
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (backgroundRef.current) {
+      resizeObserver.observe(backgroundRef.current);
+    }
 
-    const { mutate: addOrUpdateContainer} = useSaveContainer();
-      const { mutate: deleteProject} = useDeleteProject();
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      resizeObserver.disconnect();
+    };
+  }, [calculateBackgroundDimensions]);
+
+  // FIXED: Convert percentages to pixels for display (helper function)
+  const getPixelPosition = (xPercent: number, yPercent: number) => {
+    return {
+      x: (xPercent / 100) * backgroundDimensions.width,
+      y: (yPercent / 100) * backgroundDimensions.height
+    };
+  };
+
+  // FIXED: Convert pixels to percentages (helper function)
+  const getPercentagePosition = (x: number, y: number) => {
+    return {
+      xPercent: backgroundDimensions.width > 0 ? (x / backgroundDimensions.width) * 100 : 0,
+      yPercent: backgroundDimensions.height > 0 ? (y / backgroundDimensions.height) * 100 : 0
+    };
+  };
+
+  const { mutate: addOrUpdateContainer} = useSaveContainer();
+  const { mutate: deleteProject} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -455,13 +488,13 @@ const ImageEditor: React.FC = () => {
             file,
             url: e.target.result as string,
             name: file.name,
-            x: 50,
-            y: 50,
+            xPercent: 50, // FIXED: Store as percentage from start
+            yPercent: 50, // FIXED: Store as percentage from start
             heightPercent: 20,
             animation: 'none',
             animationSpeed: 'normal',
             animationTrigger: 'continuous',
-            isExterior: true // Default to true
+            isExterior: true
           };
           setSubImages([...subImages, newSubImage]);
           setSelectedSubImage(newSubImage.id);
@@ -475,13 +508,17 @@ const ImageEditor: React.FC = () => {
     return (heightPercent / 100) * backgroundDimensions.width;
   };
 
+  // FIXED: Handle dragging with percentage-based positioning for true responsiveness
   const handleMouseDown = useCallback((e: React.MouseEvent, index: number): void => {
     e.preventDefault();
     const rect = backgroundRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const startX = e.clientX - rect.left - subImages[index].x;
-    const startY = e.clientY - rect.top - subImages[index].y;
+    const currentImg = subImages[index];
+    const currentPos = getPixelPosition(currentImg.xPercent, currentImg.yPercent);
+    
+    const startX = e.clientX - rect.left - currentPos.x;
+    const startY = e.clientY - rect.top - currentPos.y;
 
     setDragState({ isDragging: true, dragIndex: index });
     setSelectedSubImage(subImages[index].id);
@@ -489,8 +526,12 @@ const ImageEditor: React.FC = () => {
     const handleMouseMove = (e: MouseEvent): void => {
       const newX = Math.max(0, Math.min(backgroundDimensions.width - 50, e.clientX - rect.left - startX));
       const newY = Math.max(0, Math.min(backgroundDimensions.height - 50, e.clientY - rect.top - startY));
+      
+      // FIXED: Convert to percentages and store for true responsiveness
+      const newPos = getPercentagePosition(newX, newY);
+      
       setSubImages(prev => prev.map((img, i) => 
-        i === index ? { ...img, x: newX, y: newY } : img
+        i === index ? { ...img, xPercent: newPos.xPercent, yPercent: newPos.yPercent } : img
       ));
     };
 
@@ -502,7 +543,7 @@ const ImageEditor: React.FC = () => {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [subImages, backgroundDimensions]);
+  }, [subImages, backgroundDimensions, getPixelPosition, getPercentagePosition]);
 
   const updateSubImageProperty = (id: number, property: keyof SubImage, value: string | number | boolean): void => {
     setSubImages(prev => prev.map(img => 
@@ -511,138 +552,120 @@ const ImageEditor: React.FC = () => {
   };
 
   const deleteSubImage = (imageId: number): void => {
-  deleteProject(
-  { 
-    containerId: id ? parseInt(id, 10) : 0, // from URL param (container)
-    projectId: typeof imageId === 'number' ? imageId : 0 // from selected project
-  },
-  {
-    onSuccess: () => {
-      console.log("Project deleted successfully");
-       setSubImages(prev => prev.filter(img => img.id !== imageId));
-    if (selectedSubImage === imageId) {
-      setSelectedSubImage(null);
-    }
-      // maybe refetch or navigate
-    }
-  }
-);
-   
+    deleteProject(
+      { 
+        containerId: id ? parseInt(id, 10) : 0,
+        projectId: typeof imageId === 'number' ? imageId : 0
+      },
+      {
+        onSuccess: () => {
+          console.log("Project deleted successfully");
+          setSubImages(prev => prev.filter(img => img.id !== imageId));
+          if (selectedSubImage === imageId) {
+            setSelectedSubImage(null);
+          }
+        }
+      }
+    );
   };
 
+  function getProjectId(id: number) {
+    if (id > 1_000_000_000_000) {
+      return "0";
+    }
+    return id?.toString();
+  }
+
+  // FIXED: Save with percentages (no conversion needed)
   const handleSave = async (): Promise<void> => {
-    function getProjectId(id: number) {
-  // If id is a Date.now() timestamp, return 0
-  if (id > 1_000_000_000_000) {
-    return "0";
-  }
-  return id?.toString();
-}
-  try {
-    // Create FormData object for multipart/form-data
-    const formData = new FormData();
-    
-    // Add basic fields
-    formData.append('ProjectContainerId', !id? '0' : id);
-    formData.append('Title', title);
-    formData.append('SortOrder', sortOrder.toString());
-    
-    // Add background image file if exists
-    if (backgroundImage?.file) {
-      formData.append('ImageFile', backgroundImage.file);
-    }
-    
-    // Add background image aspect ratio
-    if (backgroundImage?.aspectRatio !== undefined) {
-      formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
-    }
-    
-    // Add background image URL
-    if (!backgroundImage?.file) {
-    formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
-    }
-    // Add each project individually using indexed notation
-    subImages.forEach((img, index) => {
-      formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id)); // Assuming new projects have ID 0
-formData.append(`Projects[${index}][Name]`, img.name);
-// or img.url if available
-formData.append(`Projects[${index}][XPosition]`, Math.round(img.x).toString());
-formData.append(`Projects[${index}][YPosition]`, Math.round(img.y).toString());
-formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
-formData.append(`Projects[${index}][Animation]`, img.animation);
-formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
-formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
-formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+    try {
+      const formData = new FormData();
       
-      // Add image file if exists
-      if (img.file && img.file.size > 0) {
-        formData.append(`Projects[${index}].ImageFile`, img.file);
-      }else{
-        formData.append(`Projects[${index}][ProjectImageUrl]`, img.projectImageUrl); 
+      formData.append('ProjectContainerId', !id ? '0' : id);
+      formData.append('Title', title);
+      formData.append('SortOrder', sortOrder.toString());
+      
+      if (backgroundImage?.file) {
+        formData.append('ImageFile', backgroundImage.file);
       }
-
-    });
-    
-    // Show loading state
-    console.log('Saving data...', {
-      title,
-      sortOrder,
-      backgroundImage: backgroundImage ? {
-        name: backgroundImage.name,
-        aspectRatio: backgroundImage.aspectRatio,
-        hasFile: !!backgroundImage.file
-      } : null,
-      projectsCount: subImages,
-      projectsWithFiles: subImages.filter(img => img.file && img.file.size > 0).length
-    });
-    
-    // Make API call
-     await addOrUpdateContainer(formData);
-    
-    alert('Data saved successfully!');
-    
-  } catch (error) {
-    console.error('Save failed:', error);
-    if (error instanceof Error) {
-      alert(`Save failed: ${error.message}`);
-    } else {
-      alert('Save failed: An unknown error occurred.');
+      
+      if (backgroundImage?.aspectRatio !== undefined) {
+        formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
+      }
+      
+      if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
+        formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
+      }
+      
+      // FIXED: Save percentages directly (no conversion needed)
+      subImages.forEach((img, index) => {
+        formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
+        formData.append(`Projects[${index}][Name]`, img.name);
+        
+        const xPercent = Math.round(img.xPercent);
+        const yPercent = Math.round(img.yPercent);
+        
+        console.log('Saving position as percentages:', {
+          xPercent,
+          yPercent,
+          dimensions: backgroundDimensions
+        });
+        
+        formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
+        formData.append(`Projects[${index}][YPosition]`, yPercent.toString());
+        
+        formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
+        formData.append(`Projects[${index}][Animation]`, img.animation);
+        formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
+        formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
+        formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+        
+        if (img.file && img.file.size > 0) {
+          formData.append(`Projects[${index}].ImageFile`, img.file);
+        } else if (img.url) {
+          formData.append(`Projects[${index}][ProjectImageUrl]`, img.url); 
+        }
+      });
+      
+      await addOrUpdateContainer(formData);
+      alert('Data saved successfully!');
+      
+    } catch (error) {
+      console.error('Save failed:', error);
+      if (error instanceof Error) {
+        alert(`Save failed: ${error.message}`);
+      } else {
+        alert('Save failed: An unknown error occurred.');
+      }
     }
-  }
-};
+  };
 
-
-
-  // Modified loadSampleProject function to accept API data
+  // FIXED: Load data and store as percentages
   const loadSampleProject = (apiData = null): void => {
     if (apiData) {
-      // Load data from API
       console.log('Loading API data:', apiData);
       
-      // Set title and sort order
       setTitle(apiData.title || '');
       setSortOrder(apiData.sortOrder || 1);
       
-      // Set background image if exists
       if (apiData.backgroundImageUrl) {
-        const backgroundFile = new File([], apiData.backgroundImageFileName || 'background.jpg');
         setBackgroundImage({
-          file: backgroundFile,
+          file: null,
           url: apiData.backgroundImageUrl,
           name: apiData.backgroundImageFileName || 'Background Image',
-          aspectRatio: apiData.backgroundImageAspectRatio || 1
+          aspectRatio: apiData.backgroundImageAspectRatio || 1,
+          backgroundImageUrl: apiData.backgroundImageUrl
         });
       }
       
-      // Set sub images
       if (apiData.projects && Array.isArray(apiData.projects)) {
         const loadedSubImages = apiData.projects.map(subImg => ({
           id: subImg.projectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
           url: subImg.projectImageUrl,
           name: subImg.name || 'Unnamed Image',
-          x: subImg.xPosition || 50,
-          y: subImg.yPosition || 50,
+          xPercent: subImg.xPosition || 50, // FIXED: Store as percentages
+          yPercent: subImg.yPosition || 50, // FIXED: Store as percentages
           heightPercent: subImg.heightPercent || 20,
           animation: subImg.animation || 'none',
           animationSpeed: subImg.animationSpeed || 'normal',
@@ -652,7 +675,6 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
         
         setSubImages(loadedSubImages);
         
-        // Select the first sub image if available
         if (loadedSubImages.length > 0) {
           setSelectedSubImage(loadedSubImages[0].id);
         }
@@ -660,25 +682,20 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
     } 
   };
 
-  // Simulate API hook (replace with your actual hook)
   const { id } = useParams<{ id: string }>(); 
-
   const { data, isSuccess } = useContainerDetails(id ? parseInt(id, 10) : 0);
 
-  // Handle success in useEffect - loads API data
-
-  console.log(700,data)
+  console.log(700, data);
   useEffect(() => {
     if (isSuccess && data && data.data) {
       setIsLoadingApiData(true);
       console.log('Fetched data:', data.data);
       
-      // If data.data is an array, get the first item
-      const apiData =  data.data 
+      const apiData = data.data;
       
       if (apiData) {
-       console.log(333, apiData);
-         loadSampleProject(apiData);
+        console.log(333, apiData);
+        loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }
     }
@@ -759,7 +776,7 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
       border: '2px solid #ddd',
       position: 'relative',
       overflow: 'hidden',
-      backgroundSize: 'cover',
+      backgroundSize: '100% auto', // FIXED: Full width like Homepage
       backgroundPosition: 'center top',
       backgroundColor: '#f9f9f9'
     },
@@ -917,43 +934,44 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
         </div>
 
         <div style={styles.formGroup}>
-          {subImages.map((img) => (
-            <div
-              key={img.id}
-              style={{
-                ...styles.subImageItem,
-                ...(selectedSubImage === img.id ? styles.selectedItem : {})
-              }}
-              onClick={() => setSelectedSubImage(img.id)}
-            >
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                  {img.name}
-                  {/* <span className={img.isExterior ? 'exterior-badge' : 'interior-badge'}>
-                    {img.isExterior ? 'EXTERIOR' : 'INTERIOR'}
-                  </span> */}
-                </div>
-                <div style={{ fontSize: '11px', color: '#666' }}>
-                  x: {Math.round(img.x)}, y: {Math.round(img.y)}, size: {img.heightPercent}%
-                </div>
-                {img.animation !== 'none' && (
-                  <div style={styles.speedIndicator}>
-                    {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
-                  </div>
-                )}
-              </div>
-              <button
-                style={styles.buttonDanger}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  deleteSubImage(img.id);
+          {subImages.map((img) => {
+            const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+            return (
+              <div
+                key={img.id}
+                style={{
+                  ...styles.subImageItem,
+                  ...(selectedSubImage === img.id ? styles.selectedItem : {})
                 }}
-                type="button"
+                onClick={() => setSelectedSubImage(img.id)}
               >
-                🗑️
-              </button>
-            </div>
-          ))}
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    {img.name}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#666' }}>
+                    {/* FIXED: Show both percentage and pixel positions */}
+                    x: {Math.round(pixelPos.x)}px ({Math.round(img.xPercent)}%), y: {Math.round(pixelPos.y)}px ({Math.round(img.yPercent)}%), size: {img.heightPercent}%
+                  </div>
+                  {img.animation !== 'none' && (
+                    <div style={styles.speedIndicator}>
+                      {img.animation} - {speedOptions.find(s => s.value === img.animationSpeed)?.label} - {triggerOptions.find(t => t.value === img.animationTrigger)?.label}
+                    </div>
+                  )}
+                </div>
+                <button
+                  style={styles.buttonDanger}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    deleteSubImage(img.id);
+                  }}
+                  type="button"
+                >
+                  🗑️
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {selectedImageData && (
@@ -1043,21 +1061,12 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
               </>
             )}
 
+            {/* FIXED: Show both pixel and percentage positions */}
             <p style={{ fontSize: '12px', color: '#666' }}>
-              Position: x: {Math.round(selectedImageData.x)}, y: {Math.round(selectedImageData.y)}
+              Position: x: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).x)}px ({Math.round(selectedImageData.xPercent)}%), y: {Math.round(getPixelPosition(selectedImageData.xPercent, selectedImageData.yPercent).y)}px ({Math.round(selectedImageData.yPercent)}%)
             </p>
           </div>
         )}
-
-        {/* <div style={styles.formGroup}>
-          <button
-            style={{ ...styles.buttonSecondary, width: '100%', marginBottom: '10px' }}
-            onClick={() => loadSampleProject()}
-            type="button"
-          >
-            📋 Load Sample Data (Demo)
-          </button>
-        </div> */}
 
         <button
           style={{ ...styles.button, backgroundColor: '#4caf50', marginTop: '20px' }}
@@ -1094,50 +1103,54 @@ formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
             </div>
           )}
           
-          {subImages.map((img, index) => (
-            <div
-              key={img.id}
-              onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
-              style={{
-                ...styles.draggableImage,
-                left: img.x,
-                top: img.y,
-                cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
-                ...(selectedSubImage === img.id ? styles.selectedImage : {}),
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (!dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = '#1976d2';
-                }
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (selectedSubImage !== img.id && !dragState.isDragging) {
-                  (e.target as HTMLDivElement).style.borderColor = 'transparent';
-                }
-              }}
-            >
-              <img
-                src={img.url}
-                alt={img.name}
-                className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+          {/* FIXED: Render images using percentage-based positioning */}
+          {subImages.map((img, index) => {
+            const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+            return (
+              <div
+                key={img.id}
+                onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
                 style={{
-                  height: `${getActualHeight(img.heightPercent)}px`,
-                  width: 'auto',
-                  display: 'block',
-                  userSelect: 'none',
-                  pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                  ...styles.draggableImage,
+                  left: pixelPos.x,
+                  top: pixelPos.y,
+                  cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
+                  ...(selectedSubImage === img.id ? styles.selectedImage : {}),
                 }}
-              />
-              {selectedSubImage === img.id && (
-                <div style={styles.tag}>
-                  {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
-                  {img.animation !== 'none' ? 
-                    ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
-                    : ' draggable'}
-                </div>
-              )}
-            </div>
-          ))}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (!dragState.isDragging) {
+                    (e.target as HTMLDivElement).style.borderColor = '#1976d2';
+                  }
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (selectedSubImage !== img.id && !dragState.isDragging) {
+                    (e.target as HTMLDivElement).style.borderColor = 'transparent';
+                  }
+                }}
+              >
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+                  style={{
+                    height: `${getActualHeight(img.heightPercent)}px`,
+                    width: 'auto',
+                    display: 'block',
+                    userSelect: 'none',
+                    pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                  }}
+                />
+                {selectedSubImage === img.id && (
+                  <div style={styles.tag}>
+                    {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
+                    {img.animation !== 'none' ? 
+                      ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
+                      : ' draggable'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         
         {backgroundImage && (
