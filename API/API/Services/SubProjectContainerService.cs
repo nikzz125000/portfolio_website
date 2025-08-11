@@ -174,6 +174,14 @@ namespace API.Services
             res.Data = _mapper.Map<SubProjectContainerViewModel>(container);
             res.Data.BackgroundImageUrl = CommonData.GetSubProjectContainerUrl(res.Data.BackgroundImageFileName);
             // Projects list can be added later when needed
+            // sub project
+            var projects = await _unitOfWork.SubProjects.GetBySubProjectContainerId(subProjectContainerId);
+            res.Data.SubProjects = _mapper.Map<List<SubProjectViewModel>>(projects);
+            foreach (var p in res.Data.SubProjects)
+            {
+                p.ProjectImageUrl = CommonData.GetSubProjectUrl(p.ImageFileName);
+            }
+
             return res;
         }
     }
