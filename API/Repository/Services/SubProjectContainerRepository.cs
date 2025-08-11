@@ -31,7 +31,7 @@ namespace Repository.Services
         }
         public async Task<List<SubProjectContainer>> GetAllByProjectId(int ProjectId)
         {
-           return await _context.SubProjectContainers.Where(x => x.ProjectId == ProjectId).ToListAsync();
+           return await _context.SubProjectContainers.Where(x => x.ProjectId == ProjectId).OrderBy(x=>x.SortOrder).ToListAsync();
         }
     }
 } 
