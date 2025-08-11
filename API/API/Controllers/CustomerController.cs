@@ -15,10 +15,12 @@ namespace API.Controllers
     {
         readonly IProjectContainerService _containerService;
         readonly ISubProjectContainerService _iSubProjectContainerService;
-        public CustomerController(IProjectContainerService containerService, ISubProjectContainerService subProjectContainerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
+        readonly IResumeService _resumeService;
+        public CustomerController(IResumeService resumeService,IProjectContainerService containerService, ISubProjectContainerService subProjectContainerService, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICommonService commonService) : base(mapper, httpContextAccessor, commonService)
         {
             _containerService = containerService;
             _iSubProjectContainerService = subProjectContainerService;
+            _resumeService= resumeService;
         }
         
         [Route("ProjectContainer/List/Details")]
@@ -81,6 +83,30 @@ namespace API.Controllers
             try
             {
                 response = await _containerService.GetNextProjects(currentProjectId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List/Details";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+        [Route("Connect")]
+        [HttpPost]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        public async Task<CommonEntityResponse> Connect([FromBody] ConnectPostModel model)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _resumeService.connect(model);
             }
             catch (Exception e)
             {
