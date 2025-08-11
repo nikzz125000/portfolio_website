@@ -634,6 +634,13 @@ setSelectedSubImage(null);
       if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
         formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
       }
+
+      if(isExIn){
+formData.append('BackgroundType', backgroundImage?.isExterior ? '2' : '1');
+    } else {
+        formData.append('BackgroundType', '0'); // Default to interior if not set 
+    }
+        
       
       // FIXED: Save percentages directly (no conversion needed)
       subImages.forEach((img, index) => {
@@ -695,6 +702,7 @@ setSelectedSubImage(null);
           backgroundImageUrl: apiData.backgroundImageUrl,
           isExterior: true
         });
+        updateBackgroundProperty( 'isExterior' ,apiData.backgroundType === 2 ?true: false);
       }
       
       if (apiData.subProjects && Array.isArray(apiData.subProjects)) {
