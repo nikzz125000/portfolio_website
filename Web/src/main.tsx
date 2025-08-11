@@ -7,6 +7,7 @@ import { AuthProvider } from './auth/AuthContext';
 import { App } from './App';
 import './index.css';
 import APIProvider from './utils/ApiProvider';
+import { NotificationProvider } from './components/Tostr';
 
 const theme = createTheme({
   palette: {
@@ -23,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-
+ <NotificationProvider>
       <BrowserRouter>
         <APIProvider>
         <AuthProvider>
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </AuthProvider>
         </APIProvider>
       </BrowserRouter>
+      </NotificationProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
