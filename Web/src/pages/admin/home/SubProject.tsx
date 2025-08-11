@@ -70,6 +70,10 @@ const ImageEditor: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subImageInputRef = useRef<HTMLInputElement>(null);
 
+  // Confirm dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
   // FIXED: Calculate background dimensions using full-width approach like Homepage
   const calculateBackgroundDimensions = useCallback(() => {
     if (backgroundRef.current && backgroundImage?.aspectRatio) {
@@ -125,8 +129,8 @@ const ImageEditor: React.FC = () => {
     };
   };
 
-  const { mutate: addOrUpdateContainer} = useSaveContainer();
-  const { mutate: deleteProject} = useDeleteProject();
+  const { mutate: addOrUpdateContainer, isPending: isSaving } = useSaveContainer();
+  const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -552,18 +556,23 @@ const ImageEditor: React.FC = () => {
   };
 
   const deleteSubImage = (imageId: number): void => {
+    setPendingDeleteId(imageId);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = (): void => {
+    if (pendingDeleteId == null) return;
     deleteProject(
       { 
         containerId: id ? parseInt(id, 10) : 0,
-        projectId: typeof imageId === 'number' ? imageId : 0
+        projectId: typeof pendingDeleteId === 'number' ? pendingDeleteId : 0
       },
       {
         onSuccess: () => {
-          console.log("Project deleted successfully");
-          setSubImages(prev => prev.filter(img => img.id !== imageId));
-          if (selectedSubImage === imageId) {
-            setSelectedSubImage(null);
-          }
+          setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
+          if (selectedSubImage === pendingDeleteId) setSelectedSubImage(null);
+          setConfirmOpen(false);
+          setPendingDeleteId(null);
         }
       }
     );
@@ -960,13 +969,17 @@ const ImageEditor: React.FC = () => {
                   )}
                 </div>
                 <button
-                  style={styles.buttonDanger}
+                  style={{ 
+                    ...styles.buttonDanger,
+                    opacity: isDeleting ? 0.7 : 1,
+                    cursor: isDeleting ? 'not-allowed' : 'pointer'
+                  }}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     deleteSubImage(img.id);
                   }}
                   type="button"
-                >
+                  >
                   🗑️
                 </button>
               </div>
@@ -1069,11 +1082,19 @@ const ImageEditor: React.FC = () => {
         )}
 
         <button
-          style={{ ...styles.button, backgroundColor: '#4caf50', marginTop: '20px' }}
+          style={{ 
+            ...styles.button, 
+            backgroundColor: isSaving ? '#6fbf73' : '#4caf50', 
+            marginTop: '20px',
+            opacity: isSaving ? 0.8 : 1,
+            cursor: isSaving ? 'not-allowed' : 'pointer',
+            position: 'relative'
+          }}
           onClick={handleSave}
           type="button"
+          disabled={isSaving}
         >
-          💾 Save
+          {isSaving ? 'Saving...' : '💾 Save'}
         </button>
       </div>
 
@@ -1162,6 +1183,54 @@ const ImageEditor: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Confirm Delete Dialog */}
+      {confirmOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000
+          }}
+          onClick={() => !isDeleting && setConfirmOpen(false)}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: 8,
+              padding: 20,
+              width: 340,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Delete Image?</div>
+            <div style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>
+              This action cannot be undone. Do you want to proceed?
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button
+                style={{ ...styles.buttonSecondary, backgroundColor: '#e0e0e0', color: '#333' }}
+                onClick={() => setConfirmOpen(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                style={{ ...styles.buttonDanger, opacity: isDeleting ? 0.7 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

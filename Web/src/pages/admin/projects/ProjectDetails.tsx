@@ -1042,7 +1042,7 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
             <hr style={{ margin: '20px 0' }} />
             <h3 style={{ fontSize: '16px', marginBottom: '15px' }}>Edit Selected Image</h3>
             
-            <div className="checkbox-container">
+            {/* <div className="checkbox-container">
               <input
                 type="checkbox"
                 id={`exterior-${selectedImageData.id}`}
@@ -1054,7 +1054,7 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
               <label htmlFor={`exterior-${selectedImageData.id}`}>
                 Have Exterior / Interior
               </label>
-            </div>
+            </div> */}
             
             <label style={styles.label}>Size: {selectedImageData.heightPercent}% of background width</label>
             <input
