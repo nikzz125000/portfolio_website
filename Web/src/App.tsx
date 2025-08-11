@@ -48,6 +48,14 @@ export const App = () => {
           </MainLayout>
         }
       />
+       <Route
+        path="/project_details/:id"
+        element={
+          <MainLayout>
+            <Homepage />
+          </MainLayout>
+        }
+      />
 
       <Route
         path="/contact"

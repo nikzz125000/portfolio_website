@@ -10,7 +10,7 @@ export const useHomePageList = () => {
     ],
     queryFn: async () => {
       const response = await api.get(
-        `ProjectContainer/List/Details`
+        `ProjectContainer/Customer/Home/List/Details`
       );
       return response.data;
     },
