@@ -70,5 +70,31 @@ namespace API.Controllers
             }
             return response;
         }
+
+
+        [Route("NextProject/{currentProjectId}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
+        public async Task<ModelEntityResponse<List<ProjectViewModel>>> NextProject(int currentProjectId)
+        {
+            ModelEntityResponse<List<ProjectViewModel>> response = new ModelEntityResponse<List<ProjectViewModel>>();
+            try
+            {
+                response = await _containerService.GetNextProjects(currentProjectId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List/Details";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 }

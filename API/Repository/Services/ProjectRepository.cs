@@ -59,5 +59,13 @@ namespace Repository.Services
         {
             return await _context.Projects.ToListAsync();
         }
+        public async Task<List<Project>> GetNextProjects(int projectId)
+        {
+            return await _context.Projects
+                .Where(p => p.ProjectId > projectId) // only IDs after given one
+                .OrderBy(p => p.ProjectId)           // ensure ascending order
+                .ToListAsync();
+        }
+
     }
 }

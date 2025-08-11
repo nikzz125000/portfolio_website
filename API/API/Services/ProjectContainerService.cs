@@ -18,7 +18,7 @@ namespace API.Services
         Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> GetAllContainerDetails();
         Task<CommonEntityResponse> DeleteProject(int ProjectId);
         Task<ModelEntityResponse<List<ProjectViewModel>>> GetAllProjects();
-
+        Task<ModelEntityResponse<List<ProjectViewModel>>> GetNextProjects(int projectId);
 
     }
     public class ProjectContainerService : IProjectContainerService
@@ -212,6 +212,20 @@ namespace API.Services
             {
                 item.ProjectImageUrl = CommonData.GetProjectUrl(item.ImageFileName);
             }
+            return res;
+        }
+
+        public async Task<ModelEntityResponse<List<ProjectViewModel>>> GetNextProjects(int projectId)
+        {
+            ModelEntityResponse<List<ProjectViewModel>> res = new ModelEntityResponse<List<ProjectViewModel>>();
+          
+            var projects = await _unitOfWork.Projects.GetNextProjects(projectId);
+            res.Data = _mapper.Map<List<ProjectViewModel>>(projects);
+            foreach (var p in res.Data)
+            {
+                p.ProjectImageUrl = CommonData.GetProjectUrl(p.ImageFileName);
+            }
+            res.CreateSuccessResponse();
             return res;
         }
     }
