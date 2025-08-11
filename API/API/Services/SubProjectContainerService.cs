@@ -141,6 +141,12 @@ namespace API.Services
             foreach (var item in res.Data)
             {
                 item.BackgroundImageUrl = CommonData.GetSubProjectContainerUrl(item.BackgroundImageFileName);
+                var projects = await _unitOfWork.SubProjects.GetBySubProjectContainerId(item.SubProjectContainerId);
+                item.SubProjects = _mapper.Map<List<SubProjectViewModel>>(projects);
+                foreach (var p in item.SubProjects)
+                {
+                    p.ProjectImageUrl = CommonData.GetSubProjectUrl(p.ImageFileName);
+                }
             }
             return res;
         }
