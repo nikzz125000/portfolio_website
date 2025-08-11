@@ -59,6 +59,8 @@ namespace API.Services
                     ContainorOldImageURL = container.BackgroundImageFileName;
                     container.BackgroundImageFileName = BackgroundImageFileName;
                 }
+                container.BackgroundImageAspectRatio = model.BackgroundImageAspectRatio;
+                container.SortOrder = model.SortOrder;
                 container.Title = model.Title;
                 container.UpdatedDate = DateTime.UtcNow;
             }
