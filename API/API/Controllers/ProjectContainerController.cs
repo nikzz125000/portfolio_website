@@ -29,7 +29,7 @@ namespace API.Controllers
             try
             {
                 
-                if (model.ImageFile == null && model.ProjectContainerId !=0)
+                if (model.ImageFile == null && model.ProjectContainerId ==0)
                 {
                     response.CreateFailureResponse("Image file required");
                     return response;

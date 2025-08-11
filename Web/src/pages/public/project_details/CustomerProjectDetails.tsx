@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetProjectDetailsList } from '../../../api/useGetProjectDetails';
+import NextProjects from './NextProjects';
  // You'll need to create this hook
 
 interface SubProject {
@@ -2004,7 +2005,7 @@ const ProjectDetailsPage: React.FC = () => {
             </section>
           );
         })}
-
+<NextProjects/>
         {/* Responsive Footer Section */}
         <footer
           style={{
@@ -2063,6 +2064,7 @@ const ProjectDetailsPage: React.FC = () => {
             </button>
           </div>
         </footer>
+        
       </div>
 
       {/* Responsive Connect Form Modal */}
