@@ -569,8 +569,11 @@ const ImageEditor: React.FC = () => {
       },
       {
         onSuccess: () => {
+          console.log("Project deleted successfully");
           setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
-          if (selectedSubImage === pendingDeleteId) setSelectedSubImage(null);
+          if (selectedSubImage === pendingDeleteId) {
+            setSelectedSubImage(null);
+          }
           setConfirmOpen(false);
           setPendingDeleteId(null);
         }
@@ -979,7 +982,7 @@ const ImageEditor: React.FC = () => {
                     deleteSubImage(img.id);
                   }}
                   type="button"
-                  >
+                >
                   🗑️
                 </button>
               </div>
@@ -1084,11 +1087,10 @@ const ImageEditor: React.FC = () => {
         <button
           style={{ 
             ...styles.button, 
-            backgroundColor: isSaving ? '#6fbf73' : '#4caf50', 
+            backgroundColor: isSaving ? '#6fbf73' : '#4caf50',
             marginTop: '20px',
             opacity: isSaving ? 0.8 : 1,
-            cursor: isSaving ? 'not-allowed' : 'pointer',
-            position: 'relative'
+            cursor: isSaving ? 'not-allowed' : 'pointer'
           }}
           onClick={handleSave}
           type="button"
@@ -1214,14 +1216,14 @@ const ImageEditor: React.FC = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button
-                style={{ ...styles.buttonSecondary, backgroundColor: '#e0e0e0', color: '#333' }}
+                style={{ backgroundColor: '#e0e0e0', color: '#333', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
                 onClick={() => setConfirmOpen(false)}
                 disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
-                style={{ ...styles.buttonDanger, opacity: isDeleting ? 0.7 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
+                style={{ backgroundColor: '#f44336', color: 'white', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.7 : 1 }}
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
               >

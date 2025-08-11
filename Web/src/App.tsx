@@ -15,11 +15,11 @@ import ContactPage from "./pages/public/ContactPage";
 import AboutPage from "./pages/public/AboutPage";
 import AdminLayout from "./layout/AdminLayout";
 import ImageElementListPage from "./pages/admin/projects/projectList";
-import ImageEditor from "./pages/admin/home/SubProject";
+// import ImageEditor from "./pages/admin/home/SubProject";
 import ProjectDetailstList from "./pages/admin/projects/ProjectDetailstList";
 import AnimatedResume from "./pages/public/Resume";
 import ResumeEditor from "./pages/admin/resume/ResumeEditor";
-import ImageEditorTest from "./pages/admin/home/TestHome1";
+import ImageEditorTest from "./pages/admin/home/TestSubproject";
 import Homepage from "./pages/public/HomePageTest";
 
 
