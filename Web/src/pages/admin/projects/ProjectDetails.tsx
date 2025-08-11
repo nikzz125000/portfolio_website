@@ -672,7 +672,7 @@ formData.append('BackgroundType', backgroundImage?.isExterior ? '2' : '1');
         }
       });
       
-      await addOrUpdateContainer(formData);
+      await addOrUpdateContainer(formData)
       alert('Data saved successfully!');
       
     } catch (error) {

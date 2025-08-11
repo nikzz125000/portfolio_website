@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useHomePageList } from '../../api/useHomePage';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGetProjectDetailsList } from '../../../api/useGetProjectDetails';
+ // You'll need to create this hook
 
-interface SubImage {
-  projectId: number;
+interface SubProject {
+  subProjectId: number;
   name: string;
-  projectImageUrl: string;
   imageFileName?: string;
+  projectImageUrl: string;
   xPosition: number;
   yPosition: number;
   heightPercent: number;
   animation: string;
   animationSpeed: string;
   animationTrigger: string;
+  isExterior: boolean;
 }
 
 interface BackgroundImage {
@@ -21,15 +23,16 @@ interface BackgroundImage {
   aspectRatio?: number;
 }
 
-interface SectionData {
-  id: number;
+interface ProjectContainer {
+  subProjectContainerId: number;
+  projectId: number;
   title: string;
   sortOrder: number;
-  backgroundImageUrl?: string;
   backgroundImageAspectRatio?: number;
-  backgroundImage?: BackgroundImage | null;
-  projects?: SubImage[];
-  subImages?: SubImage[];
+  backgroundImageUrl?: string;
+  backgroundImageFileName?: string;
+  backgroundType: number; // 1 = interior, 2 = exterior
+  subProjects?: SubProject[];
 }
 
 // Enhanced responsive breakpoints
@@ -98,8 +101,11 @@ const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
   return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
 };
 
-const Homepage: React.FC = () => {
-  const [sections, setSections] = useState<SectionData[]>([]);
+const ProjectDetailsPage: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [sections, setSections] = useState<ProjectContainer[]>([]);
+  const [exteriorSections, setExteriorSections] = useState<ProjectContainer[]>([]);
+  const [interiorSections, setInteriorSections] = useState<ProjectContainer[]>([]);
   const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
@@ -109,6 +115,8 @@ const Homepage: React.FC = () => {
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [exteriorStartY, setExteriorStartY] = useState<number>(0);
+  const [interiorStartY, setInteriorStartY] = useState<number>(0);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -119,7 +127,7 @@ const Homepage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const navigate = useNavigate();
 
-  const { data, isPending, isSuccess } = useHomePageList();
+  const { data, isPending, isSuccess } = useGetProjectDetailsList(projectId ? parseInt(projectId, 10) : 0);
 
   // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
   const animationOptions = [
@@ -167,11 +175,10 @@ const Homepage: React.FC = () => {
     { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
   ];
 
-  // Navigation handler for sub-images
-  const handleSubImageClick = (subImageId: number) => {
-    console.log(`Navigating to project/${subImageId}`);
- 
-     navigate(`/project_details/${subImageId}`);
+  // Navigation handler for sub-projects
+  const handleSubProjectClick = (subProjectId: number) => {
+    console.log(`Navigating to sub-project/${subProjectId}`);
+    alert(`Navigating to sub-project/${subProjectId}`);
   };
 
   // Handle centered logo click - navigate to /resume
@@ -181,6 +188,7 @@ const Homepage: React.FC = () => {
 
   // Menu items for the animated logo menu
   const menuItems = [
+    { name: 'Home', icon: '🏠', link: '/' },
     { name: 'About', icon: '👤', link: '/about' },
     { name: 'Contact', icon: '📞', link: '/contact' },
     { name: 'Instagram', icon: '📷', link: 'https://instagram.com' },
@@ -193,7 +201,7 @@ const Homepage: React.FC = () => {
   };
 
   // ENHANCED: Responsive background strategy
-  const getResponsiveBackgroundStyle = (section: SectionData) => {
+  const getResponsiveBackgroundStyle = (section: ProjectContainer) => {
     if (!section.backgroundImageUrl) return {};
     
     const device = getDeviceType();
@@ -223,7 +231,7 @@ const Homepage: React.FC = () => {
   };
 
   // ENHANCED: Responsive section dimension calculation
-  const getResponsiveSectionDimensions = (section: SectionData) => {
+  const getResponsiveSectionDimensions = (section: ProjectContainer) => {
     const containerWidth = window.innerWidth;
     const device = getDeviceType();
     const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
@@ -277,12 +285,25 @@ const Homepage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [deviceType, isMenuOpen]);
 
-  // ENHANCED: Calculate total height using responsive system
+  // ENHANCED: Calculate total height and section positions using responsive system
   useEffect(() => {
     if (sections.length > 0) {
       let height = 0;
-      sections.forEach((section) => {
+      let exteriorStart = 0;
+      let interiorStart = 0;
+      let foundInterior = false;
+      
+      sections.forEach((section, index) => {
         const dimensions = getResponsiveSectionDimensions(section);
+        
+        // Track where exterior ends and interior begins
+        if (section.backgroundType === 2 && !foundInterior) { // exterior
+          // Still in exterior sections
+        } else if (section.backgroundType === 1 && !foundInterior) { // interior
+          interiorStart = height;
+          foundInterior = true;
+        }
+        
         height += dimensions.height;
       });
       
@@ -291,17 +312,19 @@ const Homepage: React.FC = () => {
       height += footerHeight;
       
       setTotalHeight(height);
+      setExteriorStartY(exteriorStart);
+      setInteriorStartY(interiorStart);
       
       // Reset scroll if it's beyond the new bounds
       if (targetScrollY.current > height - window.innerHeight) {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
       
-      console.log('Responsive coordinate system total height calculated:', {
+      console.log('Project details coordinate system calculated:', {
         totalHeight: height,
         sectionsCount: sections.length,
-        viewportHeight,
-        viewportWidth,
+        exteriorStartY: exteriorStart,
+        interiorStartY: interiorStart,
         deviceType,
         footerHeight
       });
@@ -450,71 +473,37 @@ const Homepage: React.FC = () => {
     };
   }, [isMenuOpen]);
 
-  // Load data from API
+  // Load data from API and separate exterior/interior
   useEffect(() => {
     if (data?.data) {
-      console.log('Raw API Data:', data.data);
+      console.log('Raw Project Details API Data:', data.data);
+      
+      const sortedData = data.data.sort((a, b) => a.sortOrder - a.sortOrder);
+      
+      // Separate exterior and interior sections
+      const exterior = sortedData.filter(section => section.backgroundType === 2).sort((a, b) => a.sortOrder - b.sortOrder);
+      const interior = sortedData.filter(section => section.backgroundType === 1).sort((a, b) => a.sortOrder - b.sortOrder);
+      
+      // Combine exterior first, then interior
+      const combinedSections = [...exterior, ...interior];
+      
       setTimeout(() => {
-        setSections(data.data.sort((a, b) => a.sortOrder - b.sortOrder));
+        setSections(combinedSections);
+        setExteriorSections(exterior);
+        setInteriorSections(interior);
       }, 500);
     }
   }, [data]);
 
-  // COMPREHENSIVE Animation debugging with all animation options
-  useEffect(() => {
-    if (sections.length > 0) {
-      console.log('=== COMPLETE ANIMATION DEBUG ===');
-      console.log('Total available animations:', animationOptions.length - 1); // Exclude 'none'
-      console.log('Available animations:', animationOptions.map(a => a.value).filter(v => v !== 'none'));
-      
-      sections.forEach((section, sectionIndex) => {
-        console.log(`Section ${sectionIndex} (${section.title}):`);
-        
-        if (section.projects && section.projects.length > 0) {
-          section.projects.forEach((project, projectIndex) => {
-            const animationExists = animationOptions.find(a => a.value === project.animation);
-            const speedExists = speedOptions.find(s => s.value === project.animationSpeed);
-            const triggerExists = triggerOptions.find(t => t.value === project.animationTrigger);
-            
-            console.log(`  Project ${projectIndex}:`, {
-              name: project.name,
-              projectId: project.projectId,
-              animation: project.animation,
-              animationExists: !!animationExists,
-              animationSpeed: project.animationSpeed,
-              speedExists: !!speedExists,
-              animationTrigger: project.animationTrigger,
-              triggerExists: !!triggerExists,
-              expectedClasses: getAnimationClasses(project)
-            });
-            
-            // Validate animation values
-            if (project.animation && project.animation !== 'none') {
-              console.log(`    ✅ Animation: ${project.animation} ${animationExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Speed: ${project.animationSpeed} ${speedExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Trigger: ${project.animationTrigger} ${triggerExists ? '(FOUND)' : '(NOT FOUND)'}`);
-            } else {
-              console.log(`    ❌ No animation set`);
-            }
-          });
-        } else {
-          console.log('  No projects found in this section');
-        }
-      });
-      
-      console.log('=== END COMPLETE ANIMATION DEBUG ===');
-    }
-  }, [sections]);
-
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      console.log('API Data Structure:', data.data[0]);
-      if (data.data[0].projects && data.data[0].projects.length > 0) {
-        console.log('First Project Position:', {
-          xPosition: data.data[0].projects[0].xPosition,
-          yPosition: data.data[0].projects[0].yPosition,
-          heightPercent: data.data[0].projects[0].heightPercent
+      console.log('Project Details API Data Structure:', data.data[0]);
+      if (data.data[0].subProjects && data.data[0].subProjects.length > 0) {
+        console.log('First Sub-Project Position:', {
+          xPosition: data.data[0].subProjects[0].xPosition,
+          yPosition: data.data[0].subProjects[0].yPosition,
+          heightPercent: data.data[0].subProjects[0].heightPercent
         });
       }
     }
@@ -526,7 +515,7 @@ const Homepage: React.FC = () => {
     if (item.link.startsWith('http')) {
       window.open(item.link, '_blank');
     } else {
-      alert(`Navigating to ${item.link}`);
+      navigate(item.link);
     }
     setIsMenuOpen(false);
   };
@@ -549,6 +538,19 @@ const Homepage: React.FC = () => {
   const handleConnectClick = () => {
     setShowConnectForm(true);
   };
+
+  // Handle section navigation
+  const handleSectionNavigation = (sectionType: 'exterior' | 'interior') => {
+    const targetY = sectionType === 'exterior' ? exteriorStartY : interiorStartY;
+    const maxScroll = Math.max(0, totalHeight - window.innerHeight);
+    
+    targetScrollY.current = Math.min(maxScroll, targetY);
+    
+    if (!isScrolling.current) {
+      isScrolling.current = true;
+      smoothScrollStep();
+    }
+  };
   
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -565,7 +567,7 @@ const Homepage: React.FC = () => {
       }
     );
 
-    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.sub-image-container)');
+    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.sub-project-container)');
     elements.forEach((el) => observerRef.current?.observe(el));
 
     return () => {
@@ -576,36 +578,36 @@ const Homepage: React.FC = () => {
   }, [sections]);
 
   // FIXED: Updated getAnimationClasses function with validation
-  const getAnimationClasses = (subImage: any): string => {
-    if (subImage.animation === 'none' || !subImage.animation) return 'clickable-sub-image';
+  const getAnimationClasses = (subProject: any): string => {
+    if (subProject.animation === 'none' || !subProject.animation) return 'clickable-sub-project';
     
     // Validate animation exists in our list
-    const validAnimation = animationOptions.find(a => a.value === subImage.animation);
-    const validSpeed = speedOptions.find(s => s.value === subImage.animationSpeed);
-    const validTrigger = triggerOptions.find(t => t.value === subImage.animationTrigger);
+    const validAnimation = animationOptions.find(a => a.value === subProject.animation);
+    const validSpeed = speedOptions.find(s => s.value === subProject.animationSpeed);
+    const validTrigger = triggerOptions.find(t => t.value === subProject.animationTrigger);
     
     if (!validAnimation) {
-      console.warn(`Unknown animation: ${subImage.animation}`);
-      return 'clickable-sub-image';
+      console.warn(`Unknown animation: ${subProject.animation}`);
+      return 'clickable-sub-project';
     }
     
     // Use both class names for compatibility
     const classes = [
       'animated-element', // Keep existing class
       'animated-image',   // Add ImageEditor class for compatibility
-      'clickable-sub-image',
-      subImage.animation,
-      `speed-${subImage.animationSpeed || 'normal'}`,
-      `trigger-${subImage.animationTrigger || 'once'}`
+      'clickable-sub-project',
+      subProject.animation,
+      `speed-${subProject.animationSpeed || 'normal'}`,
+      `trigger-${subProject.animationTrigger || 'once'}`
     ];
     
     console.log('Applied animation classes:', {
-      name: subImage.name,
-      animation: subImage.animation,
+      name: subProject.name,
+      animation: subProject.animation,
       animationValid: !!validAnimation,
-      speed: subImage.animationSpeed,
+      speed: subProject.animationSpeed,
       speedValid: !!validSpeed,
-      trigger: subImage.animationTrigger,
+      trigger: subProject.animationTrigger,
       triggerValid: !!validTrigger,
       finalClasses: classes.join(' ')
     });
@@ -666,7 +668,16 @@ const Homepage: React.FC = () => {
     };
   };
 
-  // COMPLETE ANIMATION STYLES - EXACT COPY FROM IMAGEEDITOR with responsive enhancements
+  // Get current active section for navigation buttons
+  const getCurrentActiveSection = () => {
+    if (scrollY < interiorStartY) {
+      return 'exterior';
+    } else {
+      return 'interior';
+    }
+  };
+
+  // COMPLETE ANIMATION STYLES - EXACT COPY FROM HOMEPAGE with responsive enhancements
   const responsiveAnimationStyles = `
     /* ALL ANIMATION KEYFRAMES FROM IMAGEEDITOR - EXACT COPY */
     @keyframes fadeIn {
@@ -932,7 +943,7 @@ const Homepage: React.FC = () => {
     .animated-image.jello, .animated-element.jello { animation-name: jello; animation-duration: 1s; }
     .animated-image.tada, .animated-element.tada { animation-name: tada; animation-duration: 1s; }
 
-    /* HOMEPAGE SPECIFIC STYLES WITH RESPONSIVE ENHANCEMENTS */
+    /* PROJECT DETAILS SPECIFIC STYLES WITH RESPONSIVE ENHANCEMENTS */
     @keyframes menuSlideIn {
       0% { 
         opacity: 0; 
@@ -995,7 +1006,7 @@ const Homepage: React.FC = () => {
       transform: translateY(0);
     }
 
-    .sub-image-visible {
+    .sub-project-visible {
       opacity: 1;
       transform: translateY(0);
       transition: all 0.6s ease-out;
@@ -1085,14 +1096,14 @@ const Homepage: React.FC = () => {
     .rotate-60:active { transform: translate(-50%, -50%) rotate(60deg) scale(0.95) !important; }
     .rotate-90:active { transform: translate(-50%, -50%) rotate(90deg) scale(0.95) !important; }
 
-    .clickable-sub-image {
+    .clickable-sub-project {
       cursor: pointer !important;
       transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
       z-index: 20;
     }
 
-    .clickable-sub-image:hover {
+    .clickable-sub-project:hover {
       filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
       z-index: 50 !important;
     }
@@ -1105,17 +1116,17 @@ const Homepage: React.FC = () => {
       filter: brightness(0.2) blur(3px);
     }
 
-    .sub-image-container {
+    .sub-project-container {
       transition: all 0.4s ease;
     }
 
-    .sub-image-container.dimmed {
+    .sub-project-container.dimmed {
       opacity: 0.2;
       filter: blur(2px) grayscale(0.5);
       transform: scale(0.95);
     }
 
-    .sub-image-container.highlighted {
+    .sub-project-container.highlighted {
       opacity: 1;
       filter: none;
       z-index: 50;
@@ -1277,6 +1288,90 @@ const Homepage: React.FC = () => {
       transform: translateY(0);
     }
 
+    /* Section Navigation Buttons */
+    .section-nav-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+    }
+
+    .section-nav-btn {
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: #2d3748;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-nav-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .section-nav-btn:hover::before {
+      left: 100%;
+    }
+
+    .section-nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      border-color: rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,255,255,0.9));
+    }
+
+    .section-nav-btn:active {
+      transform: translateY(0);
+    }
+
+    .section-nav-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: rgba(102, 126, 234, 0.6);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .section-nav-btn.active:hover {
+      background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+
+    /* Section badges */
+    .exterior-badge {
+      background: #4caf50;
+      color: white;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+
+    .interior-badge {
+      background: #ff9800;
+      color: white;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+
     /* Responsive coordinate system debugging */
     .coordinate-debug {
       position: absolute;
@@ -1379,6 +1474,19 @@ const Homepage: React.FC = () => {
         font-size: 10px !important;
       }
       
+      /* Mobile section navigation */
+      .section-nav-buttons {
+        top: 15px !important;
+        right: 15px !important;
+        gap: 8px !important;
+      }
+      
+      .section-nav-btn {
+        padding: 6px 12px !important;
+        font-size: 10px !important;
+        border-radius: 15px !important;
+      }
+      
       /* Mobile animations - reduce intensity */
       @keyframes bounce {
         0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
@@ -1437,6 +1545,11 @@ const Homepage: React.FC = () => {
       .menu-item-modern span:first-child {
         font-size: 11px !important;
       }
+      
+      .section-nav-btn {
+        padding: 7px 14px !important;
+        font-size: 11px !important;
+      }
     }
     
     /* Large tablets and small desktops (1025px - 1199px) */
@@ -1474,41 +1587,22 @@ const Homepage: React.FC = () => {
       z-index: 1000;
     }
 
-    /* BADGES */
-    .exterior-badge {
-      background: #4caf50;
-      color: white;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      margin-left: 6px;
-    }
-
-    .interior-badge {
-      background: #ff9800;
-      color: white;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      margin-left: 6px;
-    }
-
     /* RESPONSIVE IMPROVEMENTS FOR TOUCH INTERFACES */
     @media (max-width: 1024px) {
-      .clickable-sub-image {
+      .clickable-sub-project {
         /* Increase touch target size on tablets/mobile */
         min-width: 44px !important;
         min-height: 44px !important;
       }
       
-      .clickable-sub-image:hover {
+      .clickable-sub-project:hover {
         /* Reduce hover effects on touch devices */
         filter: brightness(1.05) saturate(1.02) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
       }
       
       /* Disable hover effects completely on pure touch devices */
       @media (hover: none) {
-        .clickable-sub-image:hover {
+        .clickable-sub-project:hover {
           filter: none;
         }
         
@@ -1516,15 +1610,54 @@ const Homepage: React.FC = () => {
           box-shadow: 0 6px 24px rgba(0,0,0,0.15) !important;
           background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)) !important;
         }
+        
+        .section-nav-btn:hover {
+          transform: none !important;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        }
       }
     }
   `;
 
   const logoSizes = getResponsiveLogoSizes();
+  const currentActiveSection = getCurrentActiveSection();
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
       <style>{responsiveAnimationStyles}</style>
+      
+      {/* Section Navigation Buttons - Responsive positioning */}
+      <div className="section-nav-buttons" style={{
+        top: deviceType === 'mobile' ? '15px' : '20px',
+        right: deviceType === 'mobile' ? '15px' : '20px'
+      }}>
+        <button
+          className={`section-nav-btn ${currentActiveSection === 'exterior' ? 'active' : ''}`}
+          onClick={() => handleSectionNavigation('exterior')}
+          style={{
+            padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
+            fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
+          }}
+        >
+          EXTERIOR
+          {exteriorSections.length > 0 && (
+            <span className="exterior-badge">{exteriorSections.length}</span>
+          )}
+        </button>
+        <button
+          className={`section-nav-btn ${currentActiveSection === 'interior' ? 'active' : ''}`}
+          onClick={() => handleSectionNavigation('interior')}
+          style={{
+            padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
+            fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
+          }}
+        >
+          INTERIOR
+          {interiorSections.length > 0 && (
+            <span className="interior-badge">{interiorSections.length}</span>
+          )}
+        </button>
+      </div>
       
       {/* Fixed Logo with Menu - Responsive positioning */}
       <div
@@ -1575,22 +1708,22 @@ const Homepage: React.FC = () => {
             }}
           >
             {menuItems?.map((item, index) => {
-              const rotationAngles = [0, 30, 60, 90];
+              const rotationAngles = [0, 30, 60, 90, 120];
               const itemRotation = rotationAngles[index] || 0;
               
               // Responsive positioning
               const positions = {
                 mobile: {
-                  top: [0, 35, 67, 100],
-                  left: [75, 65, 40, 0]
+                  top: [0, 35, 67, 100, 130],
+                  left: [75, 65, 40, 0, -35]
                 },
                 tablet: {
-                  top: [0, 40, 75, 115],
-                  left: [90, 78, 47, 0]
+                  top: [0, 40, 75, 115, 150],
+                  left: [90, 78, 47, 0, -40]
                 },
                 desktop: {
-                  top: [0, 47.5, 90.9, 135],
-                  left: [105, 90, 54, 0]
+                  top: [0, 47.5, 90.9, 135, 175],
+                  left: [105, 90, 54, 0, -45]
                 }
               };
               
@@ -1655,6 +1788,22 @@ const Homepage: React.FC = () => {
           willChange: 'transform'
         }}
       >
+        {/* Loading state */}
+        {isPending && (
+          <div className="loading-overlay">
+            <div style={{
+              padding: '20px',
+              background: 'rgba(255,255,255,0.9)',
+              borderRadius: '10px',
+              textAlign: 'center',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize: '18px', marginBottom: '10px' }}>Loading Project Details...</div>
+              <div style={{ fontSize: '14px', color: '#666' }}>Please wait while we load the content</div>
+            </div>
+          </div>
+        )}
+
         {/* ENHANCED: Responsive sections with proper background handling */}
         {sections?.map((section, sectionIndex) => {
           // ENHANCED: Calculate proper dimensions using responsive system
@@ -1662,9 +1811,12 @@ const Homepage: React.FC = () => {
           const bgStyle = getResponsiveBackgroundStyle(section);
           const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
 
+          const sectionTypeLabel = section.backgroundType === 2 ? 'EXTERIOR' : 'INTERIOR';
+          const sectionTypeColor = section.backgroundType === 2 ? '#4caf50' : '#ff9800';
+
           return (
             <section
-              key={section.projectContainerId}
+              key={section.subProjectContainerId}
               style={{
                 position: 'relative',
                 width: '100vw',
@@ -1690,17 +1842,35 @@ const Homepage: React.FC = () => {
                 }}
               />
 
+              {/* Section Type Badge */}
+              <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                background: sectionTypeColor,
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: deviceType === 'mobile' ? '10px' : '12px',
+                fontWeight: '600',
+                zIndex: 100,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+              }}>
+                {sectionTypeLabel}
+              </div>
+
               {/* ENHANCED: Debug info for responsive coordinate system */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="coordinate-debug">
                   Screen: {window.innerWidth}×{window.innerHeight}<br/>
                   Device: {deviceType}<br/>
+                  Type: {sectionTypeLabel}<br/>
                   Ratio: {section.backgroundImageAspectRatio?.toFixed(2) || 'N/A'}<br/>
                   Adjusted: {dimensions.adjustedAspectRatio?.toFixed(2) || 'N/A'}<br/>
                   Section H: {dimensions.height}px<br/>
                   Image H: {dimensions.imageHeight}px<br/>
                   BgSize: {bgStyle.backgroundSize}<br/>
-                  Animations: {animationOptions.length - 1}
+                  SubProjects: {section.subProjects?.length || 0}
                 </div>
               )}
 
@@ -1724,37 +1894,38 @@ const Homepage: React.FC = () => {
                 </div>
               )}
 
-              {/* ENHANCED: Responsive sub-images positioned using coordinate system */}
-              {section.projects?.map((subImage) => {
+              {/* ENHANCED: Responsive sub-projects positioned using coordinate system */}
+              {section.subProjects?.map((subProject) => {
                 // ENHANCED: Use responsive coordinate system for positioning
                 const containerWidth = window.innerWidth;
                 const { x: pixelX, y: pixelY } = coordinateSystem.getPixelFromPercent(
-                  subImage.xPosition, 
-                  subImage.yPosition, 
+                  subProject.xPosition, 
+                  subProject.yPosition, 
                   containerWidth
                 );
                 
                 const imageDimensions = calculateResponsiveImageDimensions(
                   containerWidth,
-                  subImage.heightPercent,
+                  subProject.heightPercent,
                   section.backgroundImageAspectRatio
                 );
 
-                console.log('Rendering with responsive animations:', {
-                  name: subImage.name,
-                  animation: subImage.animation,
+                console.log('Rendering sub-project with responsive animations:', {
+                  name: subProject.name,
+                  animation: subProject.animation,
                   deviceType,
-                  classes: getAnimationClasses(subImage),
-                  dimensions: imageDimensions
+                  classes: getAnimationClasses(subProject),
+                  dimensions: imageDimensions,
+                  isExterior: subProject.isExterior
                 });
 
-                const isHovered = hoveredImageId === subImage.projectId;
-                const isDimmed = hoveredImageId !== null && hoveredImageId !== subImage.projectId;
+                const isHovered = hoveredImageId === subProject.subProjectId;
+                const isDimmed = hoveredImageId !== null && hoveredImageId !== subProject.subProjectId;
 
                 return (
                   <div
-                    key={subImage.projectId}
-                    className={`sub-image-visible sub-image-container ${
+                    key={subProject.subProjectId}
+                    className={`sub-project-visible sub-project-container ${
                       isHovered ? 'highlighted' : isDimmed ? 'dimmed' : ''
                     }`}
                     style={{
@@ -1765,16 +1936,17 @@ const Homepage: React.FC = () => {
                     }}
                   >
                     <img
-                      src={subImage.projectImageUrl}
-                      alt={subImage.name || subImage.imageFileName}
-                      data-project-id={subImage.projectId}
-                      data-animation={subImage.animation}
-                      data-animation-speed={subImage.animationSpeed}
-                      data-animation-trigger={subImage.animationTrigger}
+                      src={subProject.projectImageUrl}
+                      alt={subProject.name || subProject.imageFileName}
+                      data-sub-project-id={subProject.subProjectId}
+                      data-animation={subProject.animation}
+                      data-animation-speed={subProject.animationSpeed}
+                      data-animation-trigger={subProject.animationTrigger}
                       data-device-type={deviceType}
-                      className={getAnimationClasses(subImage)}
-                      onClick={() => handleSubImageClick(subImage.projectId)}
-                      onMouseEnter={() => setHoveredImageId(subImage.projectId)}
+                      data-is-exterior={subProject.isExterior}
+                      className={getAnimationClasses(subProject)}
+                      onClick={() => handleSubProjectClick(subProject.subProjectId)}
+                      onMouseEnter={() => setHoveredImageId(subProject.subProjectId)}
                       onMouseLeave={() => setHoveredImageId(null)}
                       style={{
                         ...imageDimensions,
@@ -1794,10 +1966,10 @@ const Homepage: React.FC = () => {
                     />
                     
                     {/* Enhanced responsive debug info overlay */}
-                    {process.env.NODE_ENV === 'development' && subImage.animation !== 'none' && (
+                    {process.env.NODE_ENV === 'development' && subProject.animation !== 'none' && (
                       <div style={{
                         position: 'absolute',
-                        top: '-40px',
+                        top: '-50px',
                         left: '0',
                         background: 'rgba(0,0,0,0.9)',
                         color: 'white',
@@ -1810,10 +1982,11 @@ const Homepage: React.FC = () => {
                         lineHeight: '1.2',
                         maxWidth: deviceType === 'mobile' ? '120px' : '150px'
                       }}>
-                        🎬 {subImage.animation}<br/>
-                        ⚡ {subImage.animationSpeed}<br/>
-                        🎯 {subImage.animationTrigger}<br/>
-                        📱 {deviceType}
+                        🎬 {subProject.animation}<br/>
+                        ⚡ {subProject.animationSpeed}<br/>
+                        🎯 {subProject.animationTrigger}<br/>
+                        📱 {deviceType}<br/>
+                        {subProject.isExterior ? '🏠 EXT' : '🛋️ INT'}
                       </div>
                     )}
                   </div>
@@ -1826,7 +1999,7 @@ const Homepage: React.FC = () => {
                 left: '-9999px', 
                 visibility: 'hidden' 
               }}>
-                {section.title}
+                {section.title} - {sectionTypeLabel}
               </h1>
             </section>
           );
@@ -1979,4 +2152,4 @@ const Homepage: React.FC = () => {
   );
 };
 
-export default Homepage;
+export default ProjectDetailsPage;
