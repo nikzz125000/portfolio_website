@@ -12,7 +12,7 @@ namespace API.Services
     public interface IResumeService
     {
         Task<CommonEntityResponse> CreateOrModify(ResumePostModel model);
-        Task<ModelEntityResponse<ResumeViewModel>> GetById(int id);
+        Task<ModelEntityResponse<ResumeViewModel>> GetById();
         Task<CommonEntityResponse> connect(ConnectPostModel model);
     }
 
@@ -35,14 +35,10 @@ namespace API.Services
             try
             {
                 Resume entity;
-                if (model.Id != 0)
-                {
-                    entity = await _unitOfWork.Resumes.GetById(model.Id) ?? new Resume();
-                }
-                else
-                {
+                
+                entity = await _unitOfWork.Resumes.GetById();
+                if (entity == null) {
                     entity = new Resume();
-                    entity.CreatedAt = DateTime.UtcNow;
                 }
 
                 // Map simple fields
@@ -80,10 +76,10 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<ResumeViewModel>> GetById(int id)
+        public async Task<ModelEntityResponse<ResumeViewModel>> GetById()
         {
             ModelEntityResponse<ResumeViewModel> response = new ModelEntityResponse<ResumeViewModel>();
-            var data = await _unitOfWork.Resumes.GetById(id);
+            var data = await _unitOfWork.Resumes.GetById();
             if (data is not null)
             {
                 response.Data = new ResumeViewModel

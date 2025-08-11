@@ -46,7 +46,7 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("Details/{id}")]
+        [Route("Details")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<ViewModels.ResumeViewModel>), 200)]
         public async Task<ModelEntityResponse<ViewModels.ResumeViewModel>> GetDetails(int id)
@@ -54,7 +54,7 @@ namespace API.Controllers
             ModelEntityResponse<ViewModels.ResumeViewModel> response = new ModelEntityResponse<ViewModels.ResumeViewModel>();
             try
             {
-                response = await _resumeService.GetById(id);
+                response = await _resumeService.GetById();
             }
             catch (Exception e)
             {

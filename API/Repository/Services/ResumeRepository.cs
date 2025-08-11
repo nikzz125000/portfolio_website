@@ -31,9 +31,9 @@ namespace Repository.Services
             return model.Id;
         }
 
-        public async Task<Resume?> GetById(int id)
+        public async Task<Resume?> GetById()
         {
-            return await _context.Resumes.FindAsync(id);
+            return await _context.Resumes.FirstOrDefaultAsync();
         }
     }
 } 
