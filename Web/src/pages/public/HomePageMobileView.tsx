@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useHomePageList } from '../../api/useHomePage';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useHomePageList } from "../../api/useHomePage";
+import { useResumeDetails } from "../../api/useResumeDetails";
+import { useCustomerConnect } from "../../api/useCustomerConnect";
 
 interface SubImage {
   projectId: number;
@@ -36,80 +38,100 @@ interface SectionData {
 const BREAKPOINTS = {
   mobile: 768,
   tablet: 1024,
-  desktop: 1200
+  desktop: 1200,
 };
 
 // Get current device type
 const getDeviceType = () => {
   const width = window.innerWidth;
-  if (width <= BREAKPOINTS.mobile) return 'mobile';
-  if (width <= BREAKPOINTS.tablet) return 'tablet';
-  return 'desktop';
+  if (width <= BREAKPOINTS.mobile) return "mobile";
+  if (width <= BREAKPOINTS.tablet) return "tablet";
+  return "desktop";
 };
 
 // ENHANCED: Mobile-first unified coordinate system
 const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
   const getImageDimensions = (containerWidth: number) => {
     const deviceType = getDeviceType();
-    
+
     if (!aspectRatio || aspectRatio <= 0) {
       // Default responsive aspect ratios
       const defaultRatios = {
         mobile: 0.75, // 3:4 - more portrait for mobile
-        tablet: 1.33,  // 4:3 - better for tablets
-        desktop: 1.78  // 16:9 - standard for desktop
+        tablet: 1.33, // 4:3 - better for tablets
+        desktop: 1.78, // 16:9 - standard for desktop
       };
       aspectRatio = defaultRatios[deviceType];
     }
-    
+
     // MOBILE-FIRST: Adjust aspect ratio for better mobile experience
     let adjustedAspectRatio = aspectRatio;
-    if (deviceType === 'mobile') {
+    if (deviceType === "mobile") {
       // Prevent extremely tall images on mobile
       adjustedAspectRatio = Math.max(aspectRatio, 0.6); // Minimum 0.6 ratio (3:5)
       adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.0); // Maximum 2.0 ratio
-    } else if (deviceType === 'tablet') {
+    } else if (deviceType === "tablet") {
       adjustedAspectRatio = Math.max(aspectRatio, 0.8);
       adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.2);
     }
-    
+
     const imageHeight = containerWidth / adjustedAspectRatio;
-    return { width: containerWidth, height: imageHeight, originalAspectRatio: aspectRatio, adjustedAspectRatio };
+    return {
+      width: containerWidth,
+      height: imageHeight,
+      originalAspectRatio: aspectRatio,
+      adjustedAspectRatio,
+    };
   };
-  
-  const getPixelFromPercent = (xPercent: number, yPercent: number, containerWidth: number) => {
-    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+
+  const getPixelFromPercent = (
+    xPercent: number,
+    yPercent: number,
+    containerWidth: number
+  ) => {
+    const { width: imageWidth, height: imageHeight } =
+      getImageDimensions(containerWidth);
     return {
       x: (xPercent / 100) * imageWidth,
       y: (yPercent / 100) * imageHeight,
       imageWidth,
-      imageHeight
+      imageHeight,
     };
   };
-  
-  const getPercentFromPixel = (x: number, y: number, containerWidth: number) => {
-    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+
+  const getPercentFromPixel = (
+    x: number,
+    y: number,
+    containerWidth: number
+  ) => {
+    const { width: imageWidth, height: imageHeight } =
+      getImageDimensions(containerWidth);
     return {
       xPercent: imageWidth > 0 ? (x / imageWidth) * 100 : 0,
-      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0
+      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0,
     };
   };
-  
+
   return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
 };
 
 const Homepage: React.FC = () => {
   const [sections, setSections] = useState<SectionData[]>([]);
-  const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
+  const [viewportHeight, setViewportHeight] = useState<number>(
+    window.innerHeight
+  );
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>("");
+  const [mobileNumber, setMobileNumber] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-  
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
@@ -120,71 +142,127 @@ const Homepage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data, isPending, isSuccess } = useHomePageList();
+  const { data: resumeData } = useResumeDetails();
+  const { mutate: customerConnect, isPending: isConnecting } =
+    useCustomerConnect();
+
+  // Sample fallback images using placehold.co for reliability
+  const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
+  const SAMPLE_SUB_IMAGE =
+    "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
 
   // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
   const animationOptions = [
-    { value: 'none', label: 'No Animation' },
-    { value: 'fadeIn', label: 'Fade In' },
-    { value: 'fadeInUp', label: 'Fade In Up' },
-    { value: 'fadeInDown', label: 'Fade In Down' },
-    { value: 'slideInLeft', label: 'Slide In Left' },
-    { value: 'slideInRight', label: 'Slide In Right' },
-    { value: 'slideInUp', label: 'Slide In Up' },
-    { value: 'slideInDown', label: 'Slide In Down' },
-    { value: 'zoomIn', label: 'Zoom In' },
-    { value: 'zoomInUp', label: 'Zoom In Up' },
-    { value: 'zoomInDown', label: 'Zoom In Down' },
-    { value: 'bounce', label: 'Bounce' },
-    { value: 'bounceIn', label: 'Bounce In' },
-    { value: 'bounceInUp', label: 'Bounce In Up' },
-    { value: 'bounceInDown', label: 'Bounce In Down' },
-    { value: 'shake', label: 'Shake' },
-    { value: 'pulse', label: 'Pulse' },
-    { value: 'heartbeat', label: 'Heartbeat' },
-    { value: 'swing', label: 'Swing' },
-    { value: 'rotate', label: 'Rotate' },
-    { value: 'rotateIn', label: 'Rotate In' },
-    { value: 'flip', label: 'Flip' },
-    { value: 'flipInX', label: 'Flip In X' },
-    { value: 'flipInY', label: 'Flip In Y' },
-    { value: 'rubberBand', label: 'Rubber Band' },
-    { value: 'wobble', label: 'Wobble' },
-    { value: 'jello', label: 'Jello' },
-    { value: 'tada', label: 'Tada' }
+    { value: "none", label: "No Animation" },
+    { value: "fadeIn", label: "Fade In" },
+    { value: "fadeInUp", label: "Fade In Up" },
+    { value: "fadeInDown", label: "Fade In Down" },
+    { value: "slideInLeft", label: "Slide In Left" },
+    { value: "slideInRight", label: "Slide In Right" },
+    { value: "slideInUp", label: "Slide In Up" },
+    { value: "slideInDown", label: "Slide In Down" },
+    { value: "zoomIn", label: "Zoom In" },
+    { value: "zoomInUp", label: "Zoom In Up" },
+    { value: "zoomInDown", label: "Zoom In Down" },
+    { value: "bounce", label: "Bounce" },
+    { value: "bounceIn", label: "Bounce In" },
+    { value: "bounceInUp", label: "Bounce In Up" },
+    { value: "bounceInDown", label: "Bounce In Down" },
+    { value: "shake", label: "Shake" },
+    { value: "pulse", label: "Pulse" },
+    { value: "heartbeat", label: "Heartbeat" },
+    { value: "swing", label: "Swing" },
+    { value: "rotate", label: "Rotate" },
+    { value: "rotateIn", label: "Rotate In" },
+    { value: "flip", label: "Flip" },
+    { value: "flipInX", label: "Flip In X" },
+    { value: "flipInY", label: "Flip In Y" },
+    { value: "rubberBand", label: "Rubber Band" },
+    { value: "wobble", label: "Wobble" },
+    { value: "jello", label: "Jello" },
+    { value: "tada", label: "Tada" },
   ];
 
   const speedOptions = [
-    { value: 'very-slow', label: 'Very Slow', duration: '4s' },
-    { value: 'slow', label: 'Slow', duration: '2.5s' },
-    { value: 'normal', label: 'Normal', duration: '1.5s' },
-    { value: 'fast', label: 'Fast', duration: '0.8s' },
-    { value: 'very-fast', label: 'Very Fast', duration: '0.4s' }
+    { value: "very-slow", label: "Very Slow", duration: "4s" },
+    { value: "slow", label: "Slow", duration: "2.5s" },
+    { value: "normal", label: "Normal", duration: "1.5s" },
+    { value: "fast", label: "Fast", duration: "0.8s" },
+    { value: "very-fast", label: "Very Fast", duration: "0.4s" },
   ];
 
   const triggerOptions = [
-    { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
-    { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
-    { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
+    {
+      value: "continuous",
+      label: "Continuous",
+      description: "Animation plays all the time",
+    },
+    {
+      value: "hover",
+      label: "On Hover",
+      description: "Animation plays when mouse hovers",
+    },
+    {
+      value: "once",
+      label: "Play Once",
+      description: "Animation plays once on load",
+    },
   ];
 
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
     console.log(`Navigating to project/${subImageId}`);
- 
-     navigate(`/project_details/${subImageId}`);
+
+    navigate(`/project_details/${subImageId}`);
   };
 
   // Handle centered logo click - navigate to /resume
   const handleCenteredLogoClick = () => {
-    navigate('/resume');
+    navigate("/resume");
   };
 
-  // Menu items for the animated logo menu
+  // Menu items for the animated logo menu - now dynamic from API
   const menuItems = [
-    { name: 'About', icon: '👤', link: '/about' },
-    { name: 'Contact', icon: '📞', link: '/contact' },
-    { name: 'Instagram', icon: '📷', link: 'https://instagram.com' },
-    { name: 'LinkedIn', icon: '💼', link: 'https://linkedin.com' }
+    {
+      name: "About",
+      icon: "👤",
+      link: "/about",
+      action: () => navigate("/about"),
+    },
+    {
+      name: "Contact",
+      icon: "📞",
+      link: `tel:${resumeData?.data?.phone || ""}`,
+      action: () => {
+        if (resumeData?.data?.phone) {
+          window.open(`tel:${resumeData.data.phone}`, "_self");
+        }
+      },
+    },
+    {
+      name: "Instagram",
+      icon: "📷",
+      link: resumeData?.data?.instagramUrl || "https://instagram.com",
+      action: () => {
+        if (resumeData?.data?.instagramUrl) {
+          window.open(resumeData.data.instagramUrl, "_blank");
+        } else {
+          window.open("https://instagram.com", "_blank");
+        }
+      },
+    },
+    {
+      name: "LinkedIn",
+      icon: "💼",
+      link: resumeData?.data?.linkedinUrl || "https://linkedin.com",
+      action: () => {
+        if (resumeData?.data?.linkedinUrl) {
+          window.open(resumeData.data.linkedinUrl, "_blank");
+        } else {
+          window.open("https://linkedin.com", "_blank");
+        }
+      },
+    },
   ];
 
   // Handle logo click
@@ -195,64 +273,62 @@ const Homepage: React.FC = () => {
   // ENHANCED: Responsive background strategy
   const getResponsiveBackgroundStyle = (section: SectionData) => {
     if (!section.backgroundImageUrl) return {};
-    
-    const device = getDeviceType();
-    
-    // Responsive background sizing strategy
-    let backgroundSize = 'cover'; // Default to cover for better mobile experience
-    let backgroundPosition = 'center center';
-    
-    if (device === 'desktop') {
-      backgroundSize = '100% auto'; // Original behavior for desktop
-      backgroundPosition = 'center top';
-    } else if (device === 'tablet') {
-      backgroundSize = 'cover'; // Cover for tablets to prevent gaps
-      backgroundPosition = 'center center';
-    } else { // mobile
-      backgroundSize = 'cover'; // Cover for mobile to ensure no gaps
-      backgroundPosition = 'center center';
-    }
-    
+
+    // Use fallback image if the URL is invalid or empty
+    const backgroundUrl =
+      section.backgroundImageUrl && section.backgroundImageUrl.trim() !== ""
+        ? section.backgroundImageUrl
+        : SAMPLE_BACKGROUND_IMAGE;
+
     return {
-      backgroundImage: `url(${section.backgroundImageUrl})`,
-      backgroundSize,
-      backgroundPosition,
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'scroll'
-    };
+      backgroundImage: `url(${backgroundUrl})`,
+      backgroundSize: "100% 100%",
+      backgroundPosition: "center top",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "scroll",
+    } as React.CSSProperties;
   };
 
   // ENHANCED: Responsive section dimension calculation
   const getResponsiveSectionDimensions = (section: SectionData) => {
     const containerWidth = window.innerWidth;
     const device = getDeviceType();
-    const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
-    const { width, height, adjustedAspectRatio } = coordinateSystem.getImageDimensions(containerWidth);
-    
+    const coordinateSystem = createResponsiveCoordinateSystem(
+      section.backgroundImageAspectRatio
+    );
+    const { width, height, adjustedAspectRatio } =
+      coordinateSystem.getImageDimensions(containerWidth);
+
     // Device-specific height calculation to reduce gaps
     let sectionHeight;
-    
-    if (device === 'mobile') {
+
+    if (device === "mobile") {
       // Mobile: Use responsive height, avoid huge gaps
       const maxMobileHeight = window.innerHeight * 1.2; // Max 120% of viewport
       const minMobileHeight = window.innerHeight * 0.8; // Min 80% of viewport
-      sectionHeight = Math.min(Math.max(height, minMobileHeight), maxMobileHeight);
-    } else if (device === 'tablet') {
+      sectionHeight = Math.min(
+        Math.max(height, minMobileHeight),
+        maxMobileHeight
+      );
+    } else if (device === "tablet") {
       // Tablet: Balanced approach
       const maxTabletHeight = window.innerHeight * 1.5;
       const minTabletHeight = window.innerHeight * 0.9;
-      sectionHeight = Math.min(Math.max(height, minTabletHeight), maxTabletHeight);
+      sectionHeight = Math.min(
+        Math.max(height, minTabletHeight),
+        maxTabletHeight
+      );
     } else {
       // Desktop: Original behavior
       sectionHeight = Math.max(height, window.innerHeight);
     }
-    
+
     return {
       width: containerWidth,
       height: sectionHeight,
       imageHeight: height,
       adjustedAspectRatio,
-      device
+      device,
     };
   };
 
@@ -262,19 +338,19 @@ const Homepage: React.FC = () => {
       const newWidth = window.innerWidth;
       const newHeight = window.innerHeight;
       const newDeviceType = getDeviceType();
-      
+
       setViewportHeight(newHeight);
       setViewportWidth(newWidth);
       setDeviceType(newDeviceType);
-      
+
       // Close menu on resize to prevent positioning issues
       if (isMenuOpen && newDeviceType !== deviceType) {
         setIsMenuOpen(false);
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [deviceType, isMenuOpen]);
 
   // ENHANCED: Calculate total height using responsive system
@@ -285,25 +361,26 @@ const Homepage: React.FC = () => {
         const dimensions = getResponsiveSectionDimensions(section);
         height += dimensions.height;
       });
-      
+
       // Responsive footer height
-      const footerHeight = deviceType === 'mobile' ? 300 : deviceType === 'tablet' ? 250 : 200;
+      const footerHeight =
+        deviceType === "mobile" ? 300 : deviceType === "tablet" ? 250 : 200;
       height += footerHeight;
-      
+
       setTotalHeight(height);
-      
+
       // Reset scroll if it's beyond the new bounds
       if (targetScrollY.current > height - window.innerHeight) {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
-      
-      console.log('Responsive coordinate system total height calculated:', {
+
+      console.log("Responsive coordinate system total height calculated:", {
         totalHeight: height,
         sectionsCount: sections.length,
         viewportHeight,
         viewportWidth,
         deviceType,
-        footerHeight
+        footerHeight,
       });
     }
   }, [sections, viewportHeight, viewportWidth, deviceType]);
@@ -312,21 +389,21 @@ const Homepage: React.FC = () => {
   const smoothScrollStep = () => {
     const difference = targetScrollY.current - currentScrollY.current;
     const step = difference * 0.05; // Slow scroll speed
-    
+
     if (Math.abs(difference) < 0.5) {
       currentScrollY.current = targetScrollY.current;
       isScrolling.current = false;
       setScrollY(currentScrollY.current);
       return;
     }
-    
+
     currentScrollY.current += step;
     setScrollY(currentScrollY.current);
-    
+
     if (containerRef.current) {
       containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
     }
-    
+
     animationFrameId.current = requestAnimationFrame(smoothScrollStep);
   };
 
@@ -336,13 +413,13 @@ const Homepage: React.FC = () => {
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      
+
       const scrollAmount = e.deltaY * 0.3;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-      
+
       const newScrollY = targetScrollY.current + scrollAmount;
       targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
-      
+
       if (!isScrolling.current) {
         isScrolling.current = true;
         smoothScrollStep();
@@ -350,37 +427,43 @@ const Homepage: React.FC = () => {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const scrollAmount = deviceType === 'mobile' ? 30 : 50;
+      const scrollAmount = deviceType === "mobile" ? 30 : 50;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-      
+
       switch (e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-        case ' ':
+        case "ArrowDown":
+        case "PageDown":
+        case " ":
           if (e.target === document.body) {
             e.preventDefault();
-            targetScrollY.current = Math.min(maxScroll, targetScrollY.current + scrollAmount);
+            targetScrollY.current = Math.min(
+              maxScroll,
+              targetScrollY.current + scrollAmount
+            );
           }
           break;
-        case 'ArrowUp':
-        case 'PageUp':
+        case "ArrowUp":
+        case "PageUp":
           if (e.target === document.body) {
             e.preventDefault();
-            targetScrollY.current = Math.max(0, targetScrollY.current - scrollAmount);
+            targetScrollY.current = Math.max(
+              0,
+              targetScrollY.current - scrollAmount
+            );
           }
           break;
-        case 'Home':
+        case "Home":
           e.preventDefault();
           targetScrollY.current = 0;
           break;
-        case 'End':
+        case "End":
           e.preventDefault();
           targetScrollY.current = maxScroll;
           break;
         default:
           return;
       }
-      
+
       if (!isScrolling.current) {
         isScrolling.current = true;
         smoothScrollStep();
@@ -398,10 +481,13 @@ const Homepage: React.FC = () => {
         const currentY = e.touches[0].clientY;
         const deltaY = (startY - currentY) * 0.5;
         const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-        
-        targetScrollY.current = Math.max(0, Math.min(maxScroll, targetScrollY.current + deltaY));
+
+        targetScrollY.current = Math.max(
+          0,
+          Math.min(maxScroll, targetScrollY.current + deltaY)
+        );
         startY = currentY;
-        
+
         if (!isScrolling.current) {
           isScrolling.current = true;
           smoothScrollStep();
@@ -409,19 +495,21 @@ const Homepage: React.FC = () => {
       }
     };
 
-    document.body.style.overflow = 'hidden';
-    
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.body.style.overflow = "hidden";
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
+      document.body.style.overflow = "";
+      window.removeEventListener("wheel", handleWheel);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
@@ -433,9 +521,9 @@ const Homepage: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMenuOpen) {
         const target = event.target as HTMLElement;
-        const logoElement = document.getElementById('main-logo');
-        const menuElement = document.getElementById('logo-menu');
-        
+        const logoElement = document.getElementById("main-logo");
+        const menuElement = document.getElementById("logo-menu");
+
         if (logoElement && menuElement) {
           if (!logoElement.contains(target) && !menuElement.contains(target)) {
             setIsMenuOpen(false);
@@ -444,16 +532,16 @@ const Homepage: React.FC = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
   // Load data from API
   useEffect(() => {
     if (data?.data) {
-      console.log('Raw API Data:', data.data);
+      console.log("Raw API Data:", data.data);
       setTimeout(() => {
         setSections(data.data.sort((a, b) => a.sortOrder - b.sortOrder));
       }, 500);
@@ -463,19 +551,28 @@ const Homepage: React.FC = () => {
   // COMPREHENSIVE Animation debugging with all animation options
   useEffect(() => {
     if (sections.length > 0) {
-      console.log('=== COMPLETE ANIMATION DEBUG ===');
-      console.log('Total available animations:', animationOptions.length - 1); // Exclude 'none'
-      console.log('Available animations:', animationOptions.map(a => a.value).filter(v => v !== 'none'));
-      
+      console.log("=== COMPLETE ANIMATION DEBUG ===");
+      console.log("Total available animations:", animationOptions.length - 1); // Exclude 'none'
+      console.log(
+        "Available animations:",
+        animationOptions.map((a) => a.value).filter((v) => v !== "none")
+      );
+
       sections.forEach((section, sectionIndex) => {
         console.log(`Section ${sectionIndex} (${section.title}):`);
-        
+
         if (section.projects && section.projects.length > 0) {
           section.projects.forEach((project, projectIndex) => {
-            const animationExists = animationOptions.find(a => a.value === project.animation);
-            const speedExists = speedOptions.find(s => s.value === project.animationSpeed);
-            const triggerExists = triggerOptions.find(t => t.value === project.animationTrigger);
-            
+            const animationExists = animationOptions.find(
+              (a) => a.value === project.animation
+            );
+            const speedExists = speedOptions.find(
+              (s) => s.value === project.animationSpeed
+            );
+            const triggerExists = triggerOptions.find(
+              (t) => t.value === project.animationTrigger
+            );
+
             console.log(`  Project ${projectIndex}:`, {
               name: project.name,
               projectId: project.projectId,
@@ -485,48 +582,58 @@ const Homepage: React.FC = () => {
               speedExists: !!speedExists,
               animationTrigger: project.animationTrigger,
               triggerExists: !!triggerExists,
-              expectedClasses: getAnimationClasses(project)
+              expectedClasses: getAnimationClasses(project),
             });
-            
+
             // Validate animation values
-            if (project.animation && project.animation !== 'none') {
-              console.log(`    ✅ Animation: ${project.animation} ${animationExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Speed: ${project.animationSpeed} ${speedExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Trigger: ${project.animationTrigger} ${triggerExists ? '(FOUND)' : '(NOT FOUND)'}`);
+            if (project.animation && project.animation !== "none") {
+              console.log(
+                `    ✅ Animation: ${project.animation} ${
+                  animationExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
+              console.log(
+                `    ✅ Speed: ${project.animationSpeed} ${
+                  speedExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
+              console.log(
+                `    ✅ Trigger: ${project.animationTrigger} ${
+                  triggerExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
             } else {
               console.log(`    ❌ No animation set`);
             }
           });
         } else {
-          console.log('  No projects found in this section');
+          console.log("  No projects found in this section");
         }
       });
-      
-      console.log('=== END COMPLETE ANIMATION DEBUG ===');
+
+      console.log("=== END COMPLETE ANIMATION DEBUG ===");
     }
   }, [sections]);
 
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      console.log('API Data Structure:', data.data[0]);
+      console.log("API Data Structure:", data.data[0]);
       if (data.data[0].projects && data.data[0].projects.length > 0) {
-        console.log('First Project Position:', {
+        console.log("First Project Position:", {
           xPosition: data.data[0].projects[0].xPosition,
           yPosition: data.data[0].projects[0].yPosition,
-          heightPercent: data.data[0].projects[0].heightPercent
+          heightPercent: data.data[0].projects[0].heightPercent,
         });
       }
     }
   }, [data]);
 
   // Handle menu item click
-  const handleMenuItemClick = (item: typeof menuItems[0]) => {
-    console.log(`Navigating to ${item.link}`);
-    if (item.link.startsWith('http')) {
-      window.open(item.link, '_blank');
-    } else {
-      alert(`Navigating to ${item.link}`);
+  const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
+    console.log(`Executing action for ${item.name}`);
+    if (item.action) {
+      item.action();
     }
     setIsMenuOpen(false);
   };
@@ -534,38 +641,99 @@ const Homepage: React.FC = () => {
   // Handle connect form submission
   const handleConnectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      console.log('Email submitted:', email);
-      setFormSubmitted(true);
-      setTimeout(() => {
-        setShowConnectForm(false);
-        setFormSubmitted(false);
-        setEmail('');
-      }, 2000);
+
+    // Reset previous errors
+    setFormErrors({});
+
+    // Validation
+    const errors: { [key: string]: string } = {};
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = "Please enter a valid email address";
     }
+
+    if (!mobileNumber.trim()) {
+      errors.mobileNumber = "Mobile number is required";
+    } else if (!/^[0-9]{10,15}$/.test(mobileNumber.trim())) {
+      errors.mobileNumber = "Please enter a valid mobile number";
+    }
+
+    if (!message.trim()) {
+      errors.message = "Message is required";
+    } else if (message.trim().length < 10) {
+      errors.message = "Message must be at least 10 characters long";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    // Submit form
+    const payload = {
+      mobileNumber: mobileNumber.trim(),
+      email: email.trim(),
+      message: message.trim(),
+    };
+
+    customerConnect(payload, {
+      onSuccess: (response) => {
+        if (response.isSuccess) {
+          setFormSubmitted(true);
+          // Reset form
+          setEmail("");
+          setMobileNumber("");
+          setMessage("");
+          setFormErrors({});
+
+          // Close form after 3 seconds
+          setTimeout(() => {
+            setShowConnectForm(false);
+            setFormSubmitted(false);
+          }, 3000);
+        }
+      },
+      onError: (error) => {
+        console.error("Connect API error:", error);
+        setFormErrors({ general: "Failed to send message. Please try again." });
+      },
+    });
   };
 
   // Handle connect button click
   const handleConnectClick = () => {
     setShowConnectForm(true);
+    // Pre-fill email if available from resume data
+    if (resumeData?.data?.email) {
+      setEmail(resumeData.data.email);
+    }
+    // Reset other fields
+    setMobileNumber("");
+    setMessage("");
+    setFormErrors({});
+    setFormSubmitted(false);
   };
-  
+
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+            entry.target.classList.add("visible");
           }
         });
       },
       {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: "0px 0px -50px 0px",
       }
     );
 
-    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.sub-image-container)');
+    const elements = document.querySelectorAll(
+      ".fade-in-on-scroll:not(.sub-image-container)"
+    );
     elements.forEach((el) => observerRef.current?.observe(el));
 
     return () => {
@@ -577,29 +745,36 @@ const Homepage: React.FC = () => {
 
   // FIXED: Updated getAnimationClasses function with validation
   const getAnimationClasses = (subImage: any): string => {
-    if (subImage.animation === 'none' || !subImage.animation) return 'clickable-sub-image';
-    
+    if (subImage.animation === "none" || !subImage.animation)
+      return "clickable-sub-image";
+
     // Validate animation exists in our list
-    const validAnimation = animationOptions.find(a => a.value === subImage.animation);
-    const validSpeed = speedOptions.find(s => s.value === subImage.animationSpeed);
-    const validTrigger = triggerOptions.find(t => t.value === subImage.animationTrigger);
-    
+    const validAnimation = animationOptions.find(
+      (a) => a.value === subImage.animation
+    );
+    const validSpeed = speedOptions.find(
+      (s) => s.value === subImage.animationSpeed
+    );
+    const validTrigger = triggerOptions.find(
+      (t) => t.value === subImage.animationTrigger
+    );
+
     if (!validAnimation) {
       console.warn(`Unknown animation: ${subImage.animation}`);
-      return 'clickable-sub-image';
+      return "clickable-sub-image";
     }
-    
+
     // Use both class names for compatibility
     const classes = [
-      'animated-element', // Keep existing class
-      'animated-image',   // Add ImageEditor class for compatibility
-      'clickable-sub-image',
+      "animated-element", // Keep existing class
+      "animated-image", // Add ImageEditor class for compatibility
+      "clickable-sub-image",
       subImage.animation,
-      `speed-${subImage.animationSpeed || 'normal'}`,
-      `trigger-${subImage.animationTrigger || 'once'}`
+      `speed-${subImage.animationSpeed || "normal"}`,
+      `trigger-${subImage.animationTrigger || "once"}`,
     ];
-    
-    console.log('Applied animation classes:', {
+
+    console.log("Applied animation classes:", {
       name: subImage.name,
       animation: subImage.animation,
       animationValid: !!validAnimation,
@@ -607,10 +782,10 @@ const Homepage: React.FC = () => {
       speedValid: !!validSpeed,
       trigger: subImage.animationTrigger,
       triggerValid: !!validTrigger,
-      finalClasses: classes.join(' ')
+      finalClasses: classes.join(" "),
     });
-    
-    return classes.join(' ');
+
+    return classes.join(" ");
   };
 
   // ENHANCED: Responsive image dimensions calculation
@@ -621,37 +796,38 @@ const Homepage: React.FC = () => {
   ) => {
     const device = getDeviceType();
     const coordinateSystem = createResponsiveCoordinateSystem(aspectRatio);
-    const { width: imageWidth } = coordinateSystem.getImageDimensions(containerWidth);
-    
+    const { width: imageWidth } =
+      coordinateSystem.getImageDimensions(containerWidth);
+
     // Device-specific sizing adjustments
     let scaleFactor = 1;
-    if (device === 'mobile') {
+    if (device === "mobile") {
       scaleFactor = 0.8; // Slightly smaller on mobile for better touch targets
-    } else if (device === 'tablet') {
+    } else if (device === "tablet") {
       scaleFactor = 0.9; // Slightly smaller on tablet
     }
-    
+
     const adjustedHeightPercent = heightPercent * scaleFactor;
     const height = (adjustedHeightPercent / 100) * imageWidth;
-    
+
     // Responsive maximum constraints
     const maxWidths = {
       mobile: containerWidth * 0.85,
       tablet: containerWidth * 0.9,
-      desktop: containerWidth * 0.9
+      desktop: containerWidth * 0.9,
     };
-    
+
     const maxHeights = {
       mobile: window.innerHeight * 0.6,
       tablet: window.innerHeight * 0.8,
-      desktop: window.innerHeight * 0.9
+      desktop: window.innerHeight * 0.9,
     };
-    
+
     return {
-      width: 'auto',
+      width: "auto",
       height: `${height}px`,
       maxWidth: `${maxWidths[device]}px`,
-      maxHeight: `${maxHeights[device]}px`
+      maxHeight: `${maxHeights[device]}px`,
     };
   };
 
@@ -659,10 +835,18 @@ const Homepage: React.FC = () => {
   const getResponsiveLogoSizes = () => {
     const device = getDeviceType();
     return {
-      fixedLogo: device === 'mobile' ? '100px' : device === 'tablet' ? '120px' : '150px',
-      centeredLogo: device === 'mobile' ? '80px' : device === 'tablet' ? '100px' : '120px',
-      menuItemSize: device === 'mobile' ? '8px' : device === 'tablet' ? '10px' : '11px',
-      menuPadding: device === 'mobile' ? '4px 8px' : device === 'tablet' ? '5px 10px' : '6px 12px'
+      fixedLogo:
+        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
+      centeredLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
+      menuItemSize:
+        device === "mobile" ? "8px" : device === "tablet" ? "10px" : "11px",
+      menuPadding:
+        device === "mobile"
+          ? "4px 8px"
+          : device === "tablet"
+          ? "5px 10px"
+          : "6px 12px",
     };
   };
 
@@ -1168,7 +1352,7 @@ const Homepage: React.FC = () => {
       backdrop-filter: blur(20px);
       border-radius: 20px;
       padding: 40px;
-      max-width: 400px;
+      max-width: 500px;
       width: 90%;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -1189,21 +1373,78 @@ const Homepage: React.FC = () => {
       line-height: 1.5;
     }
 
-    .email-input {
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .email-input,
+    .mobile-input,
+    .message-input {
       width: 100%;
       padding: 15px 20px;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
       font-size: 16px;
-      margin-bottom: 20px;
       transition: all 0.3s ease;
       box-sizing: border-box;
+      font-family: inherit;
     }
 
-    .email-input:focus {
+    .email-input:focus,
+    .mobile-input:focus,
+    .message-input:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .email-input.error,
+    .mobile-input.error,
+    .message-input.error {
+      border-color: #e53e3e;
+      box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+    }
+
+    .message-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .error-message {
+      color: #e53e3e;
+      font-size: 14px;
+      margin-top: 5px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .general-error {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .success-container {
+      text-align: center;
+    }
+
+    .success-icon {
+      font-size: 64px;
+      color: #38a169;
+      margin-bottom: 20px;
+      animation: bounce 0.6s ease;
+    }
+
+    .closing-note {
+      color: #718096;
+      font-size: 14px;
+      margin-top: 15px;
+      font-style: italic;
     }
 
     .submit-btn {
@@ -1523,19 +1764,57 @@ const Homepage: React.FC = () => {
   const logoSizes = getResponsiveLogoSizes();
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       <style>{responsiveAnimationStyles}</style>
-      
+
+      {/* Menu Item Animations */}
+      <style>
+        {`
+          .menu-item-enter {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(0deg) scale(0.9);
+            animation: menuItemEnter 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+          }
+          
+          @keyframes menuItemEnter {
+            0% {
+              opacity: 0;
+              transform: translate(-50%, -50%) rotate(0deg) scale(0.9);
+            }
+            100% {
+              opacity: 1;
+              transform: translate(-50%, -50%) rotate(var(--final-rotation, 0deg)) scale(1);
+            }
+          }
+          
+          .menu-item-clean:hover {
+            transform: translate(-50%, -50%) rotate(var(--final-rotation, 0deg)) scale(1.05);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+          }
+        `}
+      </style>
+
       {/* Fixed Logo with Menu - Responsive positioning */}
       <div
         style={{
-          position: 'fixed',
-          top: deviceType === 'mobile' ? '60px' : '80px',
-          left: deviceType === 'mobile' ? '15px' : '20px',
+          position: "fixed",
+          top: deviceType === "mobile" ? "60px" : "80px",
+          left: deviceType === "mobile" ? "15px" : "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
-          transition: 'transform 0.3s ease-out',
-          opacity: scrollY > 100 ? 0.9 : 1
+          transition: "transform 0.3s ease-out",
+          opacity: scrollY > 100 ? 0.9 : 1,
         }}
       >
         {/* Logo */}
@@ -1544,11 +1823,11 @@ const Homepage: React.FC = () => {
           onClick={handleLogoClick}
           className="logo-container"
           style={{
-            cursor: 'pointer',
-            position: 'relative',
-            borderRadius: '12px',
-            padding: '8px',
-            transition: 'all 0.3s ease'
+            cursor: "pointer",
+            position: "relative",
+            borderRadius: "12px",
+            padding: "8px",
+            transition: "all 0.3s ease",
           }}
         >
           <img
@@ -1556,9 +1835,9 @@ const Homepage: React.FC = () => {
             alt="Fixed Logo"
             style={{
               height: logoSizes.fixedLogo,
-              width: 'auto',
-              filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
-              transition: 'transform 0.2s ease, filter 0.2s ease'
+              width: "auto",
+              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
+              transition: "transform 0.2s ease, filter 0.2s ease",
             }}
           />
         </div>
@@ -1568,72 +1847,107 @@ const Homepage: React.FC = () => {
           <div
             id="logo-menu"
             style={{
-              position: 'absolute',
-              top: deviceType === 'mobile' ? '55px' : '75px',
-              left: deviceType === 'mobile' ? '55px' : '75px',
-              zIndex: 1001
+              position: "absolute",
+              top: deviceType === "mobile" ? "55px" : "60px",
+              left: deviceType === "mobile" ? "55px" : "60px",
+              zIndex: 1001,
             }}
           >
             {menuItems?.map((item, index) => {
-              const rotationAngles = [0, 30, 60, 90];
-              const itemRotation = rotationAngles[index] || 0;
-              
-              // Responsive positioning
-              const positions = {
-                mobile: {
-                  top: [0, 35, 67, 100],
-                  left: [75, 65, 40, 0]
-                },
-                tablet: {
-                  top: [0, 40, 75, 115],
-                  left: [90, 78, 47, 0]
-                },
-                desktop: {
-                  top: [0, 47.5, 90.9, 135],
-                  left: [105, 90, 54, 0]
-                }
-              };
-              
-              const pos = positions[deviceType] || positions.desktop;
+              const total = menuItems.length;
+              // Create a tighter arc around the logo for better spacing
+              const startAngle = -25; // Start closer to center
+              const endAngle = 95; // End closer to center
+              const angleStep =
+                total > 1 ? (endAngle - startAngle) / (total - 1) : 0;
+              const currentAngle = startAngle + index * angleStep;
+              const angleRad = (currentAngle * Math.PI) / 180;
+
+              // Smaller radius for tighter grouping
+              const deviceRadius =
+                deviceType === "mobile"
+                  ? 60
+                  : deviceType === "tablet"
+                  ? 70
+                  : 75;
+              const screenRadius = Math.min(
+                deviceRadius,
+                Math.max(45, window.innerWidth * 0.08)
+              );
+              const radius = Math.max(
+                35,
+                Math.min(screenRadius, window.innerWidth * 0.1)
+              );
+
+              // Center the arc around the logo position
+              const centerX = deviceType === "mobile" ? 55 : 65; // Logo left position
+              const centerY = deviceType === "mobile" ? 55 : 65; // Logo top position
+              const x = Math.round(centerX + radius * Math.cos(angleRad));
+              const y = Math.round(centerY + radius * Math.sin(angleRad));
 
               return (
                 <div
                   key={item.name}
-                  className="menu-item-enter menu-item-modern"
+                  className="menu-item-enter menu-item-clean"
                   onClick={() => handleMenuItemClick(item)}
-                  style={{
-                    position: 'absolute',
-                    left: `${pos.left[index]}px`,
-                    top: `${pos.top[index]}px`,
-                    transform: `translate(-50%, -50%) rotate(${itemRotation}deg)`,
-                    padding: logoSizes.menuPadding,
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    fontSize: logoSizes.menuItemSize,
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    animationDelay: `${index * 0.1}s`,
-                    userSelect: 'none',
-                    minWidth: deviceType === 'mobile' ? '65px' : deviceType === 'tablet' ? '75px' : '85px',
-                    justifyContent: 'center',
-                    '--rotation': `${itemRotation}deg`
-                  } as React.CSSProperties & { '--rotation': string }}
+                  style={
+                    {
+                      position: "absolute",
+                      left: `${x}px`,
+                      top: `${y}px`,
+                      transform: `translate(-50%, -50%) rotate(${currentAngle}deg)`,
+                      padding: deviceType === "mobile" ? "3px 6px" : "4px 8px",
+                      borderRadius: deviceType === "mobile" ? "10px" : "12px",
+                      cursor: "pointer",
+                      fontSize: deviceType === "mobile" ? "10px" : "11px",
+                      fontWeight: "500",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: deviceType === "mobile" ? "5px" : "6px",
+                      whiteSpace: "nowrap",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      animationDelay: `${index * 0.1}s`,
+                      userSelect: "none",
+                      minWidth:
+                        deviceType === "mobile"
+                          ? "60px"
+                          : deviceType === "tablet"
+                          ? "65px"
+                          : "70px",
+                      justifyContent: "center",
+                      background: "rgba(255, 255, 255, 0.15)",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.3)",
+                      "--final-rotation": `${currentAngle}deg`,
+                    } as React.CSSProperties & { "--final-rotation": string }
+                  }
                 >
-                  <span style={{ 
-                    fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px',
-                    filter: 'grayscale(0)',
-                    transition: 'all 0.2s ease'
-                  }}>
+                  <span
+                    style={{
+                      fontSize:
+                        deviceType === "mobile"
+                          ? "11px"
+                          : deviceType === "tablet"
+                          ? "12px"
+                          : "12px",
+                      filter: "grayscale(0)",
+                      transition: "all 0.2s ease",
+                      opacity: 0.8,
+                    }}
+                  >
                     {item.icon}
                   </span>
-                  <span style={{
-                    letterSpacing: '0.2px',
-                    fontFamily: 'system-ui, -apple-system, sans-serif'
-                  }}>
+                  <span
+                    style={{
+                      letterSpacing: "0.2px",
+                      fontFamily: "system-ui, -apple-system, sans-serif",
+                      color: "#000000",
+                      display: "inline-block",
+                      fontWeight: "500",
+                      textShadow: "none",
+                    }}
+                  >
                     {item.name}
                   </span>
                 </div>
@@ -1644,15 +1958,16 @@ const Homepage: React.FC = () => {
       </div>
 
       {/* Main Content Container */}
-      <div 
-        ref={containerRef} 
-        style={{ 
-          position: 'absolute',
+      <div
+        ref={containerRef}
+        style={{
+          position: "absolute",
           top: 0,
           left: 0,
-          width: '100%',
-          transition: 'transform 0.1s ease-out',
-          willChange: 'transform'
+          width: "100%",
+          paddingBottom: "200px", // Account for sticky footer
+          transition: "transform 0.1s ease-out",
+          willChange: "transform",
         }}
       >
         {/* ENHANCED: Responsive sections with proper background handling */}
@@ -1660,65 +1975,89 @@ const Homepage: React.FC = () => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
           const bgStyle = getResponsiveBackgroundStyle(section);
-          const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
+          const coordinateSystem = createResponsiveCoordinateSystem(
+            section.backgroundImageAspectRatio
+          );
 
           return (
             <section
               key={section.projectContainerId}
               style={{
-                position: 'relative',
-                width: '100vw',
+                position: "relative",
+                width: "100vw",
                 height: `${dimensions.height}px`,
-                minHeight: deviceType === 'mobile' ? '80vh' : deviceType === 'tablet' ? '90vh' : '100vh',
+                minHeight:
+                  deviceType === "mobile"
+                    ? "80vh"
+                    : deviceType === "tablet"
+                    ? "90vh"
+                    : "100vh",
                 ...bgStyle,
-                overflow: 'hidden'
+                overflow: "hidden",
               }}
             >
               {/* Background Overlay */}
               <div
-                className={`section-background ${hoveredImageId !== null ? 'dimmed' : ''}`}
+                className={`section-background ${
+                  hoveredImageId !== null ? "dimmed" : ""
+                }`}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: sectionIndex === 0 
-                    ? 'linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' 
-                    : 'rgba(0,0,0,0.1)',
-                  zIndex: 1
+                  background:
+                    sectionIndex === 0
+                      ? "linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
+                      : "rgba(0,0,0,0.1)",
+                  zIndex: 1,
                 }}
               />
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
-              {process.env.NODE_ENV === 'development' && (
+              {process.env.NODE_ENV === "development" && (
                 <div className="coordinate-debug">
-                  Screen: {window.innerWidth}×{window.innerHeight}<br/>
-                  Device: {deviceType}<br/>
-                  Ratio: {section.backgroundImageAspectRatio?.toFixed(2) || 'N/A'}<br/>
-                  Adjusted: {dimensions.adjustedAspectRatio?.toFixed(2) || 'N/A'}<br/>
-                  Section H: {dimensions.height}px<br/>
-                  Image H: {dimensions.imageHeight}px<br/>
-                  BgSize: {bgStyle.backgroundSize}<br/>
+                  Screen: {window.innerWidth}×{window.innerHeight}
+                  <br />
+                  Device: {deviceType}
+                  <br />
+                  Ratio:{" "}
+                  {section.backgroundImageAspectRatio?.toFixed(2) || "N/A"}
+                  <br />
+                  Adjusted:{" "}
+                  {dimensions.adjustedAspectRatio?.toFixed(2) || "N/A"}
+                  <br />
+                  Section H: {dimensions.height}px
+                  <br />
+                  Image H: {dimensions.imageHeight}px
+                  <br />
+                  BgSize: {bgStyle.backgroundSize}
+                  <br />
                   Animations: {animationOptions.length - 1}
                 </div>
               )}
 
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
-                <div 
-                  className="centered-logo" 
+                <div
+                  className="centered-logo"
                   onClick={handleCenteredLogoClick}
                   style={{
-                    top: deviceType === 'mobile' ? '20px' : deviceType === 'tablet' ? '30px' : '40px'
+                    top:
+                      deviceType === "mobile"
+                        ? "20px"
+                        : deviceType === "tablet"
+                        ? "30px"
+                        : "40px",
                   }}
                 >
                   <img
                     src="/logo/font.png"
                     alt="Centered Logo"
                     style={{
-                      cursor: 'pointer',
-                      height: logoSizes.centeredLogo
+                      cursor: "pointer",
+                      height: logoSizes.centeredLogo,
                     }}
                   />
                 </div>
@@ -1728,162 +2067,227 @@ const Homepage: React.FC = () => {
               {section.projects?.map((subImage) => {
                 // ENHANCED: Use responsive coordinate system for positioning
                 const containerWidth = window.innerWidth;
-                const { x: pixelX, y: pixelY } = coordinateSystem.getPixelFromPercent(
-                  subImage.xPosition, 
-                  subImage.yPosition, 
-                  containerWidth
-                );
-                
+                const { x: pixelX, y: pixelY } =
+                  coordinateSystem.getPixelFromPercent(
+                    subImage.xPosition,
+                    subImage.yPosition,
+                    containerWidth
+                  );
+
                 const imageDimensions = calculateResponsiveImageDimensions(
                   containerWidth,
                   subImage.heightPercent,
                   section.backgroundImageAspectRatio
                 );
 
-                console.log('Rendering with responsive animations:', {
+                console.log("Rendering with responsive animations:", {
                   name: subImage.name,
                   animation: subImage.animation,
                   deviceType,
                   classes: getAnimationClasses(subImage),
-                  dimensions: imageDimensions
+                  dimensions: imageDimensions,
                 });
 
                 const isHovered = hoveredImageId === subImage.projectId;
-                const isDimmed = hoveredImageId !== null && hoveredImageId !== subImage.projectId;
+                const isDimmed =
+                  hoveredImageId !== null &&
+                  hoveredImageId !== subImage.projectId;
 
                 return (
                   <div
                     key={subImage.projectId}
                     className={`sub-image-visible sub-image-container ${
-                      isHovered ? 'highlighted' : isDimmed ? 'dimmed' : ''
+                      isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
                     }`}
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       left: `${pixelX}px`,
                       top: `${pixelY}px`,
-                      zIndex: isHovered ? 50 : 10
+                      zIndex: isHovered ? 50 : 10,
                     }}
                   >
                     <img
-                      src={subImage.projectImageUrl}
+                      src={
+                        subImage.projectImageUrl &&
+                        subImage.projectImageUrl.trim() !== ""
+                          ? subImage.projectImageUrl
+                          : SAMPLE_SUB_IMAGE
+                      }
                       alt={subImage.name || subImage.imageFileName}
                       data-project-id={subImage.projectId}
                       data-animation={subImage.animation}
                       data-animation-speed={subImage.animationSpeed}
                       data-animation-trigger={subImage.animationTrigger}
-                      data-device-type={deviceType}
                       className={getAnimationClasses(subImage)}
                       onClick={() => handleSubImageClick(subImage.projectId)}
                       onMouseEnter={() => setHoveredImageId(subImage.projectId)}
                       onMouseLeave={() => setHoveredImageId(null)}
+                      onError={(e) => {
+                        // Fallback to sample image if the original fails to load
+                        if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
+                          e.currentTarget.src = SAMPLE_SUB_IMAGE;
+                        }
+                      }}
                       style={{
                         ...imageDimensions,
-                        display: 'block',
-                        borderRadius: '8px',
-                        boxShadow: isHovered 
-                          ? '0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)'
-                          : '0 4px 20px rgba(0,0,0,0.3)',
-                        cursor: 'pointer',
-                        animationFillMode: 'both',
-                        backfaceVisibility: 'hidden',
-                        perspective: '1000px',
-                        // Enhanced touch targets for mobile
-                        minWidth: deviceType === 'mobile' ? '44px' : 'auto',
-                        minHeight: deviceType === 'mobile' ? '44px' : 'auto'
+                        display: "block",
+                        borderRadius: "8px",
+                        boxShadow: isHovered
+                          ? "0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)"
+                          : "0 4px 20px rgba(0,0,0,0.3)",
+                        cursor: "pointer",
+                        animationFillMode: "both",
+                        backfaceVisibility: "hidden",
+                        perspective: "1000px",
                       }}
                     />
-                    
+
                     {/* Enhanced responsive debug info overlay */}
-                    {process.env.NODE_ENV === 'development' && subImage.animation !== 'none' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '-40px',
-                        left: '0',
-                        background: 'rgba(0,0,0,0.9)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: deviceType === 'mobile' ? '8px' : '10px',
-                        whiteSpace: 'nowrap',
-                        zIndex: 1000,
-                        pointerEvents: 'none',
-                        lineHeight: '1.2',
-                        maxWidth: deviceType === 'mobile' ? '120px' : '150px'
-                      }}>
-                        🎬 {subImage.animation}<br/>
-                        ⚡ {subImage.animationSpeed}<br/>
-                        🎯 {subImage.animationTrigger}<br/>
-                        📱 {deviceType}
-                      </div>
-                    )}
+                    {process.env.NODE_ENV === "development" &&
+                      subImage.animation !== "none" && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "-40px",
+                            left: "0",
+                            background: "rgba(0,0,0,0.9)",
+                            color: "white",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            fontSize: deviceType === "mobile" ? "8px" : "10px",
+                            whiteSpace: "nowrap",
+                            zIndex: 1000,
+                            pointerEvents: "none",
+                            lineHeight: "1.2",
+                            maxWidth:
+                              deviceType === "mobile" ? "120px" : "150px",
+                          }}
+                        >
+                          🎬 {subImage.animation}
+                          <br />⚡ {subImage.animationSpeed}
+                          <br />
+                          🎯 {subImage.animationTrigger}
+                          <br />
+                          📱 {deviceType}
+                        </div>
+                      )}
                   </div>
                 );
               })}
 
               {/* Section Title (Hidden but can be used for SEO) */}
-              <h1 style={{ 
-                position: 'absolute', 
-                left: '-9999px', 
-                visibility: 'hidden' 
-              }}>
+              <h1
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  visibility: "hidden",
+                }}
+              >
                 {section.title}
               </h1>
             </section>
           );
         })}
 
-        {/* Responsive Footer Section */}
+        {/* Footer Section */}
         <footer
           style={{
-            position: 'relative',
-            width: '100vw',
-            height: deviceType === 'mobile' ? '300px' : deviceType === 'tablet' ? '250px' : '200px',
-            background: 'linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)',
-            display: 'flex',
-            flexDirection: deviceType === 'mobile' ? 'column' : 'row',
-            alignItems: 'center',
-            justifyContent: deviceType === 'mobile' ? 'center' : 'space-between',
-            padding: deviceType === 'mobile' ? '40px 20px' : '0 60px',
-            color: 'white',
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            width: "100vw",
+            height: "200px",
+            background:
+              "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 60px",
+            color: "white",
             zIndex: 100,
-            gap: deviceType === 'mobile' ? '30px' : '0'
           }}
         >
           {/* Left side - Heart logo and text */}
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: deviceType === 'mobile' ? 'center' : 'flex-start',
-            textAlign: deviceType === 'mobile' ? 'center' : 'left'
-          }}>
-            <div style={{ 
-              fontSize: deviceType === 'mobile' ? '36px' : '48px', 
-              marginBottom: '10px',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-            }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "48px",
+                marginBottom: "10px",
+                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+              }}
+            >
               ♥
             </div>
-            <div style={{ 
-              fontSize: deviceType === 'mobile' ? '12px' : '14px', 
-              lineHeight: '1.4',
-              color: 'rgba(255,255,255,0.9)',
-              maxWidth: '200px'
-            }}>
-              <div style={{ fontWeight: '600', marginBottom: '2px' }}>Get in Touch</div>
-              <div>3420 Bristol St.</div>
-              <div>Costa Mesa, CA 92626</div>
-              <div>+1 (626) 555 0134</div>
+            <div
+              style={{
+                fontSize: "14px",
+                lineHeight: "1.4",
+                color: "rgba(255,255,255,0.9)",
+                maxWidth: "200px",
+              }}
+            >
+              <div style={{ fontWeight: "600", marginBottom: "2px" }}>
+                Get in Touch
+              </div>
+              <div>
+                {resumeData?.data?.location || "Los Angeles, California"}
+              </div>
+              <div>{resumeData?.data?.phone || "+1 (626) 555 0134"}</div>
+              <div>{resumeData?.data?.email || "contact@example.com"}</div>
+              <div style={{ marginTop: "8px" }}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCenteredLogoClick();
+                  }}
+                  style={{
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                    padding: "6px 12px",
+                    borderRadius: "20px",
+                    background: "rgba(255, 255, 255, 0.2)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    transition: "all 0.3s ease",
+                    display: "inline-block",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "rgba(255, 255, 255, 0.3)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(0, 0, 0, 0.2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      "rgba(255, 255, 255, 0.2)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  📄 View Resume
+                </a>
+              </div>
             </div>
           </div>
 
           {/* Right side - Connect button */}
           <div>
-            <button 
+            <button
               className="connect-button"
               onClick={handleConnectClick}
               style={{
-                padding: deviceType === 'mobile' ? '10px 24px' : '12px 32px',
-                fontSize: deviceType === 'mobile' ? '14px' : '16px'
+                padding: deviceType === "mobile" ? "10px 24px" : "12px 32px",
+                fontSize: deviceType === "mobile" ? "14px" : "16px",
               }}
             >
               CONNECT
@@ -1892,31 +2296,86 @@ const Homepage: React.FC = () => {
         </footer>
       </div>
 
-      {/* Responsive Connect Form Modal */}
+      {/* Connect Form Modal */}
       {showConnectForm && (
-        <div className="connect-modal" onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setShowConnectForm(false);
-          }
-        }}>
+        <div
+          className="connect-modal"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowConnectForm(false);
+            }
+          }}
+        >
           <div className="connect-form">
             {!formSubmitted ? (
               <form onSubmit={handleConnectSubmit}>
                 <h2>Let's Connect!</h2>
-                <p>Enter your email address and we'll get in touch with you soon.</p>
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="email-input"
-                  required
-                />
-                <button type="submit" className="submit-btn">
-                  Send Message
+                <p>Fill out the form below and we'll get back to you soon.</p>
+
+                {formErrors.general && (
+                  <div className="error-message general-error">
+                    {formErrors.general}
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <input
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`email-input ${formErrors.email ? "error" : ""}`}
+                    required
+                  />
+                  {formErrors.email && (
+                    <div className="error-message">{formErrors.email}</div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="tel"
+                    placeholder="Enter your mobile number"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    className={`mobile-input ${
+                      formErrors.mobileNumber ? "error" : ""
+                    }`}
+                    required
+                  />
+                  {formErrors.mobileNumber && (
+                    <div className="error-message">
+                      {formErrors.mobileNumber}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <textarea
+                    placeholder="Enter your message (minimum 10 characters)"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className={`message-input ${
+                      formErrors.message ? "error" : ""
+                    }`}
+                    rows={4}
+                    required
+                  />
+                  {formErrors.message && (
+                    <div className="error-message">{formErrors.message}</div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? "Sending..." : "Send Message"}
                 </button>
-                <button 
-                  type="button" 
+
+                <button
+                  type="button"
                   className="close-btn"
                   onClick={() => setShowConnectForm(false)}
                 >
@@ -1924,10 +2383,14 @@ const Homepage: React.FC = () => {
                 </button>
               </form>
             ) : (
-              <div>
-                <h2>✨ Thank You!</h2>
+              <div className="success-container">
+                <div className="success-icon">✓</div>
+                <h2>Message Sent Successfully!</h2>
                 <p className="success-message">
-                  Your message has been sent successfully. We'll get back to you soon!
+                  Thank you for your message. We'll get back to you soon!
+                </p>
+                <p className="closing-note">
+                  This form will close automatically in a few seconds.
                 </p>
               </div>
             )}
@@ -1946,29 +2409,29 @@ const Homepage: React.FC = () => {
             }
           }}
           style={{
-            position: 'fixed',
-            bottom: deviceType === 'mobile' ? '20px' : '30px',
-            right: deviceType === 'mobile' ? '20px' : '30px',
-            width: deviceType === 'mobile' ? '45px' : '50px',
-            height: deviceType === 'mobile' ? '45px' : '50px',
-            borderRadius: '50%',
-            background: 'linear-gradient(45deg, #667eea, #764ba2)',
-            border: 'none',
-            color: 'white',
-            fontSize: deviceType === 'mobile' ? '16px' : '20px',
-            cursor: 'pointer',
+            position: "fixed",
+            bottom: deviceType === "mobile" ? "20px" : "30px",
+            right: deviceType === "mobile" ? "20px" : "30px",
+            width: deviceType === "mobile" ? "45px" : "50px",
+            height: deviceType === "mobile" ? "45px" : "50px",
+            borderRadius: "50%",
+            background: "linear-gradient(45deg, #667eea, #764ba2)",
+            border: "none",
+            color: "white",
+            fontSize: deviceType === "mobile" ? "16px" : "20px",
+            cursor: "pointer",
             zIndex: 1000,
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            transition: 'transform 0.3s ease'
+            boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+            transition: "transform 0.3s ease",
           }}
           onMouseEnter={(e) => {
-            if (deviceType !== 'mobile') {
-              e.currentTarget.style.transform = 'scale(1.1)';
+            if (deviceType !== "mobile") {
+              e.currentTarget.style.transform = "scale(1.1)";
             }
           }}
           onMouseLeave={(e) => {
-            if (deviceType !== 'mobile') {
-              e.currentTarget.style.transform = 'scale(1)';
+            if (deviceType !== "mobile") {
+              e.currentTarget.style.transform = "scale(1)";
             }
           }}
         >
