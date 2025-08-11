@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useHomePageList } from '../../api/useHomePage';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useHomePageList } from "../../api/useHomePage";
 
 interface SubImage {
   projectId: number;
@@ -38,43 +38,55 @@ const createUnifiedCoordinateSystem = (aspectRatio: number | undefined) => {
     if (!aspectRatio || aspectRatio <= 0) {
       return { width: containerWidth, height: containerWidth * 0.5625 }; // Default 16:9
     }
-    
+
     // Calculate height based on full width display
     const imageHeight = containerWidth / aspectRatio;
     return { width: containerWidth, height: imageHeight };
   };
-  
-  const getPixelFromPercent = (xPercent: number, yPercent: number, containerWidth: number) => {
-    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+
+  const getPixelFromPercent = (
+    xPercent: number,
+    yPercent: number,
+    containerWidth: number
+  ) => {
+    const { width: imageWidth, height: imageHeight } =
+      getImageDimensions(containerWidth);
     return {
       x: (xPercent / 100) * imageWidth,
       y: (yPercent / 100) * imageHeight,
       imageWidth,
-      imageHeight
+      imageHeight,
     };
   };
-  
-  const getPercentFromPixel = (x: number, y: number, containerWidth: number) => {
-    const { width: imageWidth, height: imageHeight } = getImageDimensions(containerWidth);
+
+  const getPercentFromPixel = (
+    x: number,
+    y: number,
+    containerWidth: number
+  ) => {
+    const { width: imageWidth, height: imageHeight } =
+      getImageDimensions(containerWidth);
     return {
       xPercent: imageWidth > 0 ? (x / imageWidth) * 100 : 0,
-      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0
+      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0,
     };
   };
-  
+
   return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
 };
 
 const Homepage: React.FC = () => {
   const [sections, setSections] = useState<SectionData[]>([]);
-  const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
+  const [viewportHeight, setViewportHeight] = useState<number>(
+    window.innerHeight
+  );
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>("");
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
@@ -88,48 +100,60 @@ const Homepage: React.FC = () => {
 
   // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
   const animationOptions = [
-    { value: 'none', label: 'No Animation' },
-    { value: 'fadeIn', label: 'Fade In' },
-    { value: 'fadeInUp', label: 'Fade In Up' },
-    { value: 'fadeInDown', label: 'Fade In Down' },
-    { value: 'slideInLeft', label: 'Slide In Left' },
-    { value: 'slideInRight', label: 'Slide In Right' },
-    { value: 'slideInUp', label: 'Slide In Up' },
-    { value: 'slideInDown', label: 'Slide In Down' },
-    { value: 'zoomIn', label: 'Zoom In' },
-    { value: 'zoomInUp', label: 'Zoom In Up' },
-    { value: 'zoomInDown', label: 'Zoom In Down' },
-    { value: 'bounce', label: 'Bounce' },
-    { value: 'bounceIn', label: 'Bounce In' },
-    { value: 'bounceInUp', label: 'Bounce In Up' },
-    { value: 'bounceInDown', label: 'Bounce In Down' },
-    { value: 'shake', label: 'Shake' },
-    { value: 'pulse', label: 'Pulse' },
-    { value: 'heartbeat', label: 'Heartbeat' },
-    { value: 'swing', label: 'Swing' },
-    { value: 'rotate', label: 'Rotate' },
-    { value: 'rotateIn', label: 'Rotate In' },
-    { value: 'flip', label: 'Flip' },
-    { value: 'flipInX', label: 'Flip In X' },
-    { value: 'flipInY', label: 'Flip In Y' },
-    { value: 'rubberBand', label: 'Rubber Band' },
-    { value: 'wobble', label: 'Wobble' },
-    { value: 'jello', label: 'Jello' },
-    { value: 'tada', label: 'Tada' }
+    { value: "none", label: "No Animation" },
+    { value: "fadeIn", label: "Fade In" },
+    { value: "fadeInUp", label: "Fade In Up" },
+    { value: "fadeInDown", label: "Fade In Down" },
+    { value: "slideInLeft", label: "Slide In Left" },
+    { value: "slideInRight", label: "Slide In Right" },
+    { value: "slideInUp", label: "Slide In Up" },
+    { value: "slideInDown", label: "Slide In Down" },
+    { value: "zoomIn", label: "Zoom In" },
+    { value: "zoomInUp", label: "Zoom In Up" },
+    { value: "zoomInDown", label: "Zoom In Down" },
+    { value: "bounce", label: "Bounce" },
+    { value: "bounceIn", label: "Bounce In" },
+    { value: "bounceInUp", label: "Bounce In Up" },
+    { value: "bounceInDown", label: "Bounce In Down" },
+    { value: "shake", label: "Shake" },
+    { value: "pulse", label: "Pulse" },
+    { value: "heartbeat", label: "Heartbeat" },
+    { value: "swing", label: "Swing" },
+    { value: "rotate", label: "Rotate" },
+    { value: "rotateIn", label: "Rotate In" },
+    { value: "flip", label: "Flip" },
+    { value: "flipInX", label: "Flip In X" },
+    { value: "flipInY", label: "Flip In Y" },
+    { value: "rubberBand", label: "Rubber Band" },
+    { value: "wobble", label: "Wobble" },
+    { value: "jello", label: "Jello" },
+    { value: "tada", label: "Tada" },
   ];
 
   const speedOptions = [
-    { value: 'very-slow', label: 'Very Slow', duration: '4s' },
-    { value: 'slow', label: 'Slow', duration: '2.5s' },
-    { value: 'normal', label: 'Normal', duration: '1.5s' },
-    { value: 'fast', label: 'Fast', duration: '0.8s' },
-    { value: 'very-fast', label: 'Very Fast', duration: '0.4s' }
+    { value: "very-slow", label: "Very Slow", duration: "4s" },
+    { value: "slow", label: "Slow", duration: "2.5s" },
+    { value: "normal", label: "Normal", duration: "1.5s" },
+    { value: "fast", label: "Fast", duration: "0.8s" },
+    { value: "very-fast", label: "Very Fast", duration: "0.4s" },
   ];
 
   const triggerOptions = [
-    { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
-    { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
-    { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
+    {
+      value: "continuous",
+      label: "Continuous",
+      description: "Animation plays all the time",
+    },
+    {
+      value: "hover",
+      label: "On Hover",
+      description: "Animation plays when mouse hovers",
+    },
+    {
+      value: "once",
+      label: "Play Once",
+      description: "Animation plays once on load",
+    },
   ];
 
   // Navigation handler for sub-images
@@ -140,15 +164,15 @@ const Homepage: React.FC = () => {
 
   // Handle centered logo click - navigate to /resume
   const handleCenteredLogoClick = () => {
-    navigate('/resume');
+    navigate("/resume");
   };
 
   // Menu items for the animated logo menu
   const menuItems = [
-    { name: 'About', icon: '👤', link: '/about' },
-    { name: 'Contact', icon: '📞', link: '/contact' },
-    { name: 'Instagram', icon: '📷', link: 'https://instagram.com' },
-    { name: 'LinkedIn', icon: '💼', link: 'https://linkedin.com' }
+    { name: "About", icon: "👤", link: "/about" },
+    { name: "Contact", icon: "📞", link: "/contact" },
+    { name: "Instagram", icon: "📷", link: "https://instagram.com" },
+    { name: "LinkedIn", icon: "💼", link: "https://linkedin.com" },
   ];
 
   // Handle logo click
@@ -159,29 +183,30 @@ const Homepage: React.FC = () => {
   // FIXED: Same background strategy as ImageEditor
   const getBackgroundStyle = (section: SectionData) => {
     if (!section.backgroundImageUrl) return {};
-    
     return {
       backgroundImage: `url(${section.backgroundImageUrl})`,
-      backgroundSize: '100% auto', // Same as ImageEditor
-      backgroundPosition: 'center top',
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'scroll'
-    };
+      // Force full coverage of the section box to avoid visible gaps due to rounding
+      backgroundSize: "100% 100%",
+      backgroundPosition: "center top",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "scroll",
+    } as React.CSSProperties;
   };
 
   // FIXED: Same section dimension calculation as ImageEditor
   const getSectionDimensions = (section: SectionData) => {
     const containerWidth = window.innerWidth;
-    const coordinateSystem = createUnifiedCoordinateSystem(section.backgroundImageAspectRatio);
-    const { width, height } = coordinateSystem.getImageDimensions(containerWidth);
-    
-    // Ensure minimum viewport height but respect image proportions
-    const sectionHeight = Math.max(height, window.innerHeight);
-    
+    const coordinateSystem = createUnifiedCoordinateSystem(
+      section.backgroundImageAspectRatio
+    );
+    const { width, height } =
+      coordinateSystem.getImageDimensions(containerWidth);
+    // Use exact image height to perfectly stack sections without gaps
+    const sectionHeight = Math.max(1, Math.round(height));
     return {
       width: containerWidth,
       height: sectionHeight,
-      imageHeight: height // Actual image height for positioning
+      imageHeight: sectionHeight,
     };
   };
 
@@ -195,18 +220,18 @@ const Homepage: React.FC = () => {
       });
       height += 200; // Add footer height
       setTotalHeight(height);
-      
+
       // Reset scroll if it's beyond the new bounds
       if (targetScrollY.current > height - window.innerHeight) {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
-      
-      console.log('Unified coordinate system total height calculated:', {
+
+      console.log("Unified coordinate system total height calculated:", {
         totalHeight: height,
         sectionsCount: sections.length,
         viewportHeight,
         windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight
+        windowHeight: window.innerHeight,
       });
     }
   }, [sections, viewportHeight]);
@@ -215,21 +240,23 @@ const Homepage: React.FC = () => {
   const smoothScrollStep = () => {
     const difference = targetScrollY.current - currentScrollY.current;
     const step = difference * 0.05; // Slow scroll speed
-    
+
     if (Math.abs(difference) < 0.5) {
       currentScrollY.current = targetScrollY.current;
       isScrolling.current = false;
       setScrollY(currentScrollY.current);
       return;
     }
-    
+
     currentScrollY.current += step;
     setScrollY(currentScrollY.current);
-    
+
     if (containerRef.current) {
-      containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
+      // Snap to whole pixels to avoid hairline seams between sections on some devices
+      const snappedY = Math.round(currentScrollY.current);
+      containerRef.current.style.transform = `translate3d(0, -${snappedY}px, 0)`;
     }
-    
+
     animationFrameId.current = requestAnimationFrame(smoothScrollStep);
   };
 
@@ -239,13 +266,13 @@ const Homepage: React.FC = () => {
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      
+
       const scrollAmount = e.deltaY * 0.3;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-      
+
       const newScrollY = targetScrollY.current + scrollAmount;
       targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
-      
+
       if (!isScrolling.current) {
         isScrolling.current = true;
         smoothScrollStep();
@@ -255,35 +282,41 @@ const Homepage: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const scrollAmount = 50;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-      
+
       switch (e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-        case ' ':
+        case "ArrowDown":
+        case "PageDown":
+        case " ":
           if (e.target === document.body) {
             e.preventDefault();
-            targetScrollY.current = Math.min(maxScroll, targetScrollY.current + scrollAmount);
+            targetScrollY.current = Math.min(
+              maxScroll,
+              targetScrollY.current + scrollAmount
+            );
           }
           break;
-        case 'ArrowUp':
-        case 'PageUp':
+        case "ArrowUp":
+        case "PageUp":
           if (e.target === document.body) {
             e.preventDefault();
-            targetScrollY.current = Math.max(0, targetScrollY.current - scrollAmount);
+            targetScrollY.current = Math.max(
+              0,
+              targetScrollY.current - scrollAmount
+            );
           }
           break;
-        case 'Home':
+        case "Home":
           e.preventDefault();
           targetScrollY.current = 0;
           break;
-        case 'End':
+        case "End":
           e.preventDefault();
           targetScrollY.current = maxScroll;
           break;
         default:
           return;
       }
-      
+
       if (!isScrolling.current) {
         isScrolling.current = true;
         smoothScrollStep();
@@ -301,10 +334,13 @@ const Homepage: React.FC = () => {
         const currentY = e.touches[0].clientY;
         const deltaY = (startY - currentY) * 0.5;
         const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-        
-        targetScrollY.current = Math.max(0, Math.min(maxScroll, targetScrollY.current + deltaY));
+
+        targetScrollY.current = Math.max(
+          0,
+          Math.min(maxScroll, targetScrollY.current + deltaY)
+        );
         startY = currentY;
-        
+
         if (!isScrolling.current) {
           isScrolling.current = true;
           smoothScrollStep();
@@ -312,19 +348,21 @@ const Homepage: React.FC = () => {
       }
     };
 
-    document.body.style.overflow = 'hidden';
-    
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.body.style.overflow = "hidden";
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
+      document.body.style.overflow = "";
+      window.removeEventListener("wheel", handleWheel);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
@@ -336,9 +374,9 @@ const Homepage: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMenuOpen) {
         const target = event.target as HTMLElement;
-        const logoElement = document.getElementById('main-logo');
-        const menuElement = document.getElementById('logo-menu');
-        
+        const logoElement = document.getElementById("main-logo");
+        const menuElement = document.getElementById("logo-menu");
+
         if (logoElement && menuElement) {
           if (!logoElement.contains(target) && !menuElement.contains(target)) {
             setIsMenuOpen(false);
@@ -347,16 +385,16 @@ const Homepage: React.FC = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
   // Load data from API
   useEffect(() => {
     if (data?.data) {
-      console.log('Raw API Data:', data.data);
+      console.log("Raw API Data:", data.data);
       setTimeout(() => {
         setSections(data.data.sort((a, b) => a.sortOrder - b.sortOrder));
       }, 500);
@@ -366,19 +404,28 @@ const Homepage: React.FC = () => {
   // COMPREHENSIVE Animation debugging with all animation options
   useEffect(() => {
     if (sections.length > 0) {
-      console.log('=== COMPLETE ANIMATION DEBUG ===');
-      console.log('Total available animations:', animationOptions.length - 1); // Exclude 'none'
-      console.log('Available animations:', animationOptions.map(a => a.value).filter(v => v !== 'none'));
-      
+      console.log("=== COMPLETE ANIMATION DEBUG ===");
+      console.log("Total available animations:", animationOptions.length - 1); // Exclude 'none'
+      console.log(
+        "Available animations:",
+        animationOptions.map((a) => a.value).filter((v) => v !== "none")
+      );
+
       sections.forEach((section, sectionIndex) => {
         console.log(`Section ${sectionIndex} (${section.title}):`);
-        
+
         if (section.projects && section.projects.length > 0) {
           section.projects.forEach((project, projectIndex) => {
-            const animationExists = animationOptions.find(a => a.value === project.animation);
-            const speedExists = speedOptions.find(s => s.value === project.animationSpeed);
-            const triggerExists = triggerOptions.find(t => t.value === project.animationTrigger);
-            
+            const animationExists = animationOptions.find(
+              (a) => a.value === project.animation
+            );
+            const speedExists = speedOptions.find(
+              (s) => s.value === project.animationSpeed
+            );
+            const triggerExists = triggerOptions.find(
+              (t) => t.value === project.animationTrigger
+            );
+
             console.log(`  Project ${projectIndex}:`, {
               name: project.name,
               projectId: project.projectId,
@@ -388,36 +435,48 @@ const Homepage: React.FC = () => {
               speedExists: !!speedExists,
               animationTrigger: project.animationTrigger,
               triggerExists: !!triggerExists,
-              expectedClasses: getAnimationClasses(project)
+              expectedClasses: getAnimationClasses(project),
             });
-            
+
             // Validate animation values
-            if (project.animation && project.animation !== 'none') {
-              console.log(`    ✅ Animation: ${project.animation} ${animationExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Speed: ${project.animationSpeed} ${speedExists ? '(FOUND)' : '(NOT FOUND)'}`);
-              console.log(`    ✅ Trigger: ${project.animationTrigger} ${triggerExists ? '(FOUND)' : '(NOT FOUND)'}`);
+            if (project.animation && project.animation !== "none") {
+              console.log(
+                `    ✅ Animation: ${project.animation} ${
+                  animationExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
+              console.log(
+                `    ✅ Speed: ${project.animationSpeed} ${
+                  speedExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
+              console.log(
+                `    ✅ Trigger: ${project.animationTrigger} ${
+                  triggerExists ? "(FOUND)" : "(NOT FOUND)"
+                }`
+              );
             } else {
               console.log(`    ❌ No animation set`);
             }
           });
         } else {
-          console.log('  No projects found in this section');
+          console.log("  No projects found in this section");
         }
       });
-      
-      console.log('=== END COMPLETE ANIMATION DEBUG ===');
+
+      console.log("=== END COMPLETE ANIMATION DEBUG ===");
     }
   }, [sections]);
 
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      console.log('API Data Structure:', data.data[0]);
+      console.log("API Data Structure:", data.data[0]);
       if (data.data[0].projects && data.data[0].projects.length > 0) {
-        console.log('First Project Position:', {
+        console.log("First Project Position:", {
           xPosition: data.data[0].projects[0].xPosition,
           yPosition: data.data[0].projects[0].yPosition,
-          heightPercent: data.data[0].projects[0].heightPercent
+          heightPercent: data.data[0].projects[0].heightPercent,
         });
       }
     }
@@ -427,18 +486,31 @@ const Homepage: React.FC = () => {
   useEffect(() => {
     const handleResize = () => {
       setViewportHeight(window.innerHeight);
-      // Force a re-render which will recalculate all positions
+      // Also adjust target/current scroll to snapped values preventing half-pixel gaps
+      const maxScroll = Math.max(0, totalHeight - window.innerHeight);
+      targetScrollY.current = Math.max(
+        0,
+        Math.min(maxScroll, targetScrollY.current)
+      );
+      currentScrollY.current = Math.max(
+        0,
+        Math.min(maxScroll, currentScrollY.current)
+      );
+      if (containerRef.current) {
+        const snappedY = Math.round(currentScrollY.current);
+        containerRef.current.style.transform = `translate3d(0, -${snappedY}px, 0)`;
+      }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [totalHeight]);
 
   // Handle menu item click
-  const handleMenuItemClick = (item: typeof menuItems[0]) => {
+  const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
     console.log(`Navigating to ${item.link}`);
-    if (item.link.startsWith('http')) {
-      window.open(item.link, '_blank');
+    if (item.link.startsWith("http")) {
+      window.open(item.link, "_blank");
     } else {
       alert(`Navigating to ${item.link}`);
     }
@@ -449,12 +521,12 @@ const Homepage: React.FC = () => {
   const handleConnectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim()) {
-      console.log('Email submitted:', email);
+      console.log("Email submitted:", email);
       setFormSubmitted(true);
       setTimeout(() => {
         setShowConnectForm(false);
         setFormSubmitted(false);
-        setEmail('');
+        setEmail("");
       }, 2000);
     }
   };
@@ -463,23 +535,25 @@ const Homepage: React.FC = () => {
   const handleConnectClick = () => {
     setShowConnectForm(true);
   };
-  
+
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+            entry.target.classList.add("visible");
           }
         });
       },
       {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: "0px 0px -50px 0px",
       }
     );
 
-    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.sub-image-container)');
+    const elements = document.querySelectorAll(
+      ".fade-in-on-scroll:not(.sub-image-container)"
+    );
     elements.forEach((el) => observerRef.current?.observe(el));
 
     return () => {
@@ -491,29 +565,36 @@ const Homepage: React.FC = () => {
 
   // FIXED: Updated getAnimationClasses function with validation
   const getAnimationClasses = (subImage: any): string => {
-    if (subImage.animation === 'none' || !subImage.animation) return 'clickable-sub-image';
-    
+    if (subImage.animation === "none" || !subImage.animation)
+      return "clickable-sub-image";
+
     // Validate animation exists in our list
-    const validAnimation = animationOptions.find(a => a.value === subImage.animation);
-    const validSpeed = speedOptions.find(s => s.value === subImage.animationSpeed);
-    const validTrigger = triggerOptions.find(t => t.value === subImage.animationTrigger);
-    
+    const validAnimation = animationOptions.find(
+      (a) => a.value === subImage.animation
+    );
+    const validSpeed = speedOptions.find(
+      (s) => s.value === subImage.animationSpeed
+    );
+    const validTrigger = triggerOptions.find(
+      (t) => t.value === subImage.animationTrigger
+    );
+
     if (!validAnimation) {
       console.warn(`Unknown animation: ${subImage.animation}`);
-      return 'clickable-sub-image';
+      return "clickable-sub-image";
     }
-    
+
     // Use both class names for compatibility
     const classes = [
-      'animated-element', // Keep existing class
-      'animated-image',   // Add ImageEditor class for compatibility
-      'clickable-sub-image',
+      "animated-element", // Keep existing class
+      "animated-image", // Add ImageEditor class for compatibility
+      "clickable-sub-image",
       subImage.animation,
-      `speed-${subImage.animationSpeed || 'normal'}`,
-      `trigger-${subImage.animationTrigger || 'once'}`
+      `speed-${subImage.animationSpeed || "normal"}`,
+      `trigger-${subImage.animationTrigger || "once"}`,
     ];
-    
-    console.log('Applied animation classes:', {
+
+    console.log("Applied animation classes:", {
       name: subImage.name,
       animation: subImage.animation,
       animationValid: !!validAnimation,
@@ -521,10 +602,10 @@ const Homepage: React.FC = () => {
       speedValid: !!validSpeed,
       trigger: subImage.animationTrigger,
       triggerValid: !!validTrigger,
-      finalClasses: classes.join(' ')
+      finalClasses: classes.join(" "),
     });
-    
-    return classes.join(' ');
+
+    return classes.join(" ");
   };
 
   // FIXED: Calculate image dimensions using unified coordinate system
@@ -534,15 +615,16 @@ const Homepage: React.FC = () => {
     aspectRatio: number | undefined
   ) => {
     const coordinateSystem = createUnifiedCoordinateSystem(aspectRatio);
-    const { width: imageWidth } = coordinateSystem.getImageDimensions(containerWidth);
-    
+    const { width: imageWidth } =
+      coordinateSystem.getImageDimensions(containerWidth);
+
     // FIXED: Use imageWidth for height calculation (same as ImageEditor)
     const height = (heightPercent / 100) * imageWidth;
     return {
-      width: 'auto',
+      width: "auto",
       height: `${height}px`,
       maxWidth: `${containerWidth * 0.9}px`,
-      maxHeight: `${window.innerHeight * 0.9}px`
+      maxHeight: `${window.innerHeight * 0.9}px`,
     };
   };
 
@@ -1249,19 +1331,28 @@ const Homepage: React.FC = () => {
   `;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       <style>{animationStyles}</style>
-      
+
       {/* Fixed Logo with Menu */}
       <div
         style={{
-          position: 'fixed',
-          top: '80px',
-          left: '20px',
+          position: "fixed",
+          top: "80px",
+          left: "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
-          transition: 'transform 0.3s ease-out',
-          opacity: scrollY > 100 ? 0.9 : 1
+          transition: "transform 0.3s ease-out",
+          opacity: scrollY > 100 ? 0.9 : 1,
         }}
       >
         {/* Logo */}
@@ -1270,21 +1361,21 @@ const Homepage: React.FC = () => {
           onClick={handleLogoClick}
           className="logo-container"
           style={{
-            cursor: 'pointer',
-            position: 'relative',
-            borderRadius: '12px',
-            padding: '8px',
-            transition: 'all 0.3s ease'
+            cursor: "pointer",
+            position: "relative",
+            borderRadius: "12px",
+            padding: "8px",
+            transition: "all 0.3s ease",
           }}
         >
           <img
             src="/logo/font 2_.png"
             alt="Fixed Logo"
             style={{
-              height: '150px',
-              width: 'auto',
-              filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
-              transition: 'transform 0.2s ease, filter 0.2s ease'
+              height: "150px",
+              width: "auto",
+              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
+              transition: "transform 0.2s ease, filter 0.2s ease",
             }}
           />
         </div>
@@ -1294,10 +1385,10 @@ const Homepage: React.FC = () => {
           <div
             id="logo-menu"
             style={{
-              position: 'absolute',
-              top: '75px',
-              left: '75px',
-              zIndex: 1001
+              position: "absolute",
+              top: "75px",
+              left: "75px",
+              zIndex: 1001,
             }}
           >
             {menuItems?.map((item, index) => {
@@ -1311,39 +1402,45 @@ const Homepage: React.FC = () => {
                   key={item.name}
                   className="menu-item-enter menu-item-modern"
                   onClick={() => handleMenuItemClick(item)}
-                  style={{
-                    position: 'absolute',
-                    left: `${left[index]}px`,
-                    top: `${top[index]}px`,
-                    transform: `translate(-50%, -50%) rotate(${itemRotation}deg)`,
-                    padding: '6px 12px',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    animationDelay: `${index * 0.1}s`,
-                    userSelect: 'none',
-                    minWidth: '85px',
-                    justifyContent: 'center',
-                    '--rotation': `${itemRotation}deg`
-                  } as React.CSSProperties & { '--rotation': string }}
+                  style={
+                    {
+                      position: "absolute",
+                      left: `${left[index]}px`,
+                      top: `${top[index]}px`,
+                      transform: `translate(-50%, -50%) rotate(${itemRotation}deg)`,
+                      padding: "6px 12px",
+                      borderRadius: "16px",
+                      cursor: "pointer",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      whiteSpace: "nowrap",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      animationDelay: `${index * 0.1}s`,
+                      userSelect: "none",
+                      minWidth: "85px",
+                      justifyContent: "center",
+                      "--rotation": `${itemRotation}deg`,
+                    } as React.CSSProperties & { "--rotation": string }
+                  }
                 >
-                  <span style={{ 
-                    fontSize: '12px',
-                    filter: 'grayscale(0)',
-                    transition: 'all 0.2s ease'
-                  }}>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      filter: "grayscale(0)",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
                     {item.icon}
                   </span>
-                  <span style={{
-                    letterSpacing: '0.2px',
-                    fontFamily: 'system-ui, -apple-system, sans-serif'
-                  }}>
+                  <span
+                    style={{
+                      letterSpacing: "0.2px",
+                      fontFamily: "system-ui, -apple-system, sans-serif",
+                    }}
+                  >
                     {item.name}
                   </span>
                 </div>
@@ -1354,15 +1451,15 @@ const Homepage: React.FC = () => {
       </div>
 
       {/* Main Content Container */}
-      <div 
-        ref={containerRef} 
-        style={{ 
-          position: 'absolute',
+      <div
+        ref={containerRef}
+        style={{
+          position: "absolute",
           top: 0,
           left: 0,
-          width: '100%',
-          transition: 'transform 0.1s ease-out',
-          willChange: 'transform'
+          width: "100%",
+          transition: "transform 0.1s ease-out",
+          willChange: "transform",
         }}
       >
         {/* FIXED: Unified coordinate system responsive sections */}
@@ -1370,55 +1467,68 @@ const Homepage: React.FC = () => {
           // FIXED: Calculate proper dimensions using unified system
           const dimensions = getSectionDimensions(section);
           const bgStyle = getBackgroundStyle(section);
-          const coordinateSystem = createUnifiedCoordinateSystem(section.backgroundImageAspectRatio);
+          const coordinateSystem = createUnifiedCoordinateSystem(
+            section.backgroundImageAspectRatio
+          );
 
           return (
             <section
               key={section.projectContainerId}
               style={{
-                position: 'relative',
-                width: '100vw',
+                position: "relative",
+                width: "100vw",
                 height: `${dimensions.height}px`,
-                minHeight: '100vh',
                 ...bgStyle,
-                overflow: 'hidden'
+                overflow: "hidden",
               }}
             >
               {/* Background Overlay */}
               <div
-                className={`section-background ${hoveredImageId !== null ? 'dimmed' : ''}`}
+                className={`section-background ${
+                  hoveredImageId !== null ? "dimmed" : ""
+                }`}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: sectionIndex === 0 
-                    ? 'linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' 
-                    : 'rgba(0,0,0,0.1)',
-                  zIndex: 1
+                  background:
+                    sectionIndex === 0
+                      ? "linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
+                      : "rgba(0,0,0,0.1)",
+                  zIndex: 1,
                 }}
               />
 
               {/* FIXED: Debug info for unified coordinate system */}
-              {process.env.NODE_ENV === 'development' && (
+              {process.env.NODE_ENV === "development" && (
                 <div className="coordinate-debug">
-                  Screen: {window.innerWidth}×{window.innerHeight}<br/>
-                  Image Ratio: {section.backgroundImageAspectRatio?.toFixed(2) || 'N/A'}<br/>
-                  Section Height: {dimensions.height}px<br/>
-                  Image Height: {dimensions.imageHeight}px<br/>
-                  BgSize: 100% auto (unified)<br/>
+                  Screen: {window.innerWidth}×{window.innerHeight}
+                  <br />
+                  Image Ratio:{" "}
+                  {section.backgroundImageAspectRatio?.toFixed(2) || "N/A"}
+                  <br />
+                  Section Height: {dimensions.height}px
+                  <br />
+                  Image Height: {dimensions.imageHeight}px
+                  <br />
+                  BgSize: 100% auto (unified)
+                  <br />
                   Total Animations: {animationOptions.length - 1}
                 </div>
               )}
 
               {/* Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
-                <div className="centered-logo" onClick={handleCenteredLogoClick}>
+                <div
+                  className="centered-logo"
+                  onClick={handleCenteredLogoClick}
+                >
                   <img
                     src="/logo/font.png"
                     alt="Centered Logo"
-                    style={{cursor:'pointer'}}
+                    style={{ cursor: "pointer" }}
                   />
                 </div>
               )}
@@ -1427,41 +1537,44 @@ const Homepage: React.FC = () => {
               {section.projects?.map((subImage) => {
                 // FIXED: Use unified coordinate system for positioning
                 const containerWidth = window.innerWidth;
-                const { x: pixelX, y: pixelY } = coordinateSystem.getPixelFromPercent(
-                  subImage.xPosition, 
-                  subImage.yPosition, 
-                  containerWidth
-                );
-                
+                const { x: pixelX, y: pixelY } =
+                  coordinateSystem.getPixelFromPercent(
+                    subImage.xPosition,
+                    subImage.yPosition,
+                    containerWidth
+                  );
+
                 const imageDimensions = calculateImageDimensions(
                   containerWidth,
                   subImage.heightPercent,
                   section.backgroundImageAspectRatio
                 );
 
-                console.log('Rendering with ALL animations available:', {
+                console.log("Rendering with ALL animations available:", {
                   name: subImage.name,
                   animation: subImage.animation,
                   animationSpeed: subImage.animationSpeed,
                   animationTrigger: subImage.animationTrigger,
                   classes: getAnimationClasses(subImage),
-                  totalAnimationsAvailable: animationOptions.length - 1
+                  totalAnimationsAvailable: animationOptions.length - 1,
                 });
 
                 const isHovered = hoveredImageId === subImage.projectId;
-                const isDimmed = hoveredImageId !== null && hoveredImageId !== subImage.projectId;
+                const isDimmed =
+                  hoveredImageId !== null &&
+                  hoveredImageId !== subImage.projectId;
 
                 return (
                   <div
                     key={subImage.projectId}
                     className={`sub-image-visible sub-image-container ${
-                      isHovered ? 'highlighted' : isDimmed ? 'dimmed' : ''
+                      isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
                     }`}
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       left: `${pixelX}px`,
                       top: `${pixelY}px`,
-                      zIndex: isHovered ? 50 : 10
+                      zIndex: isHovered ? 50 : 10,
                     }}
                   >
                     <img
@@ -1477,52 +1590,58 @@ const Homepage: React.FC = () => {
                       onMouseLeave={() => setHoveredImageId(null)}
                       style={{
                         ...imageDimensions,
-                        display: 'block',
-                        borderRadius: '8px',
-                        boxShadow: isHovered 
-                          ? '0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)'
-                          : '0 4px 20px rgba(0,0,0,0.3)',
-                        cursor: 'pointer',
+                        display: "block",
+                        borderRadius: "8px",
+                        boxShadow: isHovered
+                          ? "0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)"
+                          : "0 4px 20px rgba(0,0,0,0.3)",
+                        cursor: "pointer",
                         // IMPORTANT: Ensure animation properties can be applied
-                        animationFillMode: 'both',
+                        animationFillMode: "both",
                         // Enable hardware acceleration for smoother animations
-                        backfaceVisibility: 'hidden',
-                        perspective: '1000px'
+                        backfaceVisibility: "hidden",
+                        perspective: "1000px",
                       }}
                     />
-                    
+
                     {/* Enhanced debug info overlay (remove in production) */}
-                    {process.env.NODE_ENV === 'development' && subImage.animation !== 'none' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '-35px',
-                        left: '0',
-                        background: 'rgba(0,0,0,0.9)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '10px',
-                        whiteSpace: 'nowrap',
-                        zIndex: 1000,
-                        pointerEvents: 'none',
-                        lineHeight: '1.2',
-                        maxWidth: '150px'
-                      }}>
-                        🎬 {subImage.animation}<br/>
-                        ⚡ {subImage.animationSpeed}<br/>
-                        🎯 {subImage.animationTrigger}
-                      </div>
-                    )}
+                    {process.env.NODE_ENV === "development" &&
+                      subImage.animation !== "none" && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "-35px",
+                            left: "0",
+                            background: "rgba(0,0,0,0.9)",
+                            color: "white",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            fontSize: "10px",
+                            whiteSpace: "nowrap",
+                            zIndex: 1000,
+                            pointerEvents: "none",
+                            lineHeight: "1.2",
+                            maxWidth: "150px",
+                          }}
+                        >
+                          🎬 {subImage.animation}
+                          <br />⚡ {subImage.animationSpeed}
+                          <br />
+                          🎯 {subImage.animationTrigger}
+                        </div>
+                      )}
                   </div>
                 );
               })}
 
               {/* Section Title (Hidden but can be used for SEO) */}
-              <h1 style={{ 
-                position: 'absolute', 
-                left: '-9999px', 
-                visibility: 'hidden' 
-              }}>
+              <h1
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  visibility: "hidden",
+                }}
+              >
                 {section.title}
               </h1>
             </section>
@@ -1532,34 +1651,47 @@ const Homepage: React.FC = () => {
         {/* Footer Section */}
         <footer
           style={{
-            position: 'relative',
-            width: '100vw',
-            height: '200px',
-            background: 'linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 60px',
-            color: 'white',
-            zIndex: 100
+            position: "relative",
+            width: "100vw",
+            height: "200px",
+            background:
+              "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 60px",
+            color: "white",
+            zIndex: 100,
           }}
         >
           {/* Left side - Heart logo and text */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <div style={{ 
-              fontSize: '48px', 
-              marginBottom: '10px',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-            }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "48px",
+                marginBottom: "10px",
+                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+              }}
+            >
               ♥
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              lineHeight: '1.4',
-              color: 'rgba(255,255,255,0.9)',
-              maxWidth: '200px'
-            }}>
-              <div style={{ fontWeight: '600', marginBottom: '2px' }}>Get in Touch</div>
+            <div
+              style={{
+                fontSize: "14px",
+                lineHeight: "1.4",
+                color: "rgba(255,255,255,0.9)",
+                maxWidth: "200px",
+              }}
+            >
+              <div style={{ fontWeight: "600", marginBottom: "2px" }}>
+                Get in Touch
+              </div>
               <div>3420 Bristol St.</div>
               <div>Costa Mesa, CA 92626</div>
               <div>+1 (626) 555 0134</div>
@@ -1568,10 +1700,7 @@ const Homepage: React.FC = () => {
 
           {/* Right side - Connect button */}
           <div>
-            <button 
-              className="connect-button"
-              onClick={handleConnectClick}
-            >
+            <button className="connect-button" onClick={handleConnectClick}>
               CONNECT
             </button>
           </div>
@@ -1580,16 +1709,21 @@ const Homepage: React.FC = () => {
 
       {/* Connect Form Modal */}
       {showConnectForm && (
-        <div className="connect-modal" onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setShowConnectForm(false);
-          }
-        }}>
+        <div
+          className="connect-modal"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowConnectForm(false);
+            }
+          }}
+        >
           <div className="connect-form">
             {!formSubmitted ? (
               <form onSubmit={handleConnectSubmit}>
                 <h2>Let's Connect!</h2>
-                <p>Enter your email address and we'll get in touch with you soon.</p>
+                <p>
+                  Enter your email address and we'll get in touch with you soon.
+                </p>
                 <input
                   type="email"
                   placeholder="Enter your email address"
@@ -1601,8 +1735,8 @@ const Homepage: React.FC = () => {
                 <button type="submit" className="submit-btn">
                   Send Message
                 </button>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="close-btn"
                   onClick={() => setShowConnectForm(false)}
                 >
@@ -1613,7 +1747,8 @@ const Homepage: React.FC = () => {
               <div>
                 <h2>✨ Thank You!</h2>
                 <p className="success-message">
-                  Your message has been sent successfully. We'll get back to you soon!
+                  Your message has been sent successfully. We'll get back to you
+                  soon!
                 </p>
               </div>
             )}
@@ -1632,26 +1767,26 @@ const Homepage: React.FC = () => {
             }
           }}
           style={{
-            position: 'fixed',
-            bottom: '30px',
-            right: '30px',
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            background: 'linear-gradient(45deg, #667eea, #764ba2)',
-            border: 'none',
-            color: 'white',
-            fontSize: '20px',
-            cursor: 'pointer',
+            position: "fixed",
+            bottom: "30px",
+            right: "30px",
+            width: "50px",
+            height: "50px",
+            borderRadius: "50%",
+            background: "linear-gradient(45deg, #667eea, #764ba2)",
+            border: "none",
+            color: "white",
+            fontSize: "20px",
+            cursor: "pointer",
             zIndex: 1000,
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            transition: 'transform 0.3s ease'
+            boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+            transition: "transform 0.3s ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.transform = "scale(1.1)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.transform = "scale(1)";
           }}
         >
           ↑
