@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import ProjectDetails from "./ProjectDetails";
 import { useSubProjectContainerList } from "../../../api/useSubProjectContainerList";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface ImageProject {
   id: number;
@@ -170,8 +170,9 @@ const ProjectDetailsList: React.FC = () => {
 
   
   const navigate = useNavigate();
+    const { projectId } = useParams<{ projectId: string }>(); 
 
-  const { data, isPending, isSuccess } = useSubProjectContainerList() as {
+  const { data, isPending, isSuccess } = useSubProjectContainerList(projectId ? parseInt(projectId, 10) : 0) as {
     data?: ApiResponse;
     isPending: boolean;
     isSuccess: boolean;
