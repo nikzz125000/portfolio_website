@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
+import { useCustomerConnect } from "../../api/useCustomerConnect";
 
 interface SubImage {
   projectId: number;
@@ -126,7 +127,10 @@ const Homepage: React.FC = () => {
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
+  const [mobileNumber, setMobileNumber] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -139,6 +143,8 @@ const Homepage: React.FC = () => {
 
   const { data, isPending, isSuccess } = useHomePageList();
   const { data: resumeData } = useResumeDetails();
+  const { mutate: customerConnect, isPending: isConnecting } =
+    useCustomerConnect();
 
   // Sample fallback images using placehold.co for reliability
   const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
@@ -206,8 +212,8 @@ const Homepage: React.FC = () => {
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
     console.log(`Navigating to project/${subImageId}`);
- 
-     navigate(`/project_details/${subImageId}`);
+
+    navigate(`/project_details/${subImageId}`);
   };
 
   // Handle centered logo click - navigate to /resume
@@ -635,15 +641,65 @@ const Homepage: React.FC = () => {
   // Handle connect form submission
   const handleConnectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      console.log("Email submitted:", email);
-      setFormSubmitted(true);
-      setTimeout(() => {
-        setShowConnectForm(false);
-        setFormSubmitted(false);
-        setEmail("");
-      }, 2000);
+
+    // Reset previous errors
+    setFormErrors({});
+
+    // Validation
+    const errors: { [key: string]: string } = {};
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = "Please enter a valid email address";
     }
+
+    if (!mobileNumber.trim()) {
+      errors.mobileNumber = "Mobile number is required";
+    } else if (!/^[0-9]{10,15}$/.test(mobileNumber.trim())) {
+      errors.mobileNumber = "Please enter a valid mobile number";
+    }
+
+    if (!message.trim()) {
+      errors.message = "Message is required";
+    } else if (message.trim().length < 10) {
+      errors.message = "Message must be at least 10 characters long";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    // Submit form
+    const payload = {
+      mobileNumber: mobileNumber.trim(),
+      email: email.trim(),
+      message: message.trim(),
+    };
+
+    customerConnect(payload, {
+      onSuccess: (response) => {
+        if (response.isSuccess) {
+          setFormSubmitted(true);
+          // Reset form
+          setEmail("");
+          setMobileNumber("");
+          setMessage("");
+          setFormErrors({});
+
+          // Close form after 3 seconds
+          setTimeout(() => {
+            setShowConnectForm(false);
+            setFormSubmitted(false);
+          }, 3000);
+        }
+      },
+      onError: (error) => {
+        console.error("Connect API error:", error);
+        setFormErrors({ general: "Failed to send message. Please try again." });
+      },
+    });
   };
 
   // Handle connect button click
@@ -653,6 +709,11 @@ const Homepage: React.FC = () => {
     if (resumeData?.data?.email) {
       setEmail(resumeData.data.email);
     }
+    // Reset other fields
+    setMobileNumber("");
+    setMessage("");
+    setFormErrors({});
+    setFormSubmitted(false);
   };
 
   useEffect(() => {
@@ -1291,7 +1352,7 @@ const Homepage: React.FC = () => {
       backdrop-filter: blur(20px);
       border-radius: 20px;
       padding: 40px;
-      max-width: 400px;
+      max-width: 500px;
       width: 90%;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -1312,21 +1373,78 @@ const Homepage: React.FC = () => {
       line-height: 1.5;
     }
 
-    .email-input {
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .email-input,
+    .mobile-input,
+    .message-input {
       width: 100%;
       padding: 15px 20px;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
       font-size: 16px;
-      margin-bottom: 20px;
       transition: all 0.3s ease;
       box-sizing: border-box;
+      font-family: inherit;
     }
 
-    .email-input:focus {
+    .email-input:focus,
+    .mobile-input:focus,
+    .message-input:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .email-input.error,
+    .mobile-input.error,
+    .message-input.error {
+      border-color: #e53e3e;
+      box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+    }
+
+    .message-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .error-message {
+      color: #e53e3e;
+      font-size: 14px;
+      margin-top: 5px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .general-error {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .success-container {
+      text-align: center;
+    }
+
+    .success-icon {
+      font-size: 64px;
+      color: #38a169;
+      margin-bottom: 20px;
+      animation: bounce 0.6s ease;
+    }
+
+    .closing-note {
+      color: #718096;
+      font-size: 14px;
+      margin-top: 15px;
+      font-style: italic;
     }
 
     .submit-btn {
@@ -1847,6 +1965,7 @@ const Homepage: React.FC = () => {
           top: 0,
           left: 0,
           width: "100%",
+          paddingBottom: "200px", // Account for sticky footer
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
@@ -2070,28 +2189,22 @@ const Homepage: React.FC = () => {
           );
         })}
 
-        {/* Responsive Footer Section */}
+        {/* Footer Section */}
         <footer
           style={{
-            position: "relative",
+            position: "fixed",
+            bottom: 0,
+            left: 0,
             width: "100vw",
-            height:
-              deviceType === "mobile"
-                ? "300px"
-                : deviceType === "tablet"
-                ? "250px"
-                : "200px",
+            height: "200px",
             background:
               "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
             display: "flex",
-            flexDirection: deviceType === "mobile" ? "column" : "row",
             alignItems: "center",
-            justifyContent:
-              deviceType === "mobile" ? "center" : "space-between",
-            padding: deviceType === "mobile" ? "40px 20px" : "0 60px",
+            justifyContent: "space-between",
+            padding: "0 60px",
             color: "white",
             zIndex: 100,
-            gap: deviceType === "mobile" ? "30px" : "0",
           }}
         >
           {/* Left side - Heart logo and text */}
@@ -2127,6 +2240,43 @@ const Homepage: React.FC = () => {
               </div>
               <div>{resumeData?.data?.phone || "+1 (626) 555 0134"}</div>
               <div>{resumeData?.data?.email || "contact@example.com"}</div>
+              <div style={{ marginTop: "8px" }}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCenteredLogoClick();
+                  }}
+                  style={{
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                    padding: "6px 12px",
+                    borderRadius: "20px",
+                    background: "rgba(255, 255, 255, 0.2)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    transition: "all 0.3s ease",
+                    display: "inline-block",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "rgba(255, 255, 255, 0.3)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(0, 0, 0, 0.2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      "rgba(255, 255, 255, 0.2)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  📄 View Resume
+                </a>
+              </div>
             </div>
           </div>
 
@@ -2146,7 +2296,7 @@ const Homepage: React.FC = () => {
         </footer>
       </div>
 
-      {/* Responsive Connect Form Modal */}
+      {/* Connect Form Modal */}
       {showConnectForm && (
         <div
           className="connect-modal"
@@ -2160,20 +2310,70 @@ const Homepage: React.FC = () => {
             {!formSubmitted ? (
               <form onSubmit={handleConnectSubmit}>
                 <h2>Let's Connect!</h2>
-                <p>
-                  Enter your email address and we'll get in touch with you soon.
-                </p>
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="email-input"
-                  required
-                />
-                <button type="submit" className="submit-btn">
-                  Send Message
+                <p>Fill out the form below and we'll get back to you soon.</p>
+
+                {formErrors.general && (
+                  <div className="error-message general-error">
+                    {formErrors.general}
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <input
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`email-input ${formErrors.email ? "error" : ""}`}
+                    required
+                  />
+                  {formErrors.email && (
+                    <div className="error-message">{formErrors.email}</div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="tel"
+                    placeholder="Enter your mobile number"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    className={`mobile-input ${
+                      formErrors.mobileNumber ? "error" : ""
+                    }`}
+                    required
+                  />
+                  {formErrors.mobileNumber && (
+                    <div className="error-message">
+                      {formErrors.mobileNumber}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <textarea
+                    placeholder="Enter your message (minimum 10 characters)"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className={`message-input ${
+                      formErrors.message ? "error" : ""
+                    }`}
+                    rows={4}
+                    required
+                  />
+                  {formErrors.message && (
+                    <div className="error-message">{formErrors.message}</div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? "Sending..." : "Send Message"}
                 </button>
+
                 <button
                   type="button"
                   className="close-btn"
@@ -2183,11 +2383,14 @@ const Homepage: React.FC = () => {
                 </button>
               </form>
             ) : (
-              <div>
-                <h2>✨ Thank You!</h2>
+              <div className="success-container">
+                <div className="success-icon">✓</div>
+                <h2>Message Sent Successfully!</h2>
                 <p className="success-message">
-                  Your message has been sent successfully. We'll get back to you
-                  soon!
+                  Thank you for your message. We'll get back to you soon!
+                </p>
+                <p className="closing-note">
+                  This form will close automatically in a few seconds.
                 </p>
               </div>
             )}
