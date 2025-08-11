@@ -129,7 +129,7 @@ const ProjectDrawer: React.FC<{
 
         {/* Drawer Content - with proper overflow handling */}
         <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
-          <ProjectDetails currentItemId={projectId||0}/>
+          <ProjectDetails currentItemId={projectId ? parseInt(projectId, 10) : 0 }/>
         </div>
 
         {/* Footer - sticky at bottom */}
@@ -166,7 +166,7 @@ const ProjectDetailsList: React.FC = () => {
   const [projects, setProjects] = useState<SubProjectContainerItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [selectedProjectId, setSelectedProjectId] = useState<number>(0);
+  const [selectedSubProjectId, setSelectedSubProjectId] = useState<number>(0);
 
   
   const navigate = useNavigate();
@@ -193,19 +193,19 @@ const ProjectDetailsList: React.FC = () => {
   // Modal handlers
   const handleAddProject = () => {
     setModalMode('add');
-    setSelectedProjectId(undefined);
+    setSelectedSubProjectId(undefined);
     setIsModalOpen(true);
   };
 
   const handleEditProject = (projectId: number) => {
     setModalMode('edit');
-    setSelectedProjectId(projectId);
+    setSelectedSubProjectId(projectId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedProjectId(undefined);
+    setSelectedSubProjectId(undefined);
   };
 
   const handleDeleteProject = (projectId: number) => {
@@ -219,13 +219,9 @@ const ProjectDetailsList: React.FC = () => {
   };
 
   const handlePreviewProject = (projectId: number) => {
-   setSelectedProjectId(projectId);
+   setSelectedSubProjectId(projectId);
    setIsModalOpen(true);
-  };
-
-  const currentProject = selectedProjectId 
-    ? projects.find(p => p.id === selectedProjectId) 
-    : undefined;
+  }; 
 
   // Icons
   const AddIcon = () => (
@@ -471,7 +467,7 @@ const ProjectDetailsList: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         mode={modalMode}
-        projectId={selectedProjectId}
+        projectId={selectedSubProjectId}
        
       />
     </div>
