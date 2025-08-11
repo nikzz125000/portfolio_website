@@ -975,7 +975,6 @@ const Homepage: React.FC = () => {
     .clickable-sub-image:hover {
       filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
       z-index: 50 !important;
-      animation: glowPulse 15s infinite;
     }
 
     .section-background {
@@ -1487,7 +1486,6 @@ const Homepage: React.FC = () => {
                         // IMPORTANT: Ensure animation properties can be applied
                         animationFillMode: 'both',
                         // Enable hardware acceleration for smoother animations
-                        transform: 'translateZ(0)',
                         backfaceVisibility: 'hidden',
                         perspective: '1000px'
                       }}
