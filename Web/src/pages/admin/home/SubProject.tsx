@@ -3,6 +3,7 @@ import { useSaveContainer } from '../../../api/useSaveContainer';
 import { useParams } from 'react-router-dom';
 import { useContainerDetails } from '../../../api/useContainerDetails';
 import { useDeleteProject } from '../../../api/useDeleteProject';
+import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
 
 interface SubImage {
   id: number;
@@ -560,8 +561,14 @@ const ImageEditor: React.FC = () => {
     setConfirmOpen(true);
   };
 
+  function isDateNowId(id) {
+  return typeof id === "number" && id > 1_000_000_000_000; // more than a trillion
+}
+
   const handleConfirmDelete = (): void => {
-    if (pendingDeleteId == null) return;
+    console.log("Deleting project with ID:", pendingDeleteId);
+    if (!isDateNowId(pendingDeleteId)) {
+
     deleteProject(
       { 
         containerId: id ? parseInt(id, 10) : 0,
@@ -579,6 +586,13 @@ const ImageEditor: React.FC = () => {
         }
       }
     );
+  }else{
+    setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
+          if (selectedSubImage === pendingDeleteId) {
+            setSelectedSubImage(null);
+          }
+             setConfirmOpen(false);
+  }
   };
 
   function getProjectId(id: number) {
@@ -1185,9 +1199,8 @@ const ImageEditor: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Confirm Delete Dialog */}
-      {confirmOpen && (
+{confirmOpen && (<DeleteConfirmDialog isOpen={confirmOpen} onConfirm={handleConfirmDelete} onCancel={() => setConfirmOpen(false)} isDeleting={isDeleting}/>)}
+      {/* {confirmOpen && (
         <div 
           style={{
             position: 'fixed',
@@ -1232,7 +1245,7 @@ const ImageEditor: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

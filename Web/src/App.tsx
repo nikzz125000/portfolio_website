@@ -20,7 +20,8 @@ import ProjectDetailstList from "./pages/admin/projects/ProjectDetailstList";
 import AnimatedResume from "./pages/public/Resume";
 import ResumeEditor from "./pages/admin/resume/ResumeEditor";
 import ImageEditorTest from "./pages/admin/home/TestSubproject";
-import Homepage from "./pages/public/HomePageTest";
+import Homepage from "./pages/public/HomePageMobileView";
+
 
 
 // Public pages
