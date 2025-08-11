@@ -46,24 +46,24 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("Details")]
+        [Route("Details/{id}")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<ViewModels.ResumeViewModel>), 200)]
-        public async Task<ModelEntityResponse<ViewModels.ResumeViewModel>> GetDetails()
+        public async Task<ModelEntityResponse<ViewModels.ResumeViewModel>> GetDetails(int id)
         {
             ModelEntityResponse<ViewModels.ResumeViewModel> response = new ModelEntityResponse<ViewModels.ResumeViewModel>();
             try
             {
-                response = await _resumeService.GetById();
+                response = await _resumeService.GetById(id);
             }
             catch (Exception e)
             {
                 response.CreateFailureResponse(CommonData.ErrorMessage);
 
                 ExceptionLog log = new ExceptionLog();
-                log.Api = $@"api/Resume/Details";
+                log.Api = $@"api/Resume/Details/{id}";
                 log.ApiType = ApiType.Get;
-                //log.Parameters = $@"id={id}";
+                log.Parameters = $@"id={id}";
                 log.Message = e.Message;
                 log.StackTrace = e.StackTrace;
                 await SaveExceptionLog(log);

@@ -11,8 +11,9 @@ namespace API.Services
     public interface ISubProjectContainerService
     {
         Task<CommonEntityResponse> CreateOrModify(SubProjectContainerPostModel model);
-        Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll(int ProjectId);
+        Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll();
         Task<ModelEntityResponse<SubProjectContainerViewModel>> GetDetails(int subProjectContainerId);
+        Task<ModelEntityResponse<List<SubProjectContainerDetailsViewModel>>> GetAllSubContainerDetails(int ProjectId);
     }
 
     public class SubProjectContainerService : ISubProjectContainerService
@@ -56,9 +57,7 @@ namespace API.Services
                     container.BackgroundImageFileName = backgroundImageFileName;
                 }
                 container.Title = model.Title;
-                container.SortOrder = model.SortOrder;
                 container.ProjectId = model.ProjectId;
-                container.BackgroundImageAspectRatio = model.BackgroundImageAspectRatio;
                 container.UpdatedDate = DateTime.UtcNow;
             }
             else
@@ -134,15 +133,37 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll(int ProjectId)
+        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll()
         {
             ModelEntityResponse<List<SubProjectContainerViewModel>> res = new();
-            var containers = await _unitOfWork._context.SubProjectContainers.Where(x=>x.ProjectId == ProjectId).ToListAsync();
+            var containers = await _unitOfWork._context.SubProjectContainers.ToListAsync();
             res.Data = _mapper.Map<List<SubProjectContainerViewModel>>(containers);
             foreach (var item in res.Data)
             {
                 item.BackgroundImageUrl = CommonData.GetSubProjectContainerUrl(item.BackgroundImageFileName);
             }
+            return res;
+        }
+
+        public async Task<ModelEntityResponse<List<SubProjectContainerDetailsViewModel>>> GetAllSubContainerDetails(int ProjectId)
+        {
+            ModelEntityResponse<List<SubProjectContainerDetailsViewModel>> res = new ModelEntityResponse<List<SubProjectContainerDetailsViewModel>>();
+            var containers = await _unitOfWork.SubProjectContainers.GetAllByProjectId(ProjectId);
+            var result = new List<SubProjectContainerDetailsViewModel>();
+            foreach (var c in containers)
+            {
+                var vm = _mapper.Map<SubProjectContainerDetailsViewModel>(c);
+                vm.BackgroundImageUrl = CommonData.GetSubProjectContainerUrl(vm.BackgroundImageFileName);
+                var projects = await _unitOfWork.SubProjects.GetBySubProjectContainerId(c.SubProjectContainerId);
+                vm.SubProjects = _mapper.Map<List<SubProjectViewModel>>(projects);
+                foreach (var p in vm.SubProjects)
+                {
+                    p.ProjectImageUrl = CommonData.GetSubProjectUrl(p.ImageFileName);
+                }
+                result.Add(vm);
+            }
+            res.Data = result;
+            res.CreateSuccessResponse();
             return res;
         }
 
