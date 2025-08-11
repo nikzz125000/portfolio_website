@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Shared.Enums;
 using System.Collections.Generic;
 
 namespace ViewModels
@@ -27,6 +28,7 @@ namespace ViewModels
         public int SortOrder { get; set; }
         public decimal? BackgroundImageAspectRatio { get; set; }
         public string? BackgroundImageUrl { get; set; }
+        public BackgroundType BackgroundType { get; set; }
         public List<SubProjectPostModel> SubProjects { get; set; } = new List<SubProjectPostModel>();
     }
 
@@ -39,6 +41,8 @@ namespace ViewModels
         public decimal? BackgroundImageAspectRatio { get; set; }
         public string? BackgroundImageUrl { get; set; }
         public string? BackgroundImageFileName { get; set; }
+        public BackgroundType BackgroundType { get; set; }
+
         public List<SubProjectViewModel> SubProjects { get; set; } = new List<SubProjectViewModel>();
     }
 
@@ -66,7 +70,7 @@ namespace ViewModels
         public decimal? BackgroundImageAspectRatio { get; set; }
         public string? BackgroundImageUrl { get; set; }
         public string? BackgroundImageFileName { get; set; }
-
+        // interior exterior
         public List<SubProjectViewModel> SubProjects { get; set; } = new List<SubProjectViewModel>();
     }
 } 
