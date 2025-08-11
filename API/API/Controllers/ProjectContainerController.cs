@@ -83,34 +83,7 @@ namespace API.Controllers
             return response;
         }
 
-        /// <summary>
-        /// displays in cusomer
-        /// </summary>
-        /// <returns></returns>
-        [Route("Customer/Home/List/Details")]
-        [HttpGet]
-        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
-        public async Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> ListProjectContainersWithDetails()
-        {
-            ModelEntityResponse<List<ProjectContainerDetailsViewModel>> response = new ModelEntityResponse<List<ProjectContainerDetailsViewModel>>();
-            try
-            {
-                response = await _containerService.GetAllContainerDetails();
-            }
-            catch (Exception e)
-            {
-
-                response.CreateFailureResponse(CommonData.ErrorMessage); ;
-                ExceptionLog log = new ExceptionLog();
-                log.Api = $@"api/Container/List/Details";
-                log.ApiType = ApiType.Get;
-                log.Parameters = $@"";
-                log.Message = e.Message;
-                log.StackTrace = e.StackTrace;
-                await SaveExceptionLog(log);
-            }
-            return response;
-        }
+        
 
         [Route("Details/{ProjectContainerId}")]
         [HttpGet]
@@ -154,6 +127,34 @@ namespace API.Controllers
                 response.CreateFailureResponse(CommonData.ErrorMessage); ;
                 ExceptionLog log = new ExceptionLog();
                 log.Api = $@"api/Project/Delete";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+
+        [Route("Project/List")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerViewModel>>), 200)]
+        public async Task<ModelEntityResponse<List<ProjectViewModel>>> ListOfAllProject()
+        {
+            ModelEntityResponse<List<ProjectViewModel>> response = new ModelEntityResponse<List<ProjectViewModel>>();
+            try
+            {
+
+                response = await _containerService.GetAllProjects();
+
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/Project/List";
                 log.ApiType = ApiType.Get;
                 log.Parameters = $@"";
                 //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);

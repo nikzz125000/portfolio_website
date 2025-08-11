@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,7 +66,8 @@ namespace ViewModels
     }
     public class ProjectViewModel
     {
-        public int ProjectId { get; set; } // Foreign key
+        public int ProjectId { get; set; } 
+        public int ProjectContainerId { get; set; }
         public string Name { get; set; }
         public string? ImageFileName { get; set; }
 
@@ -77,5 +80,6 @@ namespace ViewModels
         public string AnimationTrigger { get; set; }
         public bool IsExterior { get; set; }
     }
+   
 }
 

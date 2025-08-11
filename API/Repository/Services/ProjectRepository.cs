@@ -55,5 +55,9 @@ namespace Repository.Services
                 return false;
             }
         }
+        public async Task<List<Project>> GetAll()
+        {
+            return await _context.Projects.ToListAsync();
+        }
     }
 }
