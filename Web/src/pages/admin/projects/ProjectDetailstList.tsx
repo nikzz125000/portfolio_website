@@ -94,7 +94,7 @@ const ProjectDrawer: React.FC<{
       />
       
       {/* Drawer - Fixed positioning with proper header clearance */}
-      <div className={`fixed top-0 bottom-0 right-0 z-50 w-full max-w-7xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
+      {/* <div className={`fixed top-0 bottom-0 right-0 z-50 w-full max-w-7xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
       style={{ 
@@ -102,7 +102,7 @@ const ProjectDrawer: React.FC<{
         height: '100vh' // Use full viewport height
       }}>
         
-        {/* Drawer Header - with higher z-index and fixed positioning */}
+     
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
           <div className="flex-1 min-w-0 pr-4">
             <h2 className="text-lg font-semibold text-gray-900 truncate">
@@ -113,7 +113,7 @@ const ProjectDrawer: React.FC<{
             </p>
           </div>
           
-          {/* Close button with better positioning */}
+         
           <div className="flex-shrink-0">
             <button
               onClick={onClose}
@@ -128,12 +128,11 @@ const ProjectDrawer: React.FC<{
           </div>
         </div>
 
-        {/* Drawer Content - with proper overflow handling */}
-        <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
-          <ProjectDetails currentItemId={subProjectId||0} projectId={projectId ||0 }/>
-        </div>
+        
+        <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}> */}
+          <ProjectDetails currentItemId={subProjectId||0} projectId={projectId ||0 } isOpen={isOpen} mode={mode} onClose={onClose}/>
+        {/* </div>
 
-        {/* Footer - sticky at bottom */}
         <div className="sticky bottom-0 border-t border-gray-200 bg-gray-50 px-6 py-3 shadow-sm">
           <div className="flex justify-between items-center">
             <p className="text-xs text-gray-500">
@@ -144,7 +143,7 @@ const ProjectDrawer: React.FC<{
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
