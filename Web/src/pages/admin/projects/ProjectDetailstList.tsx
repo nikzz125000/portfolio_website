@@ -65,9 +65,10 @@ const ProjectDrawer: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   mode: 'add' | 'edit';
-  projectId?: number;
+  subProjectId?: number;
+  projectId?:number
   currentProject?: ImageProject;
-}> = ({ isOpen, onClose, mode, projectId,  }) => {
+}> = ({ isOpen, onClose, mode, subProjectId,projectId  }) => {
 
 
   
@@ -129,7 +130,7 @@ const ProjectDrawer: React.FC<{
 
         {/* Drawer Content - with proper overflow handling */}
         <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
-          <ProjectDetails currentItemId={projectId ? parseInt(projectId, 10) : 0 }/>
+          <ProjectDetails currentItemId={subProjectId||0} projectId={projectId ||0 }/>
         </div>
 
         {/* Footer - sticky at bottom */}
@@ -467,8 +468,8 @@ const ProjectDetailsList: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         mode={modalMode}
-        projectId={selectedSubProjectId}
-       
+        subProjectId={selectedSubProjectId}
+       projectId={projectId ? parseInt(projectId, 10) : 0}
       />
     </div>
   );
