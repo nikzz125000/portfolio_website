@@ -57,15 +57,15 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("List")]
+        [Route("List/{ProjectId}")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<List<SubProjectContainerViewModel>>), 200)]
-        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> List()
+        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> List(int ProjectId)
         {
             ModelEntityResponse<List<SubProjectContainerViewModel>> response = new();
             try
             {
-                response = await _service.GetAll();
+                response = await _service.GetAll(ProjectId);
             }
             catch (Exception e)
             {
