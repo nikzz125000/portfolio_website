@@ -63,71 +63,23 @@ const DEFAULT_AVATAR =
 
 const defaultResume: ResumeData = {
   personalInfo: {
-    name: "glen george",
-    phone: "6263752727",
-    email: "glenkgeorge@gmail.com",
-    photo:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=80",
-    bio: "I am a brown boy with a really white name. No, I am not lying, my name is actually Glen George. Originally from India, I grew up in the Middle-East and now currently in Los Angeles, California. I focus on experience driven design and creating a future that is also art.",
-    location: "Los Angeles, California1",
-    focus: "experience driven design",
+    name: "",
+    phone: "",
+    email: "",
+    photo: "",
+    bio: "",
+    location: "",
+    focus: "",
     socials: {
-      linkedin: "https://www.linkedin.com/in/your-profile",
-      instagram: "https://www.instagram.com/your-handle",
-      behance: "https://www.behance.net/your-handle",
-      website: "https://your-portfolio.com",
+      linkedin: "",
+      instagram: "",
+      behance: "",
+      website: "",
     },
   },
-  education: [
-    {
-      period: "2019 - 2023",
-      institution: "ArtCenter College of Design",
-      location: "Pasadena, CA",
-      degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship.",
-    },
-  ],
-  experience: [
-    {
-      period: "November 2023 - Present",
-      title: "Junior Designer",
-      company: "Pininfarina of America Corp.",
-      description:
-        "Sketch, design and development support for client projects and internal projects varying all across North America. Working on Automotive, Marine and Industrial Design projects.",
-    },
-    {
-      period: "Spring 2023",
-      title: "Industrial Design Intern",
-      company: "Polaris, Minnesota",
-      description:
-        "Sketch, design and development support for current projects in development including snowmobiles. Working with clay modelers to bring designs to life.",
-    },
-  ],
-  skills: [
-    { title: "Languages", items: ["English", "Malayalam", "Hindi"] },
-    {
-      title: "Softwares",
-      items: [
-        "Adobe Creative Suite",
-        "Autodesk Alias",
-        "VRED",
-        "Keyshot",
-        "Blender",
-        "Gravity Sketch",
-      ],
-    },
-    {
-      title: "Design & Presentation",
-      items: [
-        "Concept Development",
-        "Sketch Exploration",
-        "Storyboarding",
-        "Graphic Layout",
-        "Sketch Renderings",
-        "Clay Modeling",
-        "Verbal Presentation",
-      ],
-    },
-  ],
+  education: [],
+  experience: [],
+  skills: [],
 };
 
 const ResumeEditor: React.FC = () => {

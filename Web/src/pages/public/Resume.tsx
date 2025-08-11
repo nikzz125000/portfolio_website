@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useResumeDetails } from "../../api/useResumeDetails";
 
 // Types for the resume data structure
 interface EducationEntry {
@@ -40,71 +41,38 @@ interface ResumeData {
   skills?: SkillCategory[];
 }
 
-// Sample data - replace this with your API call
-const sampleData: ResumeData = {
+// Default empty model matching UI structure
+const defaultResumeData: ResumeData = {
   personalInfo: {
-    name: "glen george",
-    phone: "6263752727",
-    email: "glenkgeorge@gmail.com",
-    photo:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-    bio: "I am a brown boy with a really white name. No, I am not lying, my name is actually Glen George. Originally from India, I grew up in the Middle-East and now currently in Los Angeles, California. I focus on experience driven design and creating a future that is also art.",
-    location: "Los Angeles, California",
-    focus: "experience driven design",
+    name: "",
+    phone: "",
+    email: "",
+    photo: "",
+    bio: "",
+    location: "",
+    focus: "",
+    socials: {
+      linkedin: "",
+      instagram: "",
+      behance: "",
+      website: "",
+    },
   },
-  education: [
-    {
-      period: "2019 - 2023",
-      institution: "ArtCenter College of Design",
-      location: "Pasadena, CA",
-      degree: "B.Sc in Transportation Design, 3.6 GPA with Scholarship.",
-    },
-  ],
-  experience: [
-    {
-      period: "November 2023 - Present",
-      title: "Junior Designer",
-      company: "Pininfarina of America Corp.",
-      description:
-        "Sketch, design and development support for client projects and internal projects varying all across North America. Working on Automotive, Marine and Industrial Design projects.",
-    },
-    {
-      period: "Spring 2023",
-      title: "Industrial Design Intern",
-      company: "Polaris, Minnesota",
-      description:
-        "Sketch, design and development support for current projects in development including snowmobiles. Working with clay modelers to bring designs to life.",
-    },
-    {
-      period: "Summer 2022",
-      title: "Meyers Manx - Sponsored Project",
-      company: "ArtCenter College of Design",
-      description:
-        "Tasked with creating a concept that introduces the Iconic brand to a new generation with lifestyle experiences.",
-    },
-    {
-      period: "Spring 2022",
-      title: "Teacher's Assistant - VISCOM 2",
-      company: "ArtCenter College of Design",
-      description:
-        "Weekly demos for students introducing new photoshop techniques.",
-    },
-    {
-      period: "Summer - Fall 2021",
-      title: "Teacher's Assistant - Design Fundamentals 2",
-      company: "ArtCenter College of Design",
-      description:
-        "Helped students through critiques on understanding the fundamentals of type, color theory and composition.",
-    },
-  ],
+  education: [],
+  experience: [],
+  skills: [],
 };
 
+const DEFAULT_AVATAR =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24"><rect width="24" height="24" fill="%23e5e7eb"/><circle cx="12" cy="8" r="4" fill="%239ca3af"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="%239ca3af"/></svg>';
+
 const AnimatedResume: React.FC = () => {
-  const [resumeData, setResumeData] = useState<ResumeData>(sampleData);
+  const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [visibleElements, setVisibleElements] = useState<Set<string>>(
     new Set()
   );
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const { data: resumeResponse } = useResumeDetails();
 
   useEffect(() => {
     // Initialize Intersection Observer for scroll animations
@@ -126,25 +94,51 @@ const AnimatedResume: React.FC = () => {
     return () => observerRef.current?.disconnect();
   }, []);
 
-  // Function to fetch data from API
-  const fetchResumeData = async () => {
-    try {
-      // Replace with your actual API endpoint
-      // const response = await fetch('/api/resume');
-      // const data = await response.json();
-      // setResumeData(data);
-    } catch (error) {
-      console.error("Error fetching resume data:", error);
-    }
-  };
-
+  // Re-observe animated elements whenever resume data changes (after API load)
   useEffect(() => {
-    fetchResumeData();
-    try {
-      const raw = localStorage.getItem("resumeData");
-      if (raw) setResumeData(JSON.parse(raw));
-    } catch {}
-  }, []);
+    if (!observerRef.current) return;
+    const elements = document.querySelectorAll("[data-animate]");
+    elements.forEach((el) => observerRef.current?.observe(el));
+  }, [resumeData]);
+
+  // Map API response to UI model
+  useEffect(() => {
+    if (!resumeResponse?.data) return;
+    const api = resumeResponse.data;
+    const parseArray = <T,>(json?: string): T[] => {
+      if (!json) return [];
+      try {
+        return JSON.parse(json) as T[];
+      } catch {
+        return [] as T[];
+      }
+    };
+
+    const next: ResumeData = {
+      personalInfo: {
+        name: api.name || "",
+        phone: api.phone || "",
+        email: api.email || "",
+        photo: api.photo || "",
+        bio: api.bio || "",
+        location: api.location || "",
+        focus: api.focus || "",
+        socials: {
+          linkedin: api.linkedinUrl || "",
+          instagram: api.instagramUrl || "",
+          behance: api.behanceUrl || "",
+          website: api.websiteUrl || "",
+        },
+      },
+      education: parseArray<EducationEntry>(api.educationJson),
+      experience: parseArray<ResumeData["experience"][number]>(
+        api.experienceJson
+      ),
+      skills: parseArray<SkillCategory>(api.skillsJson),
+    };
+
+    setResumeData(next);
+  }, [resumeResponse]);
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -249,9 +243,14 @@ const AnimatedResume: React.FC = () => {
               }`}
             >
               <img
-                src={resumeData.personalInfo.photo}
+                src={resumeData.personalInfo.photo || DEFAULT_AVATAR}
                 alt={resumeData.personalInfo.name}
                 className="w-full h-full object-cover grayscale"
+                onError={(e) => {
+                  if (e.currentTarget.src !== DEFAULT_AVATAR) {
+                    e.currentTarget.src = DEFAULT_AVATAR;
+                  }
+                }}
               />
             </div>
 
@@ -264,6 +263,11 @@ const AnimatedResume: React.FC = () => {
             >
               {resumeData.personalInfo.name}
             </h1>
+            {resumeData.personalInfo.location && (
+              <div className="text-gray-600 text-lg">
+                {resumeData.personalInfo.location}
+              </div>
+            )}
           </div>
 
           {/* Right Side - Contact Info and Bio */}
@@ -359,100 +363,144 @@ const AnimatedResume: React.FC = () => {
         </div>
 
         {/* Education Section */}
-        <div className="mb-16">
-          <h2
-            id="education-title"
-            data-animate
-            className={`text-5xl font-bold mb-12 animate-left ${
-              visibleElements.has("education-title") ? "visible" : ""
-            }`}
-          >
-            education
-          </h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative">
-            {/* Vertical divider line */}
-            <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
-
-            <div
-              id="education-left"
+        {resumeData.education && resumeData.education.length > 0 && (
+          <div className="mb-16">
+            <h2
+              id="education-title"
               data-animate
-              className={`pr-8 animate-left ${
-                visibleElements.has("education-left") ? "visible" : ""
+              className={`text-5xl font-bold mb-12 animate-left ${
+                visibleElements.has("education-title") ? "visible" : ""
               }`}
             >
-              {resumeData.education.map((ed, i) => (
-                <div key={i} className="mb-6">
-                  <div className="text-lg font-semibold mb-2">{ed.period}</div>
-                  <div className="text-lg">{ed.institution}</div>
-                  <div className="text-lg text-gray-600">{ed.location}</div>
-                </div>
-              ))}
-            </div>
+              education
+            </h2>
 
-            <div
-              id="education-right"
-              data-animate
-              className={`pl-8 animate-right ${
-                visibleElements.has("education-right") ? "visible" : ""
-              }`}
-            >
-              {resumeData.education.map((ed, i) => (
-                <div key={i} className="mb-6">
-                  <div className="text-lg">{ed.degree}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Experience Section */}
-        <div>
-          <h2
-            id="experience-title"
-            data-animate
-            className={`text-5xl font-bold mb-12 animate-left ${
-              visibleElements.has("experience-title") ? "visible" : ""
-            }`}
-          >
-            experience
-          </h2>
-
-          {resumeData.experience.map((exp, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12 relative"
-            >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative">
               {/* Vertical divider line */}
               <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
 
               <div
-                id={`exp-left-${index}`}
+                id="education-left"
                 data-animate
                 className={`pr-8 animate-left ${
-                  visibleElements.has(`exp-left-${index}`) ? "visible" : ""
+                  visibleElements.has("education-left") ? "visible" : ""
                 }`}
               >
-                <div className="text-lg font-semibold mb-2">{exp.period}</div>
-                <div className="text-lg italic mb-1">{exp.title}</div>
-                <div className="text-lg font-semibold">{exp.company}</div>
-                {exp.location && (
-                  <div className="text-lg text-gray-600">{exp.location}</div>
-                )}
+                {resumeData.education.map((ed, i) => (
+                  <div key={i} className="mb-6">
+                    <div className="text-lg font-semibold mb-2">
+                      {ed.period}
+                    </div>
+                    <div className="text-lg">{ed.institution}</div>
+                    <div className="text-lg text-gray-600">{ed.location}</div>
+                  </div>
+                ))}
               </div>
 
               <div
-                id={`exp-right-${index}`}
+                id="education-right"
                 data-animate
                 className={`pl-8 animate-right ${
-                  visibleElements.has(`exp-right-${index}`) ? "visible" : ""
+                  visibleElements.has("education-right") ? "visible" : ""
                 }`}
               >
-                <div className="text-lg leading-relaxed">{exp.description}</div>
+                {resumeData.education.map((ed, i) => (
+                  <div key={i} className="mb-6">
+                    <div className="text-lg">{ed.degree}</div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {/* Experience Section */}
+        {resumeData.experience && resumeData.experience.length > 0 && (
+          <div>
+            <h2
+              id="experience-title"
+              data-animate
+              className={`text-5xl font-bold mb-12 animate-left ${
+                visibleElements.has("experience-title") ? "visible" : ""
+              }`}
+            >
+              experience
+            </h2>
+
+            {resumeData.experience.map((exp, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12 relative"
+              >
+                {/* Vertical divider line */}
+                <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
+
+                <div
+                  id={`exp-left-${index}`}
+                  data-animate
+                  className={`pr-8 animate-left ${
+                    visibleElements.has(`exp-left-${index}`) ? "visible" : ""
+                  }`}
+                >
+                  <div className="text-lg font-semibold mb-2">{exp.period}</div>
+                  <div className="text-lg italic mb-1">{exp.title}</div>
+                  <div className="text-lg font-semibold">{exp.company}</div>
+                  {exp.location && (
+                    <div className="text-lg text-gray-600">{exp.location}</div>
+                  )}
+                </div>
+
+                <div
+                  id={`exp-right-${index}`}
+                  data-animate
+                  className={`pl-8 animate-right ${
+                    visibleElements.has(`exp-right-${index}`) ? "visible" : ""
+                  }`}
+                >
+                  <div className="text-lg leading-relaxed">
+                    {exp.description}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Skills Section */}
+        {resumeData.skills && resumeData.skills.length > 0 && (
+          <div className="mt-16">
+            <h2
+              id="skills-title"
+              data-animate
+              className={`text-5xl font-bold mb-12 animate-left ${
+                visibleElements.has("skills-title") ? "visible" : ""
+              }`}
+            >
+              skills
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {resumeData.skills.map((cat, idx) => (
+                <div key={idx}>
+                  {cat.title && (
+                    <div className="text-xl font-semibold mb-3">
+                      {cat.title}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2 items-start">
+                    {(cat.items || []).map((it, j) => (
+                      <div
+                        key={j}
+                        className="inline-block h-7 leading-[28px] px-3 rounded-full bg-gray-200 text-gray-800 text-xs font-medium text-center align-middle whitespace-nowrap"
+                      >
+                        {it}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
