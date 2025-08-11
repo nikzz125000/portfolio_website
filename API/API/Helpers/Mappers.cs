@@ -35,6 +35,9 @@ namespace API.Helpers
                 .ForMember(dest => dest.ImageFileName, opt => opt.Ignore());
             CreateMap<SubProjectContainer, SubProjectContainerViewModel>().ReverseMap();
             CreateMap<SubProject, SubProjectViewModel>().ReverseMap();
+            CreateMap<SubProjectContainer, SubProjectContainerDetailsViewModel>().ReverseMap();
+
+
             
         }
     }

@@ -55,4 +55,17 @@ namespace ViewModels
         public string AnimationTrigger { get; set; }
         public bool IsExterior { get; set; }
     }
+
+    public class SubProjectContainerDetailsViewModel
+    {
+        public int SubProjectContainerId { get; set; }
+        public int ProjectId { get; set; }
+        public string Title { get; set; }
+        public int SortOrder { get; set; }
+        public decimal? BackgroundImageAspectRatio { get; set; }
+        public string? BackgroundImageUrl { get; set; }
+        public string? BackgroundImageFileName { get; set; }
+
+        public List<SubProjectViewModel> SubProjects { get; set; } = new List<SubProjectViewModel>();
+    }
 } 
