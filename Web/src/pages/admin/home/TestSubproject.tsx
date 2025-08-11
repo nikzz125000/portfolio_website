@@ -1,9 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useSaveContainer } from '../../../api/useSaveContainer';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useContainerDetails } from '../../../api/useContainerDetails';
 import { useDeleteProject } from '../../../api/useDeleteProject';
 import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
+import { useNotification } from '../../../components/Tostr';
 
 interface SubImage {
   id: number;
@@ -70,7 +71,7 @@ const ImageEditor: React.FC = () => {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subImageInputRef = useRef<HTMLInputElement>(null);
-
+  const navigate = useNavigate();
   // Confirm dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -601,7 +602,7 @@ const ImageEditor: React.FC = () => {
     }
     return id?.toString();
   }
-
+   const { showNotification } = useNotification();  
   // FIXED: Save with percentages (no conversion needed)
   const handleSave = async (): Promise<void> => {
     try {
@@ -653,8 +654,21 @@ const ImageEditor: React.FC = () => {
         }
       });
       
-      await addOrUpdateContainer(formData);
-      alert('Data saved successfully!');
+     
+      await addOrUpdateContainer(formData, {
+      onSuccess: (res: any) => {
+        if (res?.isSuccess) {
+          showNotification("Container saved successfully!", "success", "Success");
+          navigate(`/admin/dashboard`);
+        } else {
+          showNotification(
+            res?.message || "Failed to save container",
+            "error",
+            "Error"
+          );
+        }
+      },
+    });
       
     } catch (error) {
       console.error('Save failed:', error);

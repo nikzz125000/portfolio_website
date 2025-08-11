@@ -4,6 +4,7 @@ import { useContainerDetails } from '../../../api/useContainerDetails';
 import { useDeleteProject } from '../../../api/useDeleteProject';
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
 import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
+import { useNotification } from '../../../components/Tostr';
 
 interface SubImage {
   id: number;
@@ -147,7 +148,7 @@ setSelectedSubImage(null);
     };
   };
 
-  const { mutate: addOrUpdateContainer} = useSaveSubProjectContainer();
+  const { mutate: addOrUpdateContainer,isPending} = useSaveSubProjectContainer();
   const { mutate: deleteProject} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
@@ -613,77 +614,120 @@ setSelectedSubImage(null);
     return id?.toString();
   }
 
+    const { showNotification } = useNotification();
   // FIXED: Save with percentages (no conversion needed)
-  const handleSave = async (): Promise<void> => {
-    try {
-      const formData = new FormData();
-      
-      formData.append('SubProjectContainerId', !currentItemId ? '0' : currentItemId);
-      formData.append('ProjectId', getProjectId(projectId));
-      formData.append('Title', title);
-      formData.append('SortOrder', sortOrder.toString());
-      
-      if (backgroundImage?.file) {
-        formData.append('ImageFile', backgroundImage.file);
-      }
-      
-      if (backgroundImage?.aspectRatio !== undefined) {
-        formData.append('BackgroundImageAspectRatio', backgroundImage.aspectRatio.toString());
-      }
-      
-      if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
-        formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
-      }
+ const handleSave = async (): Promise<void> => {
+  try {
+    const formData = new FormData();
 
-      if(isExIn){
-formData.append('BackgroundType', backgroundImage?.isExterior ? '2' : '1');
+    // Append container/project IDs
+    formData.append(
+      "SubProjectContainerId",
+      !currentItemId ? "0" : String(currentItemId)
+    );
+    formData.append("ProjectId", getProjectId(projectId));
+    formData.append("Title", title);
+    formData.append("SortOrder", sortOrder.toString());
+
+    // Append background image if provided
+    if (backgroundImage?.file) {
+      formData.append("ImageFile", backgroundImage.file);
+    }
+
+    if (backgroundImage?.aspectRatio !== undefined) {
+      formData.append(
+        "BackgroundImageAspectRatio",
+        backgroundImage.aspectRatio.toString()
+      );
+    }
+
+    if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
+      formData.append(
+        "BackgroundImageUrl",
+        backgroundImage.backgroundImageUrl
+      );
+    }
+
+    // Background type
+    if (isExIn) {
+      formData.append("BackgroundType", backgroundImage?.isExterior ? "2" : "1");
     } else {
-        formData.append('BackgroundType', '0'); // Default to interior if not set 
+      formData.append("BackgroundType", "0"); // Default to interior if not set
     }
-        
-      
-      // FIXED: Save percentages directly (no conversion needed)
-      subImages.forEach((img, index) => {
-        formData.append(`SubProjects[${index}][ProjectId]`, getProjectId(img.id));
-        formData.append(`SubProjects[${index}][Name]`, img.name);
-        
-        const xPercent = Math.round(img.xPercent);
-        const yPercent = Math.round(img.yPercent);
-        
-        console.log('Saving position as percentages:', {
-          xPercent,
-          yPercent,
-          dimensions: backgroundDimensions
-        });
-        
-        formData.append(`SubProjects[${index}][XPosition]`, xPercent.toString());
-        formData.append(`SubProjects[${index}][YPosition]`, yPercent.toString());
-        
-        formData.append(`SubProjects[${index}][HeightPercent]`, img.heightPercent.toString());
-        formData.append(`SubProjects[${index}][Animation]`, img.animation);
-        formData.append(`SubProjects[${index}][AnimationSpeed]`, img.animationSpeed);
-        formData.append(`SubProjects[${index}][AnimationTrigger]`, img.animationTrigger);
-        formData.append(`SubProjects[${index}][IsExterior]`, img.isExterior.toString());
-        
-        if (img.file && img.file.size > 0) {
-          formData.append(`SubProjects[${index}].ImageFile`, img.file);
-        } else if (img.url) {
-          formData.append(`SubProjects[${index}][ProjectImageUrl]`, img.url); 
-        }
+
+    // Sub-project images
+    subImages.forEach((img, index) => {
+      formData.append(
+        `SubProjects[${index}][ProjectId]`,
+        getProjectId(img.id)
+      );
+      formData.append(`SubProjects[${index}][Name]`, img.name);
+
+      const xPercent = Math.round(img.xPercent);
+      const yPercent = Math.round(img.yPercent);
+
+      console.log("Saving position as percentages:", {
+        xPercent,
+        yPercent,
+        dimensions: backgroundDimensions,
       });
-      
-      await addOrUpdateContainer(formData)
-      alert('Data saved successfully!');
-      
-    } catch (error) {
-      console.error('Save failed:', error);
-      if (error instanceof Error) {
-        alert(`Save failed: ${error.message}`);
-      } else {
-        alert('Save failed: An unknown error occurred.');
+
+      formData.append(`SubProjects[${index}][XPosition]`, xPercent.toString());
+      formData.append(`SubProjects[${index}][YPosition]`, yPercent.toString());
+
+      formData.append(
+        `SubProjects[${index}][HeightPercent]`,
+        img.heightPercent.toString()
+      );
+      formData.append(`SubProjects[${index}][Animation]`, img.animation);
+      formData.append(
+        `SubProjects[${index}][AnimationSpeed]`,
+        img.animationSpeed
+      );
+      formData.append(
+        `SubProjects[${index}][AnimationTrigger]`,
+        img.animationTrigger
+      );
+      formData.append(
+        `SubProjects[${index}][IsExterior]`,
+        img.isExterior.toString()
+      );
+
+      if (img.file && img.file.size > 0) {
+        formData.append(`SubProjects[${index}].ImageFile`, img.file);
+      } else if (img.url) {
+        formData.append(
+          `SubProjects[${index}][ProjectImageUrl]`,
+          img.url
+        );
       }
-    }
-  };
+    });
+
+    // API call
+    await addOrUpdateContainer(formData, {
+      onSuccess: (res: any) => {
+        if (res?.isSuccess) {
+          showNotification("Container saved successfully!", "success", "Success");
+          handleDrowerClose();
+        } else {
+          showNotification(
+            res?.message || "Failed to save container",
+            "error",
+            "Error"
+          );
+        }
+      },
+    });
+  } catch (error) {
+    console.error("Save failed:", error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : "An unknown error occurred.";
+    alert(`Save failed: ${message}`);
+  }
+};
+
 
   // FIXED: Load data and store as percentages
   const loadSampleProject = (apiData = null): void => {
@@ -1189,8 +1233,9 @@ formData.append('BackgroundType', backgroundImage?.isExterior ? '2' : '1');
           style={{ ...styles.button, backgroundColor: '#4caf50', marginTop: '20px' }}
           onClick={handleSave}
           type="button"
+          disabled={isPending}
         >
-          💾 Save
+          {isPending?'Loading..': "💾 Save"}
         </button>
       </div>
 

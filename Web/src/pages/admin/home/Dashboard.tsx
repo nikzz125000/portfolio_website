@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContainerList } from "../../../api/useContainerList";
+import DeleteConfirmDialog from "../../../components/DeleteConfirmDialog";
+import { useDeleteContainer } from "../../../api/useContainerDelete";
+import { useNotification } from "../../../components/Tostr";
 
 interface ImageProject {
   backgroundImageAspectRatio: number;
@@ -26,7 +29,8 @@ const { data, isPending, isSuccess } = useContainerList() as {
   isSuccess: boolean;
 };
 
-
+const [confirmOpen, setConfirmOpen] = useState(false);
+const [currentItemId, setcurrentItemId] = useState(0)
 
   // Handle success in useEffect
   useEffect(() => {
@@ -58,14 +62,22 @@ const { data, isPending, isSuccess } = useContainerList() as {
     // alert(`Navigate to Edit Project Page - ID: ${projectId}`);
   };
 
-  const handleDeleteProject = (projectId: number) => {
-    const project = projects?.find((p) => p.projectContainerId === projectId);
-    if (
-      project &&
-      window.confirm(`Are you sure you want to delete "${project.title}"?`)
-    ) {
-      setProjects((prev) => prev.filter((p) => p.projectContainerId !== projectId));
-    }
+   const { mutate: deleteProject, isPending: isDeleting } = useDeleteContainer();
+const { showNotification } = useNotification();  
+  const handleDeleteProject = () => {
+    deleteProject({ containerId: currentItemId }, {
+      onSuccess: (res) => {
+        if (res?.isSuccess) {
+          showNotification("Container Deleted successfully!", "success", "Success");
+         setConfirmOpen(false);
+        }else{
+           showNotification(
+            res?.message || "Failed to Delete container",
+            "error",
+            "Error"
+          );
+        }
+      }});
   };
 
   const handlePreviewProject = (project: ImageProject) => {
@@ -229,7 +241,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
                           <span className="ml-1">Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteProject(project.projectContainerId)}
+                          onClick={() =>{setcurrentItemId(project.projectContainerId); setConfirmOpen(true);}}
                           className="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           <DeleteIcon />
@@ -285,7 +297,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
                           <EditIcon />
                         </button>
                         <button
-                          onClick={() => handleDeleteProject(project.projectContainerId)}
+                          onClick={() =>{setcurrentItemId(project.projectContainerId); setConfirmOpen(true);}}
                           className="inline-flex items-center px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-xs rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           <DeleteIcon />
@@ -342,6 +354,7 @@ const { data, isPending, isSuccess } = useContainerList() as {
           Total Projects: {projects?.length}
         </div>
       </div>
+      {confirmOpen && (<DeleteConfirmDialog isOpen={confirmOpen} onConfirm={handleDeleteProject} onCancel={() => setConfirmOpen(false)} isDeleting={isDeleting}/>)}
     </div>
   );
 };
