@@ -11,7 +11,7 @@ namespace API.Services
     public interface ISubProjectContainerService
     {
         Task<CommonEntityResponse> CreateOrModify(SubProjectContainerPostModel model);
-        Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll();
+        Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll(int ProjectId);
         Task<ModelEntityResponse<SubProjectContainerViewModel>> GetDetails(int subProjectContainerId);
         Task<ModelEntityResponse<List<SubProjectContainerDetailsViewModel>>> GetAllSubContainerDetails(int ProjectId);
     }
@@ -133,10 +133,10 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll()
+        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll(int ProjectId)
         {
             ModelEntityResponse<List<SubProjectContainerViewModel>> res = new();
-            var containers = await _unitOfWork._context.SubProjectContainers.ToListAsync();
+            var containers = await _unitOfWork._context.SubProjectContainers.Where(x=>x.ProjectId== ProjectId).ToListAsync();
             res.Data = _mapper.Map<List<SubProjectContainerViewModel>>(containers);
             foreach (var item in res.Data)
             {
