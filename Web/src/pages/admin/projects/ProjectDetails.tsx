@@ -3,6 +3,7 @@ import { useSaveContainer } from '../../../api/useSaveContainer';
 import { useContainerDetails } from '../../../api/useContainerDetails';
 import { useDeleteProject } from '../../../api/useDeleteProject';
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
+import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
 
 interface SubImage {
   id: number;
@@ -50,7 +51,7 @@ interface TriggerOption {
   description: string;
 }
 
-const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) => {
+const ProjectDetails: React.FC<{ currentItemId: number, projectId:number }> = ({ currentItemId,projectId }) => {
   // Read isExIn from URL parameters
   const getIsExInFromUrl = (): boolean => {
     if (typeof window !== 'undefined') {
@@ -609,7 +610,8 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
     try {
       const formData = new FormData();
       
-      formData.append('ProjectContainerId', !currentItemId ? '0' : currentItemId);
+      formData.append('SubProjectContainerId', !currentItemId ? '0' : currentItemId);
+      formData.append('ProjectId', getProjectId(projectId));
       formData.append('Title', title);
       formData.append('SortOrder', sortOrder.toString());
       
@@ -627,8 +629,8 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
       
       // FIXED: Save percentages directly (no conversion needed)
       subImages.forEach((img, index) => {
-        formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
-        formData.append(`Projects[${index}][Name]`, img.name);
+        formData.append(`SubProjects[${index}][ProjectId]`, getProjectId(img.id));
+        formData.append(`SubProjects[${index}][Name]`, img.name);
         
         const xPercent = Math.round(img.xPercent);
         const yPercent = Math.round(img.yPercent);
@@ -639,19 +641,19 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
           dimensions: backgroundDimensions
         });
         
-        formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
-        formData.append(`Projects[${index}][YPosition]`, yPercent.toString());
+        formData.append(`SubProjects[${index}][XPosition]`, xPercent.toString());
+        formData.append(`SubProjects[${index}][YPosition]`, yPercent.toString());
         
-        formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
-        formData.append(`Projects[${index}][Animation]`, img.animation);
-        formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
-        formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
-        formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+        formData.append(`SubProjects[${index}][HeightPercent]`, img.heightPercent.toString());
+        formData.append(`SubProjects[${index}][Animation]`, img.animation);
+        formData.append(`SubProjects[${index}][AnimationSpeed]`, img.animationSpeed);
+        formData.append(`SubProjects[${index}][AnimationTrigger]`, img.animationTrigger);
+        formData.append(`SubProjects[${index}][IsExterior]`, img.isExterior.toString());
         
         if (img.file && img.file.size > 0) {
-          formData.append(`Projects[${index}].ImageFile`, img.file);
+          formData.append(`SubProjects[${index}].ImageFile`, img.file);
         } else if (img.url) {
-          formData.append(`Projects[${index}][ProjectImageUrl]`, img.url); 
+          formData.append(`SubProjects[${index}][ProjectImageUrl]`, img.url); 
         }
       });
       
@@ -712,7 +714,7 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
   };
 
 
-  const { data, isSuccess } = useContainerDetails(7);
+  const { data, isSuccess } = useSubProjectContainerDetails(currentItemId||0);
 
   console.log(700, currentItemId);
   useEffect(() => {
