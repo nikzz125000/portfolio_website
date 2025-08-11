@@ -163,5 +163,33 @@ namespace API.Controllers
             }
             return response;
         }
+
+        [Route("Project/List")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerViewModel>>), 200)]
+        public async Task<ModelEntityResponse<List<ProjectViewModel>>> ListOfAllProject()
+        {
+            ModelEntityResponse<List<ProjectViewModel>> response = new ModelEntityResponse<List<ProjectViewModel>>();
+            try
+            {
+
+                response = await _containerService.GetAllProjects();
+
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/Project/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 }

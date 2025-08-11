@@ -56,7 +56,9 @@ namespace API.Services
                     container.BackgroundImageFileName = backgroundImageFileName;
                 }
                 container.Title = model.Title;
+                container.SortOrder = model.SortOrder;
                 container.ProjectId = model.ProjectId;
+                container.BackgroundImageAspectRatio = model.BackgroundImageAspectRatio;
                 container.UpdatedDate = DateTime.UtcNow;
             }
             else

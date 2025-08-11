@@ -9,6 +9,6 @@ namespace Repository.Interfaces
         Task<Project?> GetById(int ProjectId);
         Task<List<Project>> GetByProjectContainerId(int ProjectContainerId);
         Task<bool> DeleteProject(int ProjectId);
-
+        Task<List<Project>> GetAll();
     }
 }
