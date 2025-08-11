@@ -86,6 +86,52 @@ const Homepage: React.FC = () => {
 
   const { data, isPending, isSuccess } = useHomePageList();
 
+  // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
+  const animationOptions = [
+    { value: 'none', label: 'No Animation' },
+    { value: 'fadeIn', label: 'Fade In' },
+    { value: 'fadeInUp', label: 'Fade In Up' },
+    { value: 'fadeInDown', label: 'Fade In Down' },
+    { value: 'slideInLeft', label: 'Slide In Left' },
+    { value: 'slideInRight', label: 'Slide In Right' },
+    { value: 'slideInUp', label: 'Slide In Up' },
+    { value: 'slideInDown', label: 'Slide In Down' },
+    { value: 'zoomIn', label: 'Zoom In' },
+    { value: 'zoomInUp', label: 'Zoom In Up' },
+    { value: 'zoomInDown', label: 'Zoom In Down' },
+    { value: 'bounce', label: 'Bounce' },
+    { value: 'bounceIn', label: 'Bounce In' },
+    { value: 'bounceInUp', label: 'Bounce In Up' },
+    { value: 'bounceInDown', label: 'Bounce In Down' },
+    { value: 'shake', label: 'Shake' },
+    { value: 'pulse', label: 'Pulse' },
+    { value: 'heartbeat', label: 'Heartbeat' },
+    { value: 'swing', label: 'Swing' },
+    { value: 'rotate', label: 'Rotate' },
+    { value: 'rotateIn', label: 'Rotate In' },
+    { value: 'flip', label: 'Flip' },
+    { value: 'flipInX', label: 'Flip In X' },
+    { value: 'flipInY', label: 'Flip In Y' },
+    { value: 'rubberBand', label: 'Rubber Band' },
+    { value: 'wobble', label: 'Wobble' },
+    { value: 'jello', label: 'Jello' },
+    { value: 'tada', label: 'Tada' }
+  ];
+
+  const speedOptions = [
+    { value: 'very-slow', label: 'Very Slow', duration: '4s' },
+    { value: 'slow', label: 'Slow', duration: '2.5s' },
+    { value: 'normal', label: 'Normal', duration: '1.5s' },
+    { value: 'fast', label: 'Fast', duration: '0.8s' },
+    { value: 'very-fast', label: 'Very Fast', duration: '0.4s' }
+  ];
+
+  const triggerOptions = [
+    { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
+    { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
+    { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
+  ];
+
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
     console.log(`Navigating to project/${subImageId}`);
@@ -317,6 +363,52 @@ const Homepage: React.FC = () => {
     }
   }, [data]);
 
+  // COMPREHENSIVE Animation debugging with all animation options
+  useEffect(() => {
+    if (sections.length > 0) {
+      console.log('=== COMPLETE ANIMATION DEBUG ===');
+      console.log('Total available animations:', animationOptions.length - 1); // Exclude 'none'
+      console.log('Available animations:', animationOptions.map(a => a.value).filter(v => v !== 'none'));
+      
+      sections.forEach((section, sectionIndex) => {
+        console.log(`Section ${sectionIndex} (${section.title}):`);
+        
+        if (section.projects && section.projects.length > 0) {
+          section.projects.forEach((project, projectIndex) => {
+            const animationExists = animationOptions.find(a => a.value === project.animation);
+            const speedExists = speedOptions.find(s => s.value === project.animationSpeed);
+            const triggerExists = triggerOptions.find(t => t.value === project.animationTrigger);
+            
+            console.log(`  Project ${projectIndex}:`, {
+              name: project.name,
+              projectId: project.projectId,
+              animation: project.animation,
+              animationExists: !!animationExists,
+              animationSpeed: project.animationSpeed,
+              speedExists: !!speedExists,
+              animationTrigger: project.animationTrigger,
+              triggerExists: !!triggerExists,
+              expectedClasses: getAnimationClasses(project)
+            });
+            
+            // Validate animation values
+            if (project.animation && project.animation !== 'none') {
+              console.log(`    ✅ Animation: ${project.animation} ${animationExists ? '(FOUND)' : '(NOT FOUND)'}`);
+              console.log(`    ✅ Speed: ${project.animationSpeed} ${speedExists ? '(FOUND)' : '(NOT FOUND)'}`);
+              console.log(`    ✅ Trigger: ${project.animationTrigger} ${triggerExists ? '(FOUND)' : '(NOT FOUND)'}`);
+            } else {
+              console.log(`    ❌ No animation set`);
+            }
+          });
+        } else {
+          console.log('  No projects found in this section');
+        }
+      });
+      
+      console.log('=== END COMPLETE ANIMATION DEBUG ===');
+    }
+  }, [sections]);
+
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
@@ -397,17 +489,40 @@ const Homepage: React.FC = () => {
     };
   }, [sections]);
 
-  // Animation classes function to handle API data structure
+  // FIXED: Updated getAnimationClasses function with validation
   const getAnimationClasses = (subImage: any): string => {
-    if (subImage.animation === 'none' || !subImage.animation) return '';
+    if (subImage.animation === 'none' || !subImage.animation) return 'clickable-sub-image';
     
+    // Validate animation exists in our list
+    const validAnimation = animationOptions.find(a => a.value === subImage.animation);
+    const validSpeed = speedOptions.find(s => s.value === subImage.animationSpeed);
+    const validTrigger = triggerOptions.find(t => t.value === subImage.animationTrigger);
+    
+    if (!validAnimation) {
+      console.warn(`Unknown animation: ${subImage.animation}`);
+      return 'clickable-sub-image';
+    }
+    
+    // Use both class names for compatibility
     const classes = [
-      'animated-image',
-      'animated-element',
+      'animated-element', // Keep existing class
+      'animated-image',   // Add ImageEditor class for compatibility
+      'clickable-sub-image',
       subImage.animation,
       `speed-${subImage.animationSpeed || 'normal'}`,
       `trigger-${subImage.animationTrigger || 'once'}`
     ];
+    
+    console.log('Applied animation classes:', {
+      name: subImage.name,
+      animation: subImage.animation,
+      animationValid: !!validAnimation,
+      speed: subImage.animationSpeed,
+      speedValid: !!validSpeed,
+      trigger: subImage.animationTrigger,
+      triggerValid: !!validTrigger,
+      finalClasses: classes.join(' ')
+    });
     
     return classes.join(' ');
   };
@@ -431,8 +546,9 @@ const Homepage: React.FC = () => {
     };
   };
 
-  // Animation CSS
+  // COMPLETE ANIMATION STYLES - EXACT COPY FROM IMAGEEDITOR with additions
   const animationStyles = `
+    /* ALL ANIMATION KEYFRAMES FROM IMAGEEDITOR - EXACT COPY */
     @keyframes fadeIn {
       0% { opacity: 0; }
       100% { opacity: 1; }
@@ -453,15 +569,28 @@ const Homepage: React.FC = () => {
       0% { transform: translateX(100%); }
       100% { transform: translateX(0); }
     }
+    @keyframes slideInUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes slideInDown {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(0); }
+    }
     @keyframes zoomIn {
       0% { opacity: 0; transform: scale(0.3); }
-      100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 1; }
+      100% { transform: scale(1); }
     }
-    @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.05); }
-      70% { transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
+    @keyframes zoomInUp {
+      0% { opacity: 0; transform: scale(0.1) translateY(2000px); }
+      60% { opacity: 1; transform: scale(0.475) translateY(-60px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+    @keyframes zoomInDown {
+      0% { opacity: 0; transform: scale(0.1) translateY(-2000px); }
+      60% { opacity: 1; transform: scale(0.475) translateY(60px); }
+      100% { transform: scale(1) translateY(0); }
     }
     @keyframes bounce {
       0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
@@ -469,20 +598,221 @@ const Homepage: React.FC = () => {
       70% { transform: translateY(-15px); }
       90% { transform: translateY(-4px); }
     }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes bounceInUp {
+      0% { opacity: 0; transform: translateY(2000px); }
+      60% { opacity: 1; transform: translateY(-30px); }
+      80% { transform: translateY(10px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes bounceInDown {
+      0% { opacity: 0; transform: translateY(-2000px); }
+      60% { opacity: 1; transform: translateY(30px); }
+      80% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
       20%, 40%, 60%, 80% { transform: translateX(10px); }
     }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.3); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.3); }
+      70% { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes swing {
+      20% { transform: rotate(15deg); }
+      40% { transform: rotate(-10deg); }
+      60% { transform: rotate(5deg); }
+      80% { transform: rotate(-5deg); }
+      100% { transform: rotate(0deg); }
+    }
     @keyframes rotate {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    @keyframes rotateIn {
+      0% { transform: rotate(-200deg); opacity: 0; }
+      100% { transform: rotate(0deg); opacity: 1; }
+    }
+    @keyframes flip {
+      0% { transform: perspective(400px) rotateY(0); }
+      100% { transform: perspective(400px) rotateY(360deg); }
+    }
+    @keyframes flipInX {
+      0% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
+      40% { transform: perspective(400px) rotateX(-10deg); }
+      70% { transform: perspective(400px) rotateX(10deg); }
+      100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
+    }
+    @keyframes flipInY {
+      0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+      40% { transform: perspective(400px) rotateY(-10deg); }
+      70% { transform: perspective(400px) rotateY(10deg); }
+      100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+    }
+    @keyframes rubberBand {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.25, 0.75); }
+      40% { transform: scale(0.75, 1.25); }
+      60% { transform: scale(1.15, 0.85); }
+      100% { transform: scale(1); }
+    }
+    @keyframes wobble {
+      0% { transform: translateX(0%); }
+      15% { transform: translateX(-25%) rotate(-5deg); }
+      30% { transform: translateX(20%) rotate(3deg); }
+      45% { transform: translateX(-15%) rotate(-3deg); }
+      60% { transform: translateX(10%) rotate(2deg); }
+      75% { transform: translateX(-5%) rotate(-1deg); }
+      100% { transform: translateX(0%); }
+    }
+    @keyframes jello {
+      0%, 11.1%, 100% { transform: translateX(0); }
+      22.2% { transform: skewX(-12.5deg) skewY(-12.5deg); }
+      33.3% { transform: skewX(6.25deg) skewY(6.25deg); }
+      44.4% { transform: skewX(-3.125deg) skewY(-3.125deg); }
+      55.5% { transform: skewX(1.5625deg) skewY(1.5625deg); }
+      66.6% { transform: skewX(-0.78125deg) skewY(-0.78125deg); }
+      77.7% { transform: skewX(0.390625deg) skewY(0.390625deg); }
+      88.8% { transform: skewX(-0.1953125deg) skewY(-0.1953125deg); }
+    }
+    @keyframes tada {
+      0% { transform: scale(1) rotate(0deg); }
+      10%, 20% { transform: scale(0.9) rotate(-3deg); }
+      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* ANIMATION BASE CLASSES - EXACT COPY FROM IMAGEEDITOR */
+    .animated-image {
+      animation-fill-mode: both;
+    }
+
+    .animated-element {
+      animation-fill-mode: both;
+    }
+
+    /* SPEED CLASSES - EXACT COPY FROM IMAGEEDITOR */
+    .speed-very-slow { animation-duration: 4s !important; }
+    .speed-slow { animation-duration: 2.5s !important; }
+    .speed-normal { animation-duration: 1.5s !important; }
+    .speed-fast { animation-duration: 0.8s !important; }
+    .speed-very-fast { animation-duration: 0.4s !important; }
+
+    /* TRIGGER CLASSES - EXACT COPY FROM IMAGEEDITOR */
+    .trigger-continuous { animation-iteration-count: infinite; }
+    .trigger-once { animation-iteration-count: 1; }
+    .trigger-hover { animation-play-state: paused; }
+    .trigger-hover:hover { animation-play-state: running; }
+
+    /* ANIMATION-SPECIFIC TRIGGER BEHAVIORS - EXACT COPY FROM IMAGEEDITOR */
+    .animated-image.bounce.trigger-continuous,
+    .animated-image.shake.trigger-continuous,
+    .animated-image.pulse.trigger-continuous,
+    .animated-image.heartbeat.trigger-continuous,
+    .animated-image.rotate.trigger-continuous,
+    .animated-image.flip.trigger-continuous,
+    .animated-element.bounce.trigger-continuous,
+    .animated-element.shake.trigger-continuous,
+    .animated-element.pulse.trigger-continuous,
+    .animated-element.heartbeat.trigger-continuous,
+    .animated-element.rotate.trigger-continuous,
+    .animated-element.flip.trigger-continuous { 
+      animation-iteration-count: infinite; 
+    }
+
+    .animated-image.bounce.trigger-once,
+    .animated-image.shake.trigger-once,
+    .animated-image.pulse.trigger-once,
+    .animated-image.heartbeat.trigger-once,
+    .animated-image.rotate.trigger-once,
+    .animated-image.flip.trigger-once,
+    .animated-element.bounce.trigger-once,
+    .animated-element.shake.trigger-once,
+    .animated-element.pulse.trigger-once,
+    .animated-element.heartbeat.trigger-once,
+    .animated-element.rotate.trigger-once,
+    .animated-element.flip.trigger-once { 
+      animation-iteration-count: 3; 
+    }
+
+    .animated-image.bounce.trigger-hover,
+    .animated-image.shake.trigger-hover,
+    .animated-image.pulse.trigger-hover,
+    .animated-image.heartbeat.trigger-hover,
+    .animated-image.rotate.trigger-hover,
+    .animated-image.flip.trigger-hover,
+    .animated-element.bounce.trigger-hover,
+    .animated-element.shake.trigger-hover,
+    .animated-element.pulse.trigger-hover,
+    .animated-element.heartbeat.trigger-hover,
+    .animated-element.rotate.trigger-hover,
+    .animated-element.flip.trigger-hover { 
+      animation-iteration-count: infinite;
+      animation-play-state: paused;
+    }
+
+    .animated-image.bounce.trigger-hover:hover,
+    .animated-image.shake.trigger-hover:hover,
+    .animated-image.pulse.trigger-hover:hover,
+    .animated-image.heartbeat.trigger-hover:hover,
+    .animated-image.rotate.trigger-hover:hover,
+    .animated-image.flip.trigger-hover:hover,
+    .animated-element.bounce.trigger-hover:hover,
+    .animated-element.shake.trigger-hover:hover,
+    .animated-element.pulse.trigger-hover:hover,
+    .animated-element.heartbeat.trigger-hover:hover,
+    .animated-element.rotate.trigger-hover:hover,
+    .animated-element.flip.trigger-hover:hover { 
+      animation-play-state: running;
+    }
+
+    /* ALL INDIVIDUAL ANIMATION RULES - EXACT COPY FROM IMAGEEDITOR */
+    .animated-image.fadeIn, .animated-element.fadeIn { animation-name: fadeIn; animation-duration: 1s; }
+    .animated-image.fadeInUp, .animated-element.fadeInUp { animation-name: fadeInUp; animation-duration: 1s; }
+    .animated-image.fadeInDown, .animated-element.fadeInDown { animation-name: fadeInDown; animation-duration: 1s; }
+    .animated-image.slideInLeft, .animated-element.slideInLeft { animation-name: slideInLeft; animation-duration: 1s; }
+    .animated-image.slideInRight, .animated-element.slideInRight { animation-name: slideInRight; animation-duration: 1s; }
+    .animated-image.slideInUp, .animated-element.slideInUp { animation-name: slideInUp; animation-duration: 1s; }
+    .animated-image.slideInDown, .animated-element.slideInDown { animation-name: slideInDown; animation-duration: 1s; }
+    .animated-image.zoomIn, .animated-element.zoomIn { animation-name: zoomIn; animation-duration: 1s; }
+    .animated-image.zoomInUp, .animated-element.zoomInUp { animation-name: zoomInUp; animation-duration: 1s; }
+    .animated-image.zoomInDown, .animated-element.zoomInDown { animation-name: zoomInDown; animation-duration: 1s; }
+    .animated-image.bounce, .animated-element.bounce { animation-name: bounce; animation-duration: 2s; animation-iteration-count: infinite; }
+    .animated-image.bounceIn, .animated-element.bounceIn { animation-name: bounceIn; animation-duration: 1s; }
+    .animated-image.bounceInUp, .animated-element.bounceInUp { animation-name: bounceInUp; animation-duration: 1s; }
+    .animated-image.bounceInDown, .animated-element.bounceInDown { animation-name: bounceInDown; animation-duration: 1s; }
+    .animated-image.shake, .animated-element.shake { animation-name: shake; animation-duration: 1s; animation-iteration-count: infinite; }
+    .animated-image.pulse, .animated-element.pulse { animation-name: pulse; animation-duration: 2s; animation-iteration-count: infinite; }
+    .animated-image.heartbeat, .animated-element.heartbeat { animation-name: heartbeat; animation-duration: 1.3s; animation-iteration-count: infinite; }
+    .animated-image.swing, .animated-element.swing { animation-name: swing; animation-duration: 1s; transform-origin: top center; }
+    .animated-image.rotate, .animated-element.rotate { animation-name: rotate; animation-duration: 2s; animation-iteration-count: infinite; animation-timing-function: linear; }
+    .animated-image.rotateIn, .animated-element.rotateIn { animation-name: rotateIn; animation-duration: 1s; }
+    .animated-image.flip, .animated-element.flip { animation-name: flip; animation-duration: 1s; animation-iteration-count: infinite; }
+    .animated-image.flipInX, .animated-element.flipInX { animation-name: flipInX; animation-duration: 1s; }
+    .animated-image.flipInY, .animated-element.flipInY { animation-name: flipInY; animation-duration: 1s; }
+    .animated-image.rubberBand, .animated-element.rubberBand { animation-name: rubberBand; animation-duration: 1s; }
+    .animated-image.wobble, .animated-element.wobble { animation-name: wobble; animation-duration: 1s; }
+    .animated-image.jello, .animated-element.jello { animation-name: jello; animation-duration: 1s; }
+    .animated-image.tada, .animated-element.tada { animation-name: tada; animation-duration: 1s; }
+
+    /* HOMEPAGE SPECIFIC STYLES */
     @keyframes menuSlideIn {
       0% { 
         opacity: 0; 
@@ -533,33 +863,6 @@ const Homepage: React.FC = () => {
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.2);
       }
     }
-
-    .animated-element {
-      animation-fill-mode: both;
-    }
-
-    .speed-very-slow { animation-duration: 4s !important; }
-    .speed-slow { animation-duration: 2.5s !important; }
-    .speed-normal { animation-duration: 1.5s !important; }
-    .speed-fast { animation-duration: 0.8s !important; }
-    .speed-very-fast { animation-duration: 0.4s !important; }
-
-    .trigger-continuous { animation-iteration-count: infinite; }
-    .trigger-once { animation-iteration-count: 1; }
-    .trigger-hover { animation-play-state: paused; }
-    .trigger-hover:hover { animation-play-state: running; animation-iteration-count: infinite; }
-
-    .animated-element.fadeIn { animation-name: fadeIn; }
-    .animated-element.fadeInUp { animation-name: fadeInUp; }
-    .animated-element.fadeInDown { animation-name: fadeInDown; }
-    .animated-element.slideInLeft { animation-name: slideInLeft; }
-    .animated-element.slideInRight { animation-name: slideInRight; }
-    .animated-element.zoomIn { animation-name: zoomIn; }
-    .animated-element.bounceIn { animation-name: bounceIn; }
-    .animated-element.bounce { animation-name: bounce; animation-iteration-count: infinite; }
-    .animated-element.pulse { animation-name: pulse; animation-iteration-count: infinite; }
-    .animated-element.shake { animation-name: shake; }
-    .animated-element.rotate { animation-name: rotate; animation-iteration-count: infinite; }
 
     .fade-in-on-scroll {
       opacity: 0;
@@ -673,9 +976,6 @@ const Homepage: React.FC = () => {
       filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
       z-index: 50 !important;
       animation: glowPulse 15s infinite;
-    }
-
-    .clickable-sub-image:active {
     }
 
     .section-background {
@@ -858,7 +1158,7 @@ const Homepage: React.FC = () => {
       transform: translateY(0);
     }
 
-    /* FIXED: Unified coordinate system debugging */
+    /* Unified coordinate system debugging */
     .coordinate-debug {
       position: absolute;
       top: 10px;
@@ -884,7 +1184,7 @@ const Homepage: React.FC = () => {
       z-index: 5;
     }
 
-    /* FIXED: Ensure no gaps between sections */
+    /* Ensure no gaps between sections */
     section {
       margin: 0 !important;
       padding: 0 !important;
@@ -892,7 +1192,7 @@ const Homepage: React.FC = () => {
       display: block !important;
     }
 
-    /* FIXED: Mobile optimization for unified coordinate system */
+    /* Mobile optimization for unified coordinate system */
     @media (max-width: 768px) {
       section {
         width: 100vw !important;
@@ -908,11 +1208,44 @@ const Homepage: React.FC = () => {
       }
     }
 
-    /* FIXED: Ensure smooth scrolling container */
+    /* Ensure smooth scrolling container */
     body, html {
       margin: 0;
       padding: 0;
       overflow: hidden;
+    }
+
+    /* LOADING OVERLAY - FROM IMAGEEDITOR */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    /* BADGES - FROM IMAGEEDITOR */
+    .exterior-badge {
+      background: #4caf50;
+      color: white;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+
+    .interior-badge {
+      background: #ff9800;
+      color: white;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 6px;
     }
   `;
 
@@ -1076,7 +1409,7 @@ const Homepage: React.FC = () => {
                   Section Height: {dimensions.height}px<br/>
                   Image Height: {dimensions.imageHeight}px<br/>
                   BgSize: 100% auto (unified)<br/>
-                  Coordinate System: Unified
+                  Total Animations: {animationOptions.length - 1}
                 </div>
               )}
 
@@ -1091,7 +1424,7 @@ const Homepage: React.FC = () => {
                 </div>
               )}
 
-              {/* FIXED: Sub-images positioned using unified coordinate system */}
+              {/* FIXED: Sub-images positioned using unified coordinate system with ALL animations */}
               {section.projects?.map((subImage) => {
                 // FIXED: Use unified coordinate system for positioning
                 const containerWidth = window.innerWidth;
@@ -1107,17 +1440,13 @@ const Homepage: React.FC = () => {
                   section.backgroundImageAspectRatio
                 );
 
-                console.log('Unified coordinate system positioning:', {
+                console.log('Rendering with ALL animations available:', {
                   name: subImage.name,
-                  xPosition: subImage.xPosition,
-                  yPosition: subImage.yPosition,
-                  containerWidth,
-                  imageHeight: dimensions.imageHeight,
-                  sectionHeight: dimensions.height,
-                  finalX: pixelX,
-                  finalY: pixelY,
-                  aspectRatio: section.backgroundImageAspectRatio?.toFixed(2),
-                  coordinateSystem: 'unified'
+                  animation: subImage.animation,
+                  animationSpeed: subImage.animationSpeed,
+                  animationTrigger: subImage.animationTrigger,
+                  classes: getAnimationClasses(subImage),
+                  totalAnimationsAvailable: animationOptions.length - 1
                 });
 
                 const isHovered = hoveredImageId === subImage.projectId;
@@ -1131,15 +1460,19 @@ const Homepage: React.FC = () => {
                     }`}
                     style={{
                       position: 'absolute',
-                      left: `${pixelX}px`,  // Real-time calculation using unified system
-                      top: `${pixelY}px`,   // Real-time calculation using unified system
+                      left: `${pixelX}px`,
+                      top: `${pixelY}px`,
                       zIndex: isHovered ? 50 : 10
                     }}
                   >
                     <img
                       src={subImage.projectImageUrl}
                       alt={subImage.name || subImage.imageFileName}
-                      className={`${getAnimationClasses(subImage)} clickable-sub-image`}
+                      data-project-id={subImage.projectId} // For debugging
+                      data-animation={subImage.animation} // For debugging
+                      data-animation-speed={subImage.animationSpeed} // For debugging
+                      data-animation-trigger={subImage.animationTrigger} // For debugging
+                      className={getAnimationClasses(subImage)} // This applies all animation classes
                       onClick={() => handleSubImageClick(subImage.projectId)}
                       onMouseEnter={() => setHoveredImageId(subImage.projectId)}
                       onMouseLeave={() => setHoveredImageId(null)}
@@ -1150,9 +1483,38 @@ const Homepage: React.FC = () => {
                         boxShadow: isHovered 
                           ? '0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)'
                           : '0 4px 20px rgba(0,0,0,0.3)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        // IMPORTANT: Ensure animation properties can be applied
+                        animationFillMode: 'both',
+                        // Enable hardware acceleration for smoother animations
+                        transform: 'translateZ(0)',
+                        backfaceVisibility: 'hidden',
+                        perspective: '1000px'
                       }}
                     />
+                    
+                    {/* Enhanced debug info overlay (remove in production) */}
+                    {process.env.NODE_ENV === 'development' && subImage.animation !== 'none' && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '-35px',
+                        left: '0',
+                        background: 'rgba(0,0,0,0.9)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        whiteSpace: 'nowrap',
+                        zIndex: 1000,
+                        pointerEvents: 'none',
+                        lineHeight: '1.2',
+                        maxWidth: '150px'
+                      }}>
+                        🎬 {subImage.animation}<br/>
+                        ⚡ {subImage.animationSpeed}<br/>
+                        🎯 {subImage.animationTrigger}
+                      </div>
+                    )}
                   </div>
                 );
               })}
