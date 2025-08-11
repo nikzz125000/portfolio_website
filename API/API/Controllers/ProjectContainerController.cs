@@ -83,7 +83,11 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("List/Details")]
+        /// <summary>
+        /// displays in cusomer
+        /// </summary>
+        /// <returns></returns>
+        [Route("Customer/Home/List/Details")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
         public async Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> ListProjectContainersWithDetails()

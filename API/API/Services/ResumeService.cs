@@ -10,7 +10,7 @@ namespace API.Services
     public interface IResumeService
     {
         Task<CommonEntityResponse> CreateOrModify(ResumePostModel model);
-        Task<ModelEntityResponse<ResumeViewModel>> GetById(int id);
+        Task<ModelEntityResponse<ResumeViewModel>> GetById();
     }
 
     public class ResumeService : IResumeService
@@ -32,7 +32,7 @@ namespace API.Services
                 Resume entity;
                 if (model.Id != 0)
                 {
-                    entity = await _unitOfWork.Resumes.GetById(model.Id) ?? new Resume();
+                    entity = await _unitOfWork.Resumes.GetById() ?? new Resume();
                 }
                 else
                 {
@@ -75,10 +75,10 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<ResumeViewModel>> GetById(int id)
+        public async Task<ModelEntityResponse<ResumeViewModel>> GetById()
         {
             ModelEntityResponse<ResumeViewModel> response = new ModelEntityResponse<ResumeViewModel>();
-            var data = await _unitOfWork.Resumes.GetById(id);
+            var data = await _unitOfWork.Resumes.GetById();
             if (data is not null)
             {
                 response.Data = new ResumeViewModel
