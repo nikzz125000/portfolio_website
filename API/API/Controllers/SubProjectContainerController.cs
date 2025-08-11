@@ -29,7 +29,12 @@ namespace API.Controllers
             CommonEntityResponse response = new CommonEntityResponse();
             try
             {
-                if (model.ImageFile == null)
+                if (model.ProjectId == 0)
+                {
+                    response.CreateFailureResponse("Project Id required");
+                    return response;
+                }
+                if (model.SubProjectContainerId !=0 && model.ImageFile == null)
                 {
                     response.CreateFailureResponse("Image file required");
                     return response;
@@ -52,15 +57,15 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("List/{ProjectId}")]
+        [Route("List")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<List<SubProjectContainerViewModel>>), 200)]
-        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> List(int ProjectId)
+        public async Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> List()
         {
             ModelEntityResponse<List<SubProjectContainerViewModel>> response = new();
             try
             {
-                response = await _service.GetAll(ProjectId);
+                response = await _service.GetAll();
             }
             catch (Exception e)
             {
