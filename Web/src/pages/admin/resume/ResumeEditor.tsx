@@ -11,6 +11,10 @@ import {
   Stack,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
+import { useResumeDetails } from "../../../api/useResumeDetails";
+import type { SaveResumePayload } from "../../../api/useSaveResume";
+import { useSaveResume } from "../../../api/useSaveResume";
+import type { SaveResumeResponse } from "../../../api/useSaveResume";
 
 // Keep this aligned with the public resume view
 export interface EducationEntry {
@@ -52,7 +56,10 @@ export interface ResumeData {
   skills?: SkillCategory[];
 }
 
-const LOCAL_STORAGE_KEY = "resumeData";
+const LOCAL_STORAGE_KEY = "resumeData"; // kept as a local draft fallback
+const LOCAL_STORAGE_RESUME_ID = "resumeId";
+const DEFAULT_AVATAR =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24"><rect width="24" height="24" fill="%23e5e7eb"/><circle cx="12" cy="8" r="4" fill="%239ca3af"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="%239ca3af"/></svg>';
 
 const defaultResume: ResumeData = {
   personalInfo: {
@@ -62,7 +69,7 @@ const defaultResume: ResumeData = {
     photo:
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=80",
     bio: "I am a brown boy with a really white name. No, I am not lying, my name is actually Glen George. Originally from India, I grew up in the Middle-East and now currently in Los Angeles, California. I focus on experience driven design and creating a future that is also art.",
-    location: "Los Angeles, California",
+    location: "Los Angeles, California1",
     focus: "experience driven design",
     socials: {
       linkedin: "https://www.linkedin.com/in/your-profile",
@@ -125,20 +132,95 @@ const defaultResume: ResumeData = {
 
 const ResumeEditor: React.FC = () => {
   const [data, setData] = useState<ResumeData>(defaultResume);
+  const [resumeId, setResumeId] = useState<number>(() => {
+    const raw = localStorage.getItem(LOCAL_STORAGE_RESUME_ID);
+    const parsed = raw ? Number(raw) : 0;
+    return Number.isFinite(parsed) ? parsed : 0;
+  });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
 
+  const { data: resumeResponse, isFetching, refetch } = useResumeDetails();
+  const { mutate: saveResume, isPending: isSaving } = useSaveResume();
+
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (raw) {
-        setData(JSON.parse(raw));
+    if (!resumeResponse?.data) return;
+    const api = resumeResponse.data;
+    const parseArray = <T,>(json?: string): T[] => {
+      if (!json) return [];
+      try {
+        return JSON.parse(json) as T[];
+      } catch {
+        return [] as T[];
       }
-    } catch {}
-  }, []);
+    };
+
+    const next: ResumeData = {
+      personalInfo: {
+        name: api.name || "",
+        phone: api.phone || "",
+        email: api.email || "",
+        photo: api.photo || "",
+        bio: api.bio || "",
+        location: api.location || "",
+        focus: api.focus || "",
+        socials: {
+          linkedin: api.linkedinUrl || "",
+          instagram: api.instagramUrl || "",
+          behance: api.behanceUrl || "",
+          website: api.websiteUrl || "",
+        },
+      },
+      education: parseArray<EducationEntry>(api.educationJson),
+      experience: parseArray<ResumeData["experience"][number]>(
+        api.experienceJson
+      ),
+      skills: parseArray<SkillCategory>(api.skillsJson),
+    };
+    setData(next);
+    if (typeof api.id === "number" && api.id > 0) {
+      setResumeId(api.id);
+      try {
+        localStorage.setItem(LOCAL_STORAGE_RESUME_ID, String(api.id));
+      } catch {}
+    }
+  }, [resumeResponse]);
 
   const handleSave = () => {
-    console.log(JSON.stringify(data));
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    const payload: SaveResumePayload = {
+      Id: resumeId || 0,
+      Name: data.personalInfo.name,
+      Phone: data.personalInfo.phone,
+      Email: data.personalInfo.email,
+      Bio: data.personalInfo.bio,
+      Location: data.personalInfo.location,
+      Focus: data.personalInfo.focus,
+      LinkedinUrl: data.personalInfo.socials?.linkedin || undefined,
+      InstagramUrl: data.personalInfo.socials?.instagram || undefined,
+      BehanceUrl: data.personalInfo.socials?.behance || undefined,
+      WebsiteUrl: data.personalInfo.socials?.website || undefined,
+      EducationJson: JSON.stringify(data.education || []),
+      ExperienceJson: JSON.stringify(data.experience || []),
+      SkillsJson:
+        data.skills && data.skills.length > 0
+          ? JSON.stringify(data.skills)
+          : undefined,
+      Photo: photoFile,
+    };
+    // keep local draft
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+
+    saveResume(payload, {
+      onSuccess: (resp: SaveResumeResponse) => {
+        if (resp?.entityId && resp.entityId > 0) {
+          setResumeId(resp.entityId);
+          localStorage.setItem(LOCAL_STORAGE_RESUME_ID, String(resp.entityId));
+          refetch();
+        }
+      },
+    });
   };
 
   const handleChange = (path: string, value: string) => {
@@ -154,6 +236,7 @@ const ResumeEditor: React.FC = () => {
 
   const onPhotoUpload = (file?: File | null) => {
     if (!file) return;
+    setPhotoFile(file);
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -188,6 +271,65 @@ const ResumeEditor: React.FC = () => {
     setData((prev) => {
       const next = prev.experience.filter((_, i) => i !== index);
       return { ...prev, experience: next };
+    });
+  };
+
+  // Skills CRUD
+  const addSkillCategory = () => {
+    setData((prev) => ({
+      ...prev,
+      skills: [...(prev.skills || []), { title: "", items: [] }],
+    }));
+  };
+
+  const updateSkillCategoryTitle = (categoryIndex: number, title: string) => {
+    setData((prev) => {
+      const categories = [...(prev.skills || [])];
+      categories[categoryIndex] = { ...categories[categoryIndex], title };
+      return { ...prev, skills: categories };
+    });
+  };
+
+  const addSkillItem = (categoryIndex: number) => {
+    setData((prev) => {
+      const categories = [...(prev.skills || [])];
+      const items = [...(categories[categoryIndex]?.items || []), ""];
+      categories[categoryIndex] = { ...categories[categoryIndex], items };
+      return { ...prev, skills: categories };
+    });
+  };
+
+  const updateSkillItem = (
+    categoryIndex: number,
+    itemIndex: number,
+    value: string
+  ) => {
+    setData((prev) => {
+      const categories = [...(prev.skills || [])];
+      const items = [...(categories[categoryIndex]?.items || [])];
+      items[itemIndex] = value;
+      categories[categoryIndex] = { ...categories[categoryIndex], items };
+      return { ...prev, skills: categories };
+    });
+  };
+
+  const removeSkillItem = (categoryIndex: number, itemIndex: number) => {
+    setData((prev) => {
+      const categories = [...(prev.skills || [])];
+      const items = (categories[categoryIndex]?.items || []).filter(
+        (_: string, i: number) => i !== itemIndex
+      );
+      categories[categoryIndex] = { ...categories[categoryIndex], items };
+      return { ...prev, skills: categories };
+    });
+  };
+
+  const removeSkillCategory = (categoryIndex: number) => {
+    setData((prev) => {
+      const categories = (prev.skills || []).filter(
+        (_, i) => i !== categoryIndex
+      );
+      return { ...prev, skills: categories };
     });
   };
 
@@ -278,9 +420,14 @@ const ResumeEditor: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        My Resume
-      </Typography>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+        <Typography variant="h5">My Resume</Typography>
+        {resumeId > 0 && (
+          <Typography variant="body2" color="text.secondary">
+            ID: {resumeId}
+          </Typography>
+        )}
+      </Stack>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>
@@ -298,17 +445,20 @@ const ResumeEditor: React.FC = () => {
                     bgcolor: "#eee",
                   }}
                 >
-                  {data.personalInfo.photo && (
-                    <img
-                      src={data.personalInfo.photo}
-                      alt="profile"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )}
+                  <img
+                    src={data.personalInfo.photo || DEFAULT_AVATAR}
+                    alt="profile"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== DEFAULT_AVATAR) {
+                        e.currentTarget.src = DEFAULT_AVATAR;
+                      }
+                    }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
                 </Box>
                 <Button variant="outlined" component="label">
                   Upload Photo
@@ -572,9 +722,104 @@ const ResumeEditor: React.FC = () => {
               ))}
             </Stack>
 
+            <Divider sx={{ my: 3 }} />
+
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Typography variant="subtitle1">Skills</Typography>
+              <Button
+                startIcon={<Add />}
+                onClick={addSkillCategory}
+                variant="outlined"
+                size="small"
+              >
+                Add Category
+              </Button>
+            </Stack>
+
+            <Stack spacing={2} sx={{ mt: 2 }}>
+              {(data.skills || []).map((cat, cIdx) => (
+                <Paper key={cIdx} variant="outlined" sx={{ p: 2 }}>
+                  <Stack spacing={1}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Category {cIdx + 1}
+                      </Typography>
+                      <IconButton
+                        color="error"
+                        onClick={() => removeSkillCategory(cIdx)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Stack>
+                    <TextField
+                      label="Title"
+                      value={cat.title}
+                      onChange={(e) =>
+                        updateSkillCategoryTitle(cIdx, e.target.value)
+                      }
+                      fullWidth
+                    />
+                    <Stack spacing={1}>
+                      {(cat.items || []).map((item, iIdx) => (
+                        <Stack
+                          key={iIdx}
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                        >
+                          <TextField
+                            label={`Item ${iIdx + 1}`}
+                            value={item}
+                            onChange={(e) =>
+                              updateSkillItem(cIdx, iIdx, e.target.value)
+                            }
+                            fullWidth
+                          />
+                          <IconButton
+                            color="error"
+                            onClick={() => removeSkillItem(cIdx, iIdx)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Stack>
+                      ))}
+                      <Button
+                        startIcon={<Add />}
+                        onClick={() => addSkillItem(cIdx)}
+                        size="small"
+                        variant="text"
+                        sx={{ alignSelf: "flex-start" }}
+                      >
+                        Add Item
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+
             <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-              <Button variant="contained" color="primary" onClick={handleSave}>
-                Update
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {resumeId > 0
+                  ? isSaving
+                    ? "Saving..."
+                    : "Update"
+                  : isSaving
+                  ? "Saving..."
+                  : "Create"}
               </Button>
               <Button variant="outlined" onClick={downloadResume}>
                 Download
@@ -589,18 +834,33 @@ const ResumeEditor: React.FC = () => {
         <Grid item xs={12} md={6}>
           {/* Live Preview */}
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>
-              Live Preview
-            </Typography>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
+              <Typography variant="subtitle1">Live Preview</Typography>
+              {(isFetching || isSaving) && (
+                <Typography variant="caption" color="text.secondary">
+                  {isFetching ? "Loading..." : "Saving..."}
+                </Typography>
+              )}
+            </Stack>
             <Box className="bg-white">
               <div ref={previewRef} className="max-w-3xl mx-auto px-6 py-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <div className="flex flex-col">
                     <div className="w-64 h-72 mb-6 overflow-hidden rounded-md">
                       <img
-                        src={data.personalInfo.photo}
+                        src={data.personalInfo.photo || DEFAULT_AVATAR}
                         alt={data.personalInfo.name}
                         className="w-full h-full object-cover grayscale"
+                        onError={(e) => {
+                          if (e.currentTarget.src !== DEFAULT_AVATAR) {
+                            e.currentTarget.src = DEFAULT_AVATAR;
+                          }
+                        }}
                       />
                     </div>
                     <h1 className="text-4xl font-bold mb-2">
