@@ -1832,13 +1832,8 @@ const Homepage: React.FC = () => {
                         ...imageDimensions,
                         display: "block",
                         borderRadius: "8px",
-                        boxShadow: isHovered
-                          ? "0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)"
-                          : "0 4px 20px rgba(0,0,0,0.3)",
                         cursor: "pointer",
-                        // IMPORTANT: Ensure animation properties can be applied
                         animationFillMode: "both",
-                        // Enable hardware acceleration for smoother animations
                         backfaceVisibility: "hidden",
                         perspective: "1000px",
                       }}
