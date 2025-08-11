@@ -206,7 +206,8 @@ const Homepage: React.FC = () => {
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
     console.log(`Navigating to project/${subImageId}`);
-    alert(`Navigating to project/${subImageId}`);
+ 
+     navigate(`/project_details/${subImageId}`);
   };
 
   // Handle centered logo click - navigate to /resume

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import ProjectDetails from "./ProjectDetails";
 import { useSubProjectContainerList } from "../../../api/useSubProjectContainerList";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface ImageProject {
   id: number;
@@ -65,9 +65,11 @@ const ProjectDrawer: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   mode: 'add' | 'edit';
-  projectId?: number;
+  subProjectId?: number;
+  projectId?:number
   currentProject?: ImageProject;
-}> = ({ isOpen, onClose, mode, projectId,  }) => {
+   refetch?:()=> void;
+}> = ({ isOpen, onClose, mode, subProjectId,projectId,refetch  }) => {
 
 
   
@@ -92,58 +94,9 @@ const ProjectDrawer: React.FC<{
         onClick={onClose}
       />
       
-      {/* Drawer - Fixed positioning with proper header clearance */}
-      <div className={`fixed top-0 bottom-0 right-0 z-50 w-full max-w-7xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
-      style={{ 
-        marginTop: '65px', // Adjust this value based on your header height (e.g., '64px' if header is 64px tall)
-        height: '100vh' // Use full viewport height
-      }}>
-        
-        {/* Drawer Header - with higher z-index and fixed positioning */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
-          <div className="flex-1 min-w-0 pr-4">
-            <h2 className="text-lg font-semibold text-gray-900 truncate">
-              {mode === 'add' ? 'Add New Project' : `Edit Project #${projectId}`}
-            </h2>
-            <p className="text-sm text-gray-600 truncate">
-              {mode === 'add' ? 'Create a new image project with the details below.' : 'Update the project details below.'}
-            </p>
-          </div>
-          
-          {/* Close button with better positioning */}
-          <div className="flex-shrink-0">
-            <button
-              onClick={onClose}
-              className="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
-              type="button"
-              aria-label="Close drawer"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Drawer Content - with proper overflow handling */}
-        <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
-          <ProjectDetails currentItemId={projectId||0}/>
-        </div>
-
-        {/* Footer - sticky at bottom */}
-        <div className="sticky bottom-0 border-t border-gray-200 bg-gray-50 px-6 py-3 shadow-sm">
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-gray-500">
-              Press Esc to close | Drag images to reposition
-            </p>
-            <div className="text-xs text-gray-500">
-              Use the left panel to configure your project
-            </div>
-          </div>
-        </div>
-      </div>
+    
+          <ProjectDetails currentItemId={subProjectId||0} projectId={projectId ||0 } isOpen={isOpen} mode={mode} onClose={onClose} />
+       
     </>
   );
 };
@@ -166,12 +119,13 @@ const ProjectDetailsList: React.FC = () => {
   const [projects, setProjects] = useState<SubProjectContainerItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [selectedProjectId, setSelectedProjectId] = useState<number>(0);
+  const [selectedSubProjectId, setSelectedSubProjectId] = useState<number>(0);
 
   
   const navigate = useNavigate();
+    const { projectId } = useParams<{ projectId: string }>(); 
 
-  const { data, isPending, isSuccess } = useSubProjectContainerList() as {
+  const { data, isPending, isSuccess,refetch } = useSubProjectContainerList(projectId ? parseInt(projectId, 10) : 0) as {
     data?: ApiResponse;
     isPending: boolean;
     isSuccess: boolean;
@@ -192,19 +146,20 @@ const ProjectDetailsList: React.FC = () => {
   // Modal handlers
   const handleAddProject = () => {
     setModalMode('add');
-    setSelectedProjectId(undefined);
+    setSelectedSubProjectId(undefined);
     setIsModalOpen(true);
   };
 
   const handleEditProject = (projectId: number) => {
     setModalMode('edit');
-    setSelectedProjectId(projectId);
+    setSelectedSubProjectId(projectId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedProjectId(undefined);
+    setSelectedSubProjectId(undefined);
+    refetch()
   };
 
   const handleDeleteProject = (projectId: number) => {
@@ -218,13 +173,9 @@ const ProjectDetailsList: React.FC = () => {
   };
 
   const handlePreviewProject = (projectId: number) => {
-   setSelectedProjectId(projectId);
+   setSelectedSubProjectId(projectId);
    setIsModalOpen(true);
-  };
-
-  const currentProject = selectedProjectId 
-    ? projects.find(p => p.id === selectedProjectId) 
-    : undefined;
+  }; 
 
   // Icons
   const AddIcon = () => (
@@ -312,7 +263,7 @@ const ProjectDetailsList: React.FC = () => {
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
                             className="h-12 w-12 rounded-lg object-cover border border-gray-200 shadow-sm"
-                            src={project.thumbnail || project.image}
+                            src={project.backgroundImageUrl || project.image}
                             alt={project.title}
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
@@ -377,7 +328,7 @@ const ProjectDetailsList: React.FC = () => {
                     <div className="flex-shrink-0">
                       <img
                         className="h-16 w-16 rounded-lg object-cover border border-gray-200 shadow-sm"
-                        src={project.thumbnail || project.image}
+                        src={project.backgroundImageUrl || project.image}
                         alt={project.title}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ci8+PC9zdmc+';
@@ -470,8 +421,9 @@ const ProjectDetailsList: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         mode={modalMode}
-        projectId={selectedProjectId}
-       
+        subProjectId={selectedSubProjectId}
+       projectId={projectId ? parseInt(projectId, 10) : 0}
+       refetch={refetch}
       />
     </div>
   );

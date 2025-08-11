@@ -10,5 +10,8 @@ export const useSaveSubProjectContainer = () => {
       });
       return response.data;
     },
+    onSuccess(data, variables, context) {
+        console.log("Sub project container saved successfully:", data);
+    },
   });
 };

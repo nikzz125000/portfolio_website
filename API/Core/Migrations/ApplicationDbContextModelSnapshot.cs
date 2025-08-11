@@ -425,9 +425,6 @@ namespace Core.Migrations
                     b.Property<bool>("IsExterior")
                         .HasColumnType("bit");
 
-                    b.Property<int>("MyProperType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -472,6 +469,9 @@ namespace Core.Migrations
                     b.Property<string>("BackgroundImageFileName")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("BackgroundType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");

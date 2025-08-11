@@ -3,6 +3,7 @@ import { useSaveContainer } from '../../../api/useSaveContainer';
 import { useContainerDetails } from '../../../api/useContainerDetails';
 import { useDeleteProject } from '../../../api/useDeleteProject';
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
+import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
 
 interface SubImage {
   id: number;
@@ -50,7 +51,7 @@ interface TriggerOption {
   description: string;
 }
 
-const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) => {
+const ProjectDetails: React.FC<{ currentItemId: number, projectId:number,isOpen:boolean, mode:unknown, onClose:()=>void }> = ({ currentItemId,projectId ,isOpen,onClose,mode}) => {
   // Read isExIn from URL parameters
   const getIsExInFromUrl = (): boolean => {
     if (typeof window !== 'undefined') {
@@ -59,6 +60,14 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
     }
     return false;
   };
+
+  const handleDrowerClose = () => {
+    onClose();
+    setBackgroundImage(null);
+    setTitle('');
+setSubImages([]);
+setSelectedSubImage(null);
+  }
 
   const existingData = {
     title: 'Sample Project',
@@ -609,7 +618,8 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
     try {
       const formData = new FormData();
       
-      formData.append('ProjectContainerId', !currentItemId ? '0' : currentItemId);
+      formData.append('SubProjectContainerId', !currentItemId ? '0' : currentItemId);
+      formData.append('ProjectId', getProjectId(projectId));
       formData.append('Title', title);
       formData.append('SortOrder', sortOrder.toString());
       
@@ -624,11 +634,18 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
       if (!backgroundImage?.file && backgroundImage?.backgroundImageUrl) {
         formData.append('BackgroundImageUrl', backgroundImage.backgroundImageUrl);
       }
+
+      if(isExIn){
+formData.append('BackgroundType', backgroundImage?.isExterior ? '2' : '1');
+    } else {
+        formData.append('BackgroundType', '0'); // Default to interior if not set 
+    }
+        
       
       // FIXED: Save percentages directly (no conversion needed)
       subImages.forEach((img, index) => {
-        formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
-        formData.append(`Projects[${index}][Name]`, img.name);
+        formData.append(`SubProjects[${index}][ProjectId]`, getProjectId(img.id));
+        formData.append(`SubProjects[${index}][Name]`, img.name);
         
         const xPercent = Math.round(img.xPercent);
         const yPercent = Math.round(img.yPercent);
@@ -639,23 +656,23 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
           dimensions: backgroundDimensions
         });
         
-        formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
-        formData.append(`Projects[${index}][YPosition]`, yPercent.toString());
+        formData.append(`SubProjects[${index}][XPosition]`, xPercent.toString());
+        formData.append(`SubProjects[${index}][YPosition]`, yPercent.toString());
         
-        formData.append(`Projects[${index}][HeightPercent]`, img.heightPercent.toString());
-        formData.append(`Projects[${index}][Animation]`, img.animation);
-        formData.append(`Projects[${index}][AnimationSpeed]`, img.animationSpeed);
-        formData.append(`Projects[${index}][AnimationTrigger]`, img.animationTrigger);
-        formData.append(`Projects[${index}][IsExterior]`, img.isExterior.toString());
+        formData.append(`SubProjects[${index}][HeightPercent]`, img.heightPercent.toString());
+        formData.append(`SubProjects[${index}][Animation]`, img.animation);
+        formData.append(`SubProjects[${index}][AnimationSpeed]`, img.animationSpeed);
+        formData.append(`SubProjects[${index}][AnimationTrigger]`, img.animationTrigger);
+        formData.append(`SubProjects[${index}][IsExterior]`, img.isExterior.toString());
         
         if (img.file && img.file.size > 0) {
-          formData.append(`Projects[${index}].ImageFile`, img.file);
+          formData.append(`SubProjects[${index}].ImageFile`, img.file);
         } else if (img.url) {
-          formData.append(`Projects[${index}][ProjectImageUrl]`, img.url); 
+          formData.append(`SubProjects[${index}][ProjectImageUrl]`, img.url); 
         }
       });
       
-      await addOrUpdateContainer(formData);
+      await addOrUpdateContainer(formData)
       alert('Data saved successfully!');
       
     } catch (error) {
@@ -685,10 +702,11 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
           backgroundImageUrl: apiData.backgroundImageUrl,
           isExterior: true
         });
+        updateBackgroundProperty( 'isExterior' ,apiData.backgroundType === 2 ?true: false);
       }
       
-      if (apiData.projects && Array.isArray(apiData.projects)) {
-        const loadedSubImages = apiData.projects.map(subImg => ({
+      if (apiData.subProjects && Array.isArray(apiData.subProjects)) {
+        const loadedSubImages = apiData.subProjects.map(subImg => ({
           id: subImg.projectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
           url: subImg.projectImageUrl,
@@ -712,11 +730,11 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
   };
 
 
-  const { data, isSuccess } = useContainerDetails(7);
+  const { data, isSuccess } = useSubProjectContainerDetails(currentItemId||0);
 
   console.log(700, currentItemId);
   useEffect(() => {
-    if (isSuccess && data && data.data) {
+    if (isSuccess && data && data.data&& currentItemId) {
       setIsLoadingApiData(true);
       console.log('Fetched data:', data.data);
       
@@ -728,7 +746,7 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
         setIsLoadingApiData(false);
       }
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data,currentItemId]);
 
   const selectedImageData = subImages.find(img => img.id === selectedSubImage);
 
@@ -886,6 +904,42 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
   };
 
   return (
+      <div className={`fixed top-0 bottom-0 right-0 z-50 w-full max-w-7xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+      style={{ 
+        marginTop: '65px', // Adjust this value based on your header height (e.g., '64px' if header is 64px tall)
+        height: '100vh' // Use full viewport height
+      }}>
+        
+        {/* Drawer Header - with higher z-index and fixed positioning */}
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
+          <div className="flex-1 min-w-0 pr-4">
+            <h2 className="text-lg font-semibold text-gray-900 truncate">
+              {mode === 'add' ? 'Add New Project' : `Edit Project #${projectId}`}
+            </h2>
+            <p className="text-sm text-gray-600 truncate">
+              {mode === 'add' ? 'Create a new image project with the details below.' : 'Update the project details below.'}
+            </p>
+          </div>
+          
+          {/* Close button with better positioning */}
+          <div className="flex-shrink-0">
+            <button
+              onClick={handleDrowerClose}
+              className="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+              type="button"
+              aria-label="Close drawer"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Drawer Content - with proper overflow handling */}
+        <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
     <div style={styles.container}>
       <style>{animationStyles}</style>
       
@@ -1245,6 +1299,19 @@ const ProjectDetails: React.FC<{ currentItemId: number }> = ({ currentItemId }) 
         )}
       </div>
     </div>
+    </div>
+
+        <div className="sticky bottom-0 border-t border-gray-200 bg-gray-50 px-6 py-3 shadow-sm">
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-500">
+              Press Esc to close | Drag images to reposition
+            </p>
+            <div className="text-xs text-gray-500">
+              Use the left panel to configure your project
+            </div>
+          </div>
+        </div>
+      </div>
   );
 };
 

@@ -21,6 +21,7 @@ import AnimatedResume from "./pages/public/Resume";
 import ResumeEditor from "./pages/admin/resume/ResumeEditor";
 import ImageEditorTest from "./pages/admin/home/TestSubproject";
 import Homepage from "./pages/public/HomePageMobileView";
+import ProjectDetailsPage from "./pages/public/project_details/CustomerProjectDetails";
 
 
 
@@ -49,10 +50,10 @@ export const App = () => {
         }
       />
        <Route
-        path="/project_details/:id"
+        path="/project_details/:projectId"
         element={
           <MainLayout>
-            <Homepage />
+            <ProjectDetailsPage />
           </MainLayout>
         }
       />

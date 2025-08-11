@@ -29,7 +29,7 @@ namespace API.Controllers
             try
             {
                 
-                if (model.ImageFile == null)
+                if (model.ImageFile == null && model.ProjectContainerId !=0)
                 {
                     response.CreateFailureResponse("Image file required");
                     return response;
@@ -83,7 +83,30 @@ namespace API.Controllers
             return response;
         }
 
-        
+        [Route("List/Details")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<List<ProjectContainerDetailsViewModel>>), 200)]
+        public async Task<ModelEntityResponse<List<ProjectContainerDetailsViewModel>>> ListProjectContainersWithDetails()
+        {
+            ModelEntityResponse<List<ProjectContainerDetailsViewModel>> response = new ModelEntityResponse<List<ProjectContainerDetailsViewModel>>();
+            try
+            {
+                response = await _containerService.GetAllContainerDetails();
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List/Details";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
 
         [Route("Details/{ProjectContainerId}")]
         [HttpGet]

@@ -1,3 +1,4 @@
+using Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,6 +22,7 @@ namespace Core.Models
         public string? BackgroundImageFileName { get; set; }
 
         public decimal? BackgroundImageAspectRatio { get; set; }
+        public BackgroundType BackgroundType { get; set; }
 
         public bool IsActive { get; set; } = true;
 

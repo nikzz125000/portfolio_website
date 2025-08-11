@@ -70,4 +70,10 @@ namespace ViewModels
         public string ExperienceJson { get; set; }
         public string SkillsJson { get; set; }
     }
+    public class ConnectPostModel
+    {
+        public string MobileNumber { get; set; }
+        public string Email { get; set; }
+        public string Message { get; set; }
+    }
 }

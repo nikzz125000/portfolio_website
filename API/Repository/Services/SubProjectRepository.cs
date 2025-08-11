@@ -1,5 +1,6 @@
 using Core.DB;
 using Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Repository.Interfaces;
 
@@ -27,6 +28,10 @@ namespace Repository.Services
             }
             await _context.SaveChangesAsync();
             return entity.SubProjectId;
+        }
+        public async Task<List<SubProject>> GetBySubProjectContainerId(int SubProjectContainerId)
+        {
+            return await _context.SubProjects.Where(x => x.SubProjectContainerId == SubProjectContainerId).ToListAsync();
         }
     }
 } 

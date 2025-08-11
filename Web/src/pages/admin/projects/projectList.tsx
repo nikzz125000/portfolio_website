@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProjectList } from "../../../api/useProjectistList";
 
 interface ImageElement {
-  id: number;
+  projectId: number;
   name: string;
-  url: string;
+  projectImageUrl: string;
   x: number;
   y: number;
   heightPercent: number;
@@ -15,49 +16,20 @@ interface ImageElement {
 }
 
 const ImageElementListPage: React.FC = () => {
-  const [imageElements, setImageElements] = useState<ImageElement[]>([]);
-
-  useEffect(() => {
-    const mockData: ImageElement[] = [
-      {
-        id: 1,
-        name: "Main Logo",
-        url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-        x: 50,
-        y: 25,
-        heightPercent: 12,
-        animation: "fadeInDown",
-        animationSpeed: "normal",
-        animationTrigger: "once",
-        isExterior:true,
-      },
-      {
-        id: 2,
-        name: "Secondary Banner",
-        url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-        x: 75,
-        y: 60,
-        heightPercent: 8,
-        animation: "slideInRight",
-        animationSpeed: "slow",
-        animationTrigger: "repeat",
-             isExterior:false,
-      },
-      {
-        id: 3,
-        name: "Footer Icon",
-        url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-        x: 20,
-        y: 90,
-        heightPercent: 5,
-        animation: "bounceIn",
-        animationSpeed: "fast",
-        animationTrigger: "once",
-        isExterior: true,
+  const [projects, setProjects] = useState<ImageElement[]>([]);
+  const { data, isPending, isSuccess } = useProjectList();
+    // Handle success in useEffect
+    useEffect(() => {
+      if (data && data.data && data.data?.length > 0 && isSuccess) {
+        // Add mock images to the projects if they don't have them
+        console.log(70, data.data, "Loading:", isPending);
+  
+        setProjects(data.data);
+        // Handle your success logic here
       }
-    ];
-    setImageElements(mockData);
-  }, []);
+    }, [isSuccess, data]);
+
+    console.log(80, projects, "Loading:", isPending);
 
   const navigate = useNavigate();
 
@@ -74,19 +46,18 @@ const ImageElementListPage: React.FC = () => {
   };
 
   const handleDeleteElement = (elementId: number) => {
-    const element = imageElements.find((e) => e.id === elementId);
+    const element = projects?.find((e) => e.id === elementId);
     if (
       element &&
       window.confirm(`Are you sure you want to delete "${element.name}"?`)
     ) {
-      setImageElements((prev) => prev.filter((e) => e.id !== elementId));
+      setProjects((prev) => prev.filter((e) => e.id !== elementId));
     }
   };
 
   const handlePreviewElement = (element: ImageElement) => {
     console.log("Preview element:", element);
-    navigate(`/admin/projects/${element.id}?isExIn=${element.isExterior}`);
-    alert(`Previewing Element: ${element.name}`);
+    navigate(`/admin/projects/${element.projectId}?isExIn=${element.isExterior}`);
   };
 
   // Icons
@@ -170,110 +141,117 @@ const ImageElementListPage: React.FC = () => {
       <div className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           
-          {/* Desktop Table View */}
+          {/* Desktop Table View with Horizontal Scrolling */}
           <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Element
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Have Exterior/Interior
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Size
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Animation
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {imageElements.map((element) => (
-                  <tr key={element.id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12">
-                          <img
-                            className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                            src={element.url}
-                            alt={element.name}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
-                            }}
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {element.name}
-                          </div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {element.url}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {!element.isExterior?'false':'true'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {element.heightPercent}%
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col space-y-1">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAnimationBadgeColor(element.animation)}`}>
-                          {element.animation}
-                        </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSpeedBadgeColor(element.animationSpeed)}`}>
-                          {element.animationSpeed}
-                        </span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                          {element.animationTrigger}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => handlePreviewElement(element)}
-                          className="inline-flex items-center px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 font-medium text-sm rounded-md transition-colors duration-200"
-                        >
-                          <PreviewIcon />
-                          <span className="ml-1">Preview</span>
-                        </button>
-                        {/* <button
-                          onClick={() => handleEditElement(element.id)}
-                          className="inline-flex items-center px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-sm rounded-md transition-colors duration-200"
-                        >
-                          <EditIcon />
-                          <span className="ml-1">Edit</span>
-                        </button> */}
-                        <button
-                          onClick={() => handleDeleteElement(element.id)}
-                          className="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-md transition-colors duration-200"
-                        >
-                          <DeleteIcon />
-                          <span className="ml-1">Delete</span>
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1000px' }}>
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Element
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Have Exterior/Interior
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Position
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Size
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Animation
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ minWidth: '200px' }}>
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {projects?.map((element) => (
+                    <tr key={element.id} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-12 w-12">
+                            <img
+                              className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                              src={element.projectImageUrl}
+                              alt={element.name}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
+                              }}
+                            />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {element.name}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {!element.isExterior ? 'false' : 'true'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          X: {element.x}%, Y: {element.y}%
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {element.heightPercent}%
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col space-y-1">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAnimationBadgeColor(element.animation)}`}>
+                            {element.animation}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSpeedBadgeColor(element.animationSpeed)}`}>
+                            {element.animationSpeed}
+                          </span>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                            {element.animationTrigger}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() => handlePreviewElement(element)}
+                            className="inline-flex items-center px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 font-medium text-sm rounded-md transition-colors duration-200"
+                          >
+                            <PreviewIcon />
+                            <span className="ml-1">Preview</span>
+                          </button>
+                          {/* <button
+                            onClick={() => handleEditElement(element.id)}
+                            className="inline-flex items-center px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-sm rounded-md transition-colors duration-200"
+                          >
+                            <EditIcon />
+                            <span className="ml-1">Edit</span>
+                          </button> */}
+                          {/* <button
+                            onClick={() => handleDeleteElement(element.id)}
+                            className="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-md transition-colors duration-200"
+                          >
+                            <DeleteIcon />
+                            <span className="ml-1">Delete</span>
+                          </button> */}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Mobile & Tablet Card View */}
           <div className="lg:hidden space-y-4">
-            {imageElements.map((element) => (
+            {projects?.map((element) => (
               <div key={element.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {/* Card Header */}
                 <div className="p-4 sm:p-6">
@@ -281,7 +259,7 @@ const ImageElementListPage: React.FC = () => {
                     <div className="flex-shrink-0">
                       <img
                         className="h-20 w-20 sm:h-24 sm:w-24 rounded-lg object-cover border border-gray-200"
-                        src={element.url}
+                        src={element.projectImageUrl}
                         alt={element.name}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiNkZGQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTQgMTZsNC41ODYtNC41ODZhMiAyIDAgMDEyLjgyOCAwTDE2IDE2bS0yLTJsMS41ODYtMS41ODZhMiAyIDAgMDEyLjgyOCAwTDIwIDE0bS02LTZoLjAxTTYgMjBoMTJhMiAyIDAgMDAyLTJWNmEyIDIgMCAwMC0yLTJINmEyIDIgMCAwMC0yIDJ2MTJhMiAyIDAgMDAyIDJ6Ii8+PC9zdmc+';
@@ -292,9 +270,7 @@ const ImageElementListPage: React.FC = () => {
                       <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                         {element.name}
                       </h3>
-                      <p className="mt-1 text-sm sm:text-base text-gray-500 break-all">
-                        {element.url.length > 50 ? `${element.url.substring(0, 50)}...` : element.url}
-                      </p>
+                      
                     </div>
                   </div>
                 </div>
@@ -348,7 +324,7 @@ const ImageElementListPage: React.FC = () => {
                       <PreviewIcon />
                       <span className="ml-2">Preview</span>
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => handleEditElement(element.id)}
                       className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
@@ -361,7 +337,7 @@ const ImageElementListPage: React.FC = () => {
                     >
                       <DeleteIcon />
                       <span className="ml-2">Delete</span>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
@@ -369,7 +345,7 @@ const ImageElementListPage: React.FC = () => {
           </div>
 
           {/* Empty State */}
-          {imageElements.length === 0 && (
+          {projects?.length === 0 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 text-center py-12 px-4">
               <div className="text-gray-500">
                 <div className="mx-auto mb-4 w-20 h-20 opacity-20 flex items-center justify-center">
@@ -396,7 +372,7 @@ const ImageElementListPage: React.FC = () => {
           <div className="mt-8 text-center">
             <div className="inline-flex items-center px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200">
               <span className="text-sm text-gray-500">
-                Total Elements: <span className="font-semibold text-gray-900">{imageElements.length}</span>
+                Total Elements: <span className="font-semibold text-gray-900">{projects?.length}</span>
               </span>
             </div>
           </div>
