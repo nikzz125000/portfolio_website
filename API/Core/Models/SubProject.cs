@@ -41,9 +41,6 @@ namespace Core.Models
 
         public bool IsActive { get; set; } = true;
         public string ImageFileName { get; set; }
-        public ProjectType MyProperType { get; set; }
-
-        //Navigation property
         public virtual SubProjectContainer SubProjectContainer { get; set; } = null!;
     }
 } 
