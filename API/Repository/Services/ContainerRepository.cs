@@ -40,7 +40,7 @@ namespace Repository.Services
         }
         public async Task<List<ProjectContainer>> GetAll()
         {
-            return await _context.ProjectContainers.ToListAsync();
+            return await _context.ProjectContainers.OrderBy(x=>x.SortOrder).ToListAsync();
         }
     }
 }

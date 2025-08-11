@@ -70,7 +70,8 @@ namespace ViewModels
         public decimal? BackgroundImageAspectRatio { get; set; }
         public string? BackgroundImageUrl { get; set; }
         public string? BackgroundImageFileName { get; set; }
-        // interior exterior
+        public BackgroundType BackgroundType { get; set; }
+
         public List<SubProjectViewModel> SubProjects { get; set; } = new List<SubProjectViewModel>();
     }
 } 
