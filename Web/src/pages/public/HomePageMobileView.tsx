@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
 import { useCustomerConnect } from "../../api/useCustomerConnect";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import ModernLoader from "../../components/ui/ModernLoader";
 
 interface SubImage {
   projectId: number;
@@ -131,6 +133,7 @@ const Homepage: React.FC = () => {
   const [message, setMessage] = useState<string>("");
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -142,9 +145,11 @@ const Homepage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data, isPending, isSuccess } = useHomePageList();
-  const { data: resumeData } = useResumeDetails();
+  const { data: resumeData, isPending: isResumePending } = useResumeDetails();
   const { mutate: customerConnect, isPending: isConnecting } =
     useCustomerConnect();
+
+  // Don't return early - render loading state within the component
 
   // Sample fallback images using placehold.co for reliability
   const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
@@ -211,9 +216,14 @@ const Homepage: React.FC = () => {
 
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
+    setIsNavigating(true);
     console.log(`Navigating to project/${subImageId}`);
 
-    navigate(`/project_details/${subImageId}`);
+    // Simulate navigation delay and then navigate
+    setTimeout(() => {
+      setIsNavigating(false);
+      navigate(`/project_details/${subImageId}`);
+    }, 500);
   };
 
   // Handle centered logo click - navigate to /resume
@@ -1766,14 +1776,41 @@ const Homepage: React.FC = () => {
   return (
     <div
       style={{
-        position: "fixed",
+        position: "relative",
         top: 0,
         left: 0,
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
+        width: "100%",
+        minHeight: "100vh",
+        overflow: "auto",
+        display: "flex",
+        flexDirection: "column",
+        paddingBottom: "200px", // Space for fixed footer
       }}
     >
+      {/* Show loading spinner while data is being fetched */}
+      {(isPending || isResumePending) && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.9)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <LoadingSpinner
+            variant="gradient"
+            size="large"
+            text="Loading your portfolio..."
+            fullHeight={true}
+          />
+        </div>
+      )}
       <style>{responsiveAnimationStyles}</style>
 
       {/* Menu Item Animations */}
@@ -2053,7 +2090,7 @@ const Homepage: React.FC = () => {
                   }}
                 >
                   <img
-                    src="/logo/font.png"
+                    src="/logo/logo.webp"
                     alt="Centered Logo"
                     style={{
                       cursor: "pointer",
@@ -2186,13 +2223,38 @@ const Homepage: React.FC = () => {
           );
         })}
 
+        {/* Navigation Loading Overlay */}
+        {isNavigating && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+            }}
+          >
+            <div style={{ textAlign: "center", color: "white" }}>
+              <ModernLoader variant="gradient" size="large" />
+              <p style={{ marginTop: "20px", fontSize: "18px" }}>
+                Loading project details...
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Footer Section */}
         <footer
           style={{
             position: "fixed",
             bottom: 0,
             left: 0,
-            width: "100vw",
+            width: "100%",
             height: "200px",
             background:
               "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
