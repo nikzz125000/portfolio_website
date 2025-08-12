@@ -34,7 +34,7 @@ namespace API.Controllers
                     response.CreateFailureResponse("Project Id required");
                     return response;
                 }
-                if (model.SubProjectContainerId !=0 && model.ImageFile == null)
+                if (model.SubProjectContainerId == 0 && model.ImageFile == null)
                 {
                     response.CreateFailureResponse("Image file required");
                     return response;

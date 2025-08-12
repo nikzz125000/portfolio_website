@@ -1,20 +1,51 @@
-import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import React from "react";
+import ModernLoader from "./ModernLoader";
 
-export const LoadingSpinner: React.FC = () => {
+interface LoadingSpinnerProps {
+  size?: "small" | "medium" | "large";
+  variant?: "default" | "pulse" | "wave" | "dots" | "gradient";
+  showText?: boolean;
+  text?: string;
+  className?: string;
+  fullHeight?: boolean;
+}
+
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = "medium",
+  variant = "default",
+  showText = true,
+  text = "Loading...",
+  className = "",
+  fullHeight = false,
+}) => {
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      gap={2}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: fullHeight ? "100vh" : "200px",
+        gap: "16px",
+        padding: "20px",
+      }}
+      className={className}
     >
-      <CircularProgress size={60} />
-      <Typography variant="body1" color="text.secondary">
-        Loading...
-      </Typography>
-    </Box>
+      <ModernLoader size={size} variant={variant} />
+      {showText && (
+        <div
+          style={{
+            fontSize: "16px",
+            color: "#666",
+            fontWeight: "500",
+            textAlign: "center",
+          }}
+        >
+          {text}
+        </div>
+      )}
+    </div>
   );
-}; 
+};
+
+export default LoadingSpinner;
