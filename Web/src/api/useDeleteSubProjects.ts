@@ -3,8 +3,8 @@ import api from "../utils/axios";
 
 export const useDeleteProject= () => {
   return useMutation({
-    mutationFn: async ({ containerId, projectId }: { containerId: number; projectId: number }): Promise<any> => {
-      const response = await api.delete(`ProjectContainer/Project/Delete/${containerId}?ProjectId=${projectId}`)
+    mutationFn: async ({  projectId }: {  projectId: number }): Promise<any> => {
+      const response = await api.delete(`SubProjectContainer/SubProject/Delete/${projectId}`);
       return response.data;
     },
     

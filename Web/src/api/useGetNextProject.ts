@@ -5,7 +5,7 @@ import api from "../utils/axios";
 export const useNextProjectDetails = (projectId:number) => {
   return useQuery({
     queryKey: [
-      "Customer/NextProject",
+      "Customer/NextProject",projectId
     ],
     queryFn: async () => {
       const response = await api.get(
@@ -13,12 +13,9 @@ export const useNextProjectDetails = (projectId:number) => {
       );
       return response.data;
     },
-    enabled: !!projectId,
-      // ✅ Forces a refetch every time the component is mounted
+   enabled: true,
     refetchOnMount: true,
-    // ✅ Also refetch if the window is focused
     refetchOnWindowFocus: true,
-    // ✅ Disable cache or set short cache time
     staleTime: 0,
   });
 };

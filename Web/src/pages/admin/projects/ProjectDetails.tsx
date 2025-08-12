@@ -767,7 +767,7 @@ const safeName = getSafeFileName(img.name, 50);
       
       if (apiData.subProjects && Array.isArray(apiData.subProjects)) {
         const loadedSubImages = apiData.subProjects.map(subImg => ({
-          id: subImg.projectId || Date.now() + Math.random(),
+          id: subImg.subProjectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
           url: subImg.projectImageUrl,
           name: subImg.name || 'Unnamed Image',
@@ -975,12 +975,11 @@ const safeName = getSafeFileName(img.name, 50);
 }
 
   const handleConfirmDelete = (): void => {
-
+console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
     if (!isDateNowId(pendingDeleteId)) {
 
     deleteProject(
-      { 
-        containerId: id ? parseInt(id, 10) : 0,
+      {  
         projectId: typeof pendingDeleteId === 'number' ? pendingDeleteId : 0
       },
       {

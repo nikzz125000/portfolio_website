@@ -151,12 +151,25 @@ const ProjectDetailsPage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const [nextProjectsHeight, setNextProjectsHeight] = useState<number>(0);
   const navigate = useNavigate();
+  const { data: nextProjects, isSuccess: isSuccessNextProjects, } =
+    useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
 
   const { data, isPending, isSuccess } = useGetProjectDetailsList(
     projectId ? parseInt(projectId, 10) : 0
   );
-  const { data: nextProjects, isSuccess: isSuccessNextProjects } =
-    useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
+
+  // Ensure page starts at top when navigating to a new project
+  useEffect(() => {
+    // Reset window scroll (backup)
+    window.scrollTo(0, 0);
+    // Reset custom scrolling state
+    targetScrollY.current = 0;
+    currentScrollY.current = 0;
+    setScrollY(0);
+    if (containerRef.current) {
+      containerRef.current.style.transform = 'translateY(0px)';
+    }
+  }, [projectId]);
 
   // Sample fallback images using placehold.co for reliability
   const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
@@ -804,6 +817,7 @@ const ProjectDetailsPage: React.FC = () => {
       smoothScrollStep();
     }
   };
+
 
   // COMPLETE ANIMATION STYLES - EXACT COPY FROM HOMEPAGE with responsive enhancements
   const responsiveAnimationStyles = `

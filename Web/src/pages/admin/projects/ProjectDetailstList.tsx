@@ -183,7 +183,7 @@ const ProjectDetailsList: React.FC = () => {
   const handleConfirmDelete = (): void => {
 
    
- deleteProject({ containerId: currentItemId }, {
+ deleteProject({ containerId: selectedSubProjectId }, {
       onSuccess: (res) => {
         if (res?.isSuccess) {
           showNotification("Container Deleted successfully!", "success", "Success");
