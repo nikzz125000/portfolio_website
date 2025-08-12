@@ -2026,7 +2026,7 @@ const ProjectDetailsPage: React.FC = () => {
         })}
 
         <div ref={nextProjectsRef}>
-          <NextProjects/>
+          <NextProjects projectId ={projectId ? parseInt(projectId, 10) : 0}/>
         </div>
 
         {/* Responsive Footer Section */}

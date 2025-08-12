@@ -1,50 +1,21 @@
 import React from 'react';
-
-interface ImageData {
-  projectId: number;
-  name: string;
-  projectImageUrl: string;
-  xPosition: number;
-  yPosition: number;
-  heightPercent: number;
-  animation: string;
-  animationSpeed: string;
-  animationTrigger: string;
-  isExterior: boolean;
-}
+import { useNextProjectDetails } from '../../../api/useGetNextProject';
 
 interface DynamicImageShowcaseProps {
-  images?: ImageData[];
+  projectId?: number;
 }
 
 const NextProjects: React.FC<DynamicImageShowcaseProps> = ({ 
-  images = [
-    {
-      projectId: 1,
-      name: "Sample Image 1",
-      projectImageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-      xPosition: 0,
-      yPosition: 0,
-      heightPercent: 20,
-      animation: "none",
-      animationSpeed: "normal",
-      animationTrigger: "continuous",
-      isExterior: true
-    },
-    {
-      projectId: 2,
-      name: "Sample Image 2",
-      projectImageUrl: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=600&h=400&fit=crop",
-      xPosition: 0,
-      yPosition: 0,
-      heightPercent: 20,
-      animation: "none",
-      animationSpeed: "normal",
-      animationTrigger: "continuous",
-      isExterior: true
-    }
-  ]
+  projectId 
 }) => {
+  
+   
+  const { data, isSuccess } = useNextProjectDetails(projectId|| 0);
+  console.log("NextProjects data:", data);
+
+  // Limit data to maximum 2 items
+  const limitedData = data?.data ? data.data.slice(0, 2) : [];
+  
   // Get device type for responsive design
   const getDeviceType = () => {
     const width = window.innerWidth;
@@ -60,13 +31,11 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
     return device === 'mobile' ? 360 : device === 'tablet' ? 400 : 440;
   };
 
-  // Function to get grid classes based on image count
+  // Function to get grid classes based on image count (now max 2)
   const getGridClasses = (count: number) => {
     if (count === 1) return 'grid grid-cols-1 place-items-center gap-4';
     if (count === 2) return 'grid grid-cols-2 gap-4';
-    if (count === 3) return 'grid grid-cols-3 gap-4';
-    if (count === 4) return 'grid grid-cols-2 md:grid-cols-4 gap-4';
-    return 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4';
+    return 'grid grid-cols-2 gap-4'; // fallback for any edge cases
   };
 
   // Function to get animation classes
@@ -114,12 +83,12 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
         }}>
           {/* Heading removed as requested */}
 
-          {/* Dynamic grid based on image count */}
-          <div className={getGridClasses(images.length)} style={{
+          {/* Dynamic grid based on image count (max 2) */}
+          <div className={getGridClasses(limitedData.length)} style={{
             height: deviceType === 'mobile' ? '280px' : deviceType === 'tablet' ? '320px' : '380px',
             alignItems: 'center'
           }}>
-            {images.map((image) => (
+            {limitedData.map((image) => (
               <div key={image.projectId} style={{ width: '100%', height: '100%' }}>
                 <img
                   src={image.projectImageUrl}
@@ -127,7 +96,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                   className={`w-full object-cover rounded ${getAnimationClasses(image.animation, image.animationSpeed)}`}
                   style={{
                     // Make images taller so background is less visible
-                    height: images.length === 1 ? 
+                    height: limitedData.length === 1 ? 
                       (deviceType === 'mobile' ? '260px' : deviceType === 'tablet' ? '320px' : '360px') : 
                       (deviceType === 'mobile' ? '220px' : deviceType === 'tablet' ? '280px' : '340px'),
                     width: '100%',
@@ -166,7 +135,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
             fontSize: '12px',
             color: '#9ca3af'
           }}>
-            Displaying {images.length} image{images.length !== 1 ? 's' : ''}
+            Displaying {limitedData.length} image{limitedData.length !== 1 ? 's' : ''}
           </div>
         </div>
       </div>
