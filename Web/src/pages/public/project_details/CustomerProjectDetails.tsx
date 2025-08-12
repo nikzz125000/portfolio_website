@@ -236,7 +236,7 @@ const ProjectDetailsPage: React.FC = () => {
 
   // Navigation handler for sub-projects
   const handleSubProjectClick = (subProjectId: number) => {
-    alert(`Navigating to sub-project/${subProjectId}`);
+    // alert(`Navigating to sub-project/${subProjectId}`);
   };
 
   // Handle centered logo click - navigate to /resume
