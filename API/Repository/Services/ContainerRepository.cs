@@ -42,5 +42,20 @@ namespace Repository.Services
         {
             return await _context.ProjectContainers.OrderBy(x=>x.SortOrder).ToListAsync();
         }
+
+        public async Task<bool> Delete(int ContainerId)
+        {
+            ProjectContainer? proj = await _context.ProjectContainers.FindAsync(ContainerId);
+            if (proj != null)
+            {
+                _context.ProjectContainers.Remove(proj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
