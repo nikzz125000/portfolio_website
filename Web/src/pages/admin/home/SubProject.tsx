@@ -113,6 +113,8 @@ const ImageEditor: React.FC = () => {
     return { width: 0, height: 0 };
   }, [backgroundImage?.aspectRatio]);
 
+  console.log(subImages)
+
   // Monitor preview area size and update dimensions responsively
   useEffect(() => {
     const updateDimensions = () => {
@@ -600,6 +602,7 @@ const ImageEditor: React.FC = () => {
   const deleteSubImage = (imageId: number): void => {
     setPendingDeleteId(imageId);
     setConfirmOpen(true);
+    console.log(29, imageId);
   };
 
   function isDateNowId(id) {
@@ -740,6 +743,7 @@ const ImageEditor: React.FC = () => {
       }
       
       if (apiData.projects && Array.isArray(apiData.projects)) {
+        console.log(11, apiData.projects)
         const loadedSubImages = apiData.projects.map(subImg => ({
           id: subImg.projectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),

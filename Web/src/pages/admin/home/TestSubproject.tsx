@@ -581,8 +581,10 @@ const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const deleteSubImage = (imageId: number): void => {
+    console.log("Deleting image with ID:", imageId);
     setPendingDeleteId(imageId);
     setConfirmOpen(true);
+  
   };
 
   function isDateNowId(id) {
@@ -739,6 +741,7 @@ const safeName = getSafeFileName(img.name, 50);
       }
       
       if (apiData.projects && Array.isArray(apiData.projects)) {
+        console.log('Loading projects:', apiData.projects);
         const loadedSubImages = apiData.projects.map(subImg => ({
           id: subImg.projectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
