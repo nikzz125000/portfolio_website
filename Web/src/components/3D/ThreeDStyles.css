@@ -1,0 +1,306 @@
+/* 3D Scene Container Styles */
+.3d-scene-container {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  overflow: hidden;
+  /* Ensure proper touch handling for scrolling */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Canvas specific styles to prevent scroll interference */
+.3d-scene-container canvas {
+  touch-action: pan-y;
+  pointer-events: auto;
+  /* Ensure scroll events pass through */
+  overflow: visible;
+  /* Prevent Canvas from capturing all events */
+  isolation: isolate;
+}
+
+/* Additional Canvas scroll compatibility */
+.3d-scene-container {
+  /* Ensure the container doesn't interfere with scrolling */
+  overflow: visible;
+  /* Allow events to bubble up */
+  isolation: isolate;
+  /* Ensure proper touch handling */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure the 3D section doesn't interfere with page scrolling */
+.3d-section {
+  position: relative;
+  z-index: 10;
+  /* Allow page scrolling to pass through */
+  pointer-events: auto;
+  /* Ensure proper touch handling */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  /* Prevent scroll interference */
+  overflow: visible;
+  /* Ensure events bubble up properly */
+  isolation: isolate;
+}
+
+/* Additional touch handling improvements */
+.3d-scene-wrapper {
+  /* Ensure touch events work properly */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent Canvas from capturing all touch events */
+.3d-scene-container canvas {
+  touch-action: pan-y;
+  /* Only capture pointer events when explicitly interacting */
+  pointer-events: auto;
+}
+
+/* Ensure controls don't interfere with scrolling */
+.controls-3d {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  /* Prevent scroll interference */
+  overflow: visible;
+  /* Ensure events bubble up */
+  isolation: isolate;
+}
+
+/* Control group specific styles */
+.control-group {
+  /* Ensure controls don't block scroll events */
+  pointer-events: auto;
+  /* Allow touch events to pass through */
+  touch-action: pan-y;
+}
+
+/* Mobile-specific touch improvements */
+@media (max-width: 768px) {
+  .3d-section {
+    /* Ensure mobile scrolling works */
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .3d-scene-container {
+    /* Optimize touch handling for mobile */
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Loading Container Styles */
+.loading-container {
+  text-align: center;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.progress-bar {
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin: 10px auto;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4f46e5;
+  transition: width 0.3s ease;
+}
+
+/* 3D Controls Styles */
+.controls-3d {
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.controls-3d h3 {
+  margin: 0 0 20px 0;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.control-group input, 
+.control-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.control-group input:focus, 
+.control-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.control-group input[type="color"] {
+  height: 40px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.control-group input[type="range"] {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #667eea;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.control-group input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #667eea;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 3D Section Styles */
+.3d-section {
+  position: relative;
+  z-index: 10;
+}
+
+.3d-section-header h2 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.3d-section-header p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .3d-section {
+    padding: 20px 15px;
+  }
+  
+  .3d-section-header h2 {
+    font-size: 24px;
+  }
+  
+  .3d-section-header p {
+    font-size: 14px;
+  }
+  
+  .controls-3d {
+    padding: 15px;
+  }
+  
+  .control-group input, 
+  .control-group select {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .3d-section {
+    padding: 15px 10px;
+  }
+  
+  .3d-section-header h2 {
+    font-size: 20px;
+  }
+  
+  .controls-3d h3 {
+    font-size: 16px;
+  }
+}
+
+/* Animation for 3D section entrance */
+.3d-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover effects for interactive elements */
+.3d-scene-wrapper:hover {
+  transform: translateY(-2px);
+  transition: transform 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.control-group input:focus,
+.control-group select:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .controls-3d {
+    border: 2px solid #000000;
+  }
+  
+  .control-group input,
+  .control-group select {
+    border: 2px solid #000000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .3d-section {
+    animation: none;
+  }
+  
+  .3d-scene-wrapper:hover {
+    transform: none;
+  }
+  
+  .progress-fill {
+    transition: none;
+  }
+}

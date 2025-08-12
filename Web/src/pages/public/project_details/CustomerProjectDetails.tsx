@@ -2033,7 +2033,14 @@ const ProjectDetailsPage: React.FC = () => {
             </section>
           );
         })}
-
+        {nextProjects?.data?.length > 0 && (
+          <div ref={nextProjectsRef}>
+            <NextProjects
+              data={nextProjects}
+              handleButtomScrollButtonClick={handleButtomScrollButtonClick}
+            />
+          </div>
+        )}
         {/* Footer Component */}
         <Footer
           deviceType={deviceType as "mobile" | "tablet" | "desktop"}

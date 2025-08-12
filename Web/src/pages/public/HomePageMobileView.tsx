@@ -7,6 +7,8 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ModernLoader from "../../components/ui/ModernLoader";
 import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
+import ThreeDSection from "../../components/3D/ThreeDSection";
+import "../../components/3D/ThreeDStyles.css";
 
 interface SubImage {
   projectId: number;
@@ -1692,7 +1694,7 @@ const Homepage: React.FC = () => {
           top: 0,
           left: 0,
           width: "100%",
-          paddingBottom: "200px", // Account for sticky footer
+          // paddingBottom: "200px", // Account for sticky footer
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
@@ -1929,6 +1931,18 @@ const Homepage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* 3D Interactive Section */}
+        <ThreeDSection
+          deviceType={deviceType as "mobile" | "tablet" | "desktop"}
+          height={
+            deviceType === "mobile"
+              ? "400px"
+              : deviceType === "tablet"
+              ? "450px"
+              : "500px"
+          }
+        />
 
         {/* Footer Section */}
         <Footer deviceType={deviceType as "mobile" | "tablet" | "desktop"} />

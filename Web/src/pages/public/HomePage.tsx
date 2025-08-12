@@ -7,6 +7,8 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ModernLoader from "../../components/ui/ModernLoader";
 import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
+import ThreeDSection from "../../components/3D/ThreeDSection";
+import "../../components/3D/ThreeDStyles.css";
 
 interface SubImage {
   projectId: number;
@@ -1556,6 +1558,9 @@ const Homepage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* 3D Interactive Section */}
+        <ThreeDSection deviceType="desktop" height="500px" />
 
         {/* Footer Section */}
         <Footer />
