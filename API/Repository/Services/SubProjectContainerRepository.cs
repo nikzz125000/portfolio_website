@@ -33,5 +33,23 @@ namespace Repository.Services
         {
            return await _context.SubProjectContainers.Where(x => x.ProjectId == ProjectId).OrderBy(x=>x.SortOrder).ToListAsync();
         }
+        public async Task<SubProjectContainer?> GetById(int SubProjectContainerId)
+        {
+            return await _context.SubProjectContainers.FindAsync(SubProjectContainerId);
+        }
+        public async Task<bool> Delete(int ContainerId)
+        {
+            SubProjectContainer? proj = await _context.SubProjectContainers.FindAsync(ContainerId);
+            if (proj != null)
+            {
+                _context.SubProjectContainers.Remove(proj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 } 
