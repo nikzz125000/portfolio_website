@@ -62,6 +62,7 @@ const ImageEditor: React.FC = () => {
   const [title, setTitle] = useState<string>(existingData.title || '');
   const [sortOrder, setSortOrder] = useState<number>(existingData.sortOrder || 1);
   const [backgroundImage, setBackgroundImage] = useState<BackgroundImage | null>(null);
+   const [titleError, setTitleError] = useState<string>('');
   const [subImages, setSubImages] = useState<SubImage[]>([]);
   const [selectedSubImage, setSelectedSubImage] = useState<number | null>(null);
   const [dragState, setDragState] = useState<DragState>({ isDragging: false, dragIndex: -1 });
@@ -458,7 +459,29 @@ const ImageEditor: React.FC = () => {
       margin-bottom: 0;
       cursor: pointer;
     }
+    
+ 
   `;
+
+   const validateTitle = (value: string): string => {
+    if (!value || value.trim() === '') {
+      return 'Title is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Title must be at least 2 characters long';
+    }
+    if (value.trim().length > 100) {
+      return 'Title must be less than 100 characters';
+    }
+    return '';
+  };
+
+const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTitle(value);
+    const error = validateTitle(value);
+    setTitleError(error);
+  };
 
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
@@ -605,6 +628,12 @@ const ImageEditor: React.FC = () => {
    const { showNotification } = useNotification();  
   // FIXED: Save with percentages (no conversion needed)
   const handleSave = async (): Promise<void> => {
+     const error = validateTitle(title);
+  if (error) {
+    setTitleError(error);
+    showNotification('Please fix the validation errors before saving.', 'error', 'Validation Error');
+    return;
+  }
     try {
       const formData = new FormData();
       
@@ -627,7 +656,19 @@ const ImageEditor: React.FC = () => {
       // FIXED: Save percentages directly (no conversion needed)
       subImages.forEach((img, index) => {
         formData.append(`Projects[${index}][ProjectId]`, getProjectId(img.id));
-        formData.append(`Projects[${index}][Name]`, img.name);
+     const getSafeFileName = (name, maxLength = 50) => {
+  // Remove extension
+  const baseName = name.substring(0, name.lastIndexOf(".")) || name;
+
+  // Limit to maxLength characters
+  return baseName.length > maxLength
+    ? baseName.substring(0, maxLength)
+    : baseName;
+};
+
+// Usage
+const safeName = getSafeFileName(img.name, 50);
+        formData.append(`Projects[${index}][Name]`, safeName);
         
         const xPercent = Math.round(img.xPercent);
         const yPercent = Math.round(img.yPercent);
@@ -684,8 +725,11 @@ const ImageEditor: React.FC = () => {
   const loadSampleProject = (apiData = null): void => {
     if (apiData) {
       console.log('Loading API data:', apiData);
-      
-      setTitle(apiData.title || '');
+     const loadedTitle = apiData.title || '';
+      setTitle(loadedTitle);
+      // Validate loaded title
+      const error = validateTitle(loadedTitle);
+      setTitleError(error);
       setSortOrder(apiData.sortOrder || 1);
       
       if (apiData.backgroundImageUrl) {
@@ -890,7 +934,27 @@ const ImageEditor: React.FC = () => {
       borderRadius: '12px',
       fontSize: '10px',
       fontWeight: 'bold'
-    }
+    },
+       labelRequired: {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold',
+    fontSize: '14px'
+  },
+     inputError: {
+    width: '100%',
+    padding: '8px',
+    border: '2px solid #f44336',
+    borderRadius: '4px',
+    fontSize: '14px',
+    backgroundColor: '#fff5f5'
+  },
+  errorMessage: {
+    color: '#f44336',
+    fontSize: '12px',
+    marginTop: '4px',
+    fontWeight: '500'
+  }
   };
 
   return (
@@ -905,17 +969,25 @@ const ImageEditor: React.FC = () => {
         )}
         
         <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Image Editor</h2>
-
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Title:</label>
-          <input
-            type="text"
-            style={styles.input}
-            value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-            placeholder="Enter title"
-          />
-        </div>
+<div style={styles.formGroup}>
+  <label style={styles.labelRequired}>
+    Title: <span style={{ color: '#f44336' }}>*</span>
+  </label>
+  <input
+    type="text"
+    style={titleError ? styles.inputError : styles.input}
+    value={title}
+    onChange={handleTitleChange}
+    placeholder="Enter title (required)"
+    maxLength={100}
+  />
+  {titleError && (
+    <div style={styles.errorMessage}>{titleError}</div>
+  )}
+  <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+    {title.trim().length}/100 characters
+  </div>
+</div>
 
         <div style={styles.formGroup}>
           <label style={styles.label}>Sort Order:</label>

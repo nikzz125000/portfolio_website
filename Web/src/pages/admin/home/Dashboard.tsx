@@ -4,6 +4,7 @@ import { useContainerList } from "../../../api/useContainerList";
 import DeleteConfirmDialog from "../../../components/DeleteConfirmDialog";
 import { useDeleteContainer } from "../../../api/useContainerDelete";
 import { useNotification } from "../../../components/Tostr";
+import { Box, LinearProgress } from "@mui/material";
 
 interface ImageProject {
   backgroundImageAspectRatio: number;
@@ -23,7 +24,7 @@ interface ContainerListResponse {
   data: ImageProject[];
 }
 
-const { data, isPending, isSuccess } = useContainerList() as {
+const { data, isPending, isSuccess,refetch } = useContainerList() as {
   data?: ContainerListResponse;
   isPending: boolean;
   isSuccess: boolean;
@@ -36,14 +37,16 @@ const [currentItemId, setcurrentItemId] = useState(0)
   useEffect(() => {
     if (data && data.data && data.data?.length > 0 && isSuccess) {
       // Add mock images to the projects if they don't have them
-      console.log(70, data.data, "Loading:", isPending);
+
 
       setProjects(data.data);
       // Handle your success logic here
+    }else{
+      setProjects([]);
     }
   }, [isSuccess, data]);
 
-  console.log(69, projects, "Loading:", isPending);
+
 
   const navigate = useNavigate();
 
@@ -70,6 +73,7 @@ const { showNotification } = useNotification();
         if (res?.isSuccess) {
           showNotification("Container Deleted successfully!", "success", "Success");
          setConfirmOpen(false);
+         refetch()
         }else{
            showNotification(
             res?.message || "Failed to Delete container",
@@ -146,16 +150,18 @@ const { showNotification } = useNotification();
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
   );
+ 
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+     
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Home page Images
+                Home Page Background Images
               </h1>
               <p className="mt-1 text-sm text-gray-500">
                 Manage your image projects and configurations
@@ -172,6 +178,10 @@ const { showNotification } = useNotification();
             </button>
           </div>
         </div>
+
+         {isPending && ( <Box sx={{ width: '100%' }}>
+      <LinearProgress />
+    </Box>)}
 
         {/* Data Grid Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

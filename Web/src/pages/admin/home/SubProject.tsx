@@ -59,6 +59,7 @@ const ImageEditor: React.FC = () => {
   };
 
   const [title, setTitle] = useState<string>(existingData.title || '');
+  const [titleError, setTitleError] = useState<string>(''); // New state for title validation
   const [sortOrder, setSortOrder] = useState<number>(existingData.sortOrder || 1);
   const [backgroundImage, setBackgroundImage] = useState<BackgroundImage | null>(null);
   const [subImages, setSubImages] = useState<SubImage[]>([]);
@@ -74,6 +75,28 @@ const ImageEditor: React.FC = () => {
   // Confirm dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
+  // Title validation function
+  const validateTitle = (value: string): string => {
+    if (!value || value.trim() === '') {
+      return 'Title is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Title must be at least 2 characters long';
+    }
+    if (value.trim().length > 100) {
+      return 'Title must be less than 100 characters';
+    }
+    return '';
+  };
+
+  // Handle title change with validation
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTitle(value);
+    const error = validateTitle(value);
+    setTitleError(error);
+  };
 
   // FIXED: Calculate background dimensions using full-width approach like Homepage
   const calculateBackgroundDimensions = useCallback(() => {
@@ -457,6 +480,24 @@ const ImageEditor: React.FC = () => {
       margin-bottom: 0;
       cursor: pointer;
     }
+
+    .error-message {
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .input-error {
+      border-color: #f44336 !important;
+      box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+    }
+
+    .save-button-disabled {
+      background-color: #cccccc !important;
+      cursor: not-allowed !important;
+      opacity: 0.6 !important;
+    }
   `;
 
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -602,13 +643,26 @@ const ImageEditor: React.FC = () => {
     return id?.toString();
   }
 
+  // Check if form is valid for saving
+  const isFormValid = (): boolean => {
+    return titleError === '' && title.trim() !== '';
+  };
+
   // FIXED: Save with percentages (no conversion needed)
   const handleSave = async (): Promise<void> => {
+    // Validate title before saving
+    const error = validateTitle(title);
+    if (error) {
+      setTitleError(error);
+      alert('Please fix the validation errors before saving.');
+      return;
+    }
+
     try {
       const formData = new FormData();
       
       formData.append('ProjectContainerId', !id ? '0' : id);
-      formData.append('Title', title);
+      formData.append('Title', title.trim()); // Trim whitespace
       formData.append('SortOrder', sortOrder.toString());
       
       if (backgroundImage?.file) {
@@ -671,7 +725,12 @@ const ImageEditor: React.FC = () => {
     if (apiData) {
       console.log('Loading API data:', apiData);
       
-      setTitle(apiData.title || '');
+      const loadedTitle = apiData.title || '';
+      setTitle(loadedTitle);
+      // Validate loaded title
+      const error = validateTitle(loadedTitle);
+      setTitleError(error);
+      
       setSortOrder(apiData.sortOrder || 1);
       
       if (apiData.backgroundImageUrl) {
@@ -759,12 +818,26 @@ const ImageEditor: React.FC = () => {
       fontWeight: 'bold',
       fontSize: '14px'
     },
+    labelRequired: {
+      display: 'block',
+      marginBottom: '5px',
+      fontWeight: 'bold',
+      fontSize: '14px'
+    },
     input: {
       width: '100%',
       padding: '8px',
       border: '1px solid #ddd',
       borderRadius: '4px',
       fontSize: '14px'
+    },
+    inputError: {
+      width: '100%',
+      padding: '8px',
+      border: '1px solid #f44336',
+      borderRadius: '4px',
+      fontSize: '14px',
+      boxShadow: '0 0 0 2px rgba(244, 67, 54, 0.2)'
     },
     button: {
       backgroundColor: '#1976d2',
@@ -876,6 +949,12 @@ const ImageEditor: React.FC = () => {
       borderRadius: '12px',
       fontSize: '10px',
       fontWeight: 'bold'
+    },
+    errorMessage: {
+      color: '#f44336',
+      fontSize: '12px',
+      marginTop: '5px',
+      marginBottom: '10px'
     }
   };
 
@@ -893,14 +972,23 @@ const ImageEditor: React.FC = () => {
         <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Image Editor</h2>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Title:</label>
+          <label style={styles.labelRequired}>
+            Title: <span style={{ color: '#f44336' }}>*</span>
+          </label>
           <input
             type="text"
-            style={styles.input}
+            style={titleError ? styles.inputError : styles.input}
             value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-            placeholder="Enter title"
+            onChange={handleTitleChange}
+            placeholder="Enter title (required)"
+            maxLength={100}
           />
+          {titleError && (
+            <div style={styles.errorMessage}>{titleError}</div>
+          )}
+          <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+            {title.trim().length}/100 characters
+          </div>
         </div>
 
         <div style={styles.formGroup}>
@@ -910,6 +998,7 @@ const ImageEditor: React.FC = () => {
             style={styles.input}
             value={sortOrder}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSortOrder(Number(e.target.value))}
+            min="1"
           />
         </div>
 
@@ -1101,17 +1190,24 @@ const ImageEditor: React.FC = () => {
         <button
           style={{ 
             ...styles.button, 
-            backgroundColor: isSaving ? '#6fbf73' : '#4caf50',
+            backgroundColor: !isFormValid() ? '#cccccc' : (isSaving ? '#6fbf73' : '#4caf50'),
             marginTop: '20px',
-            opacity: isSaving ? 0.8 : 1,
-            cursor: isSaving ? 'not-allowed' : 'pointer'
+            opacity: (!isFormValid() || isSaving) ? 0.8 : 1,
+            cursor: (!isFormValid() || isSaving) ? 'not-allowed' : 'pointer'
           }}
           onClick={handleSave}
           type="button"
-          disabled={isSaving}
+          disabled={!isFormValid() || isSaving}
+          title={!isFormValid() ? 'Please fix validation errors before saving' : ''}
         >
           {isSaving ? 'Saving...' : '💾 Save'}
         </button>
+        
+        {!isFormValid() && (
+          <div style={styles.errorMessage}>
+            ⚠️ Please fix the validation errors before saving
+          </div>
+        )}
       </div>
 
       <div style={styles.rightPanel}>
@@ -1199,53 +1295,15 @@ const ImageEditor: React.FC = () => {
           </div>
         )}
       </div>
-{confirmOpen && (<DeleteConfirmDialog isOpen={confirmOpen} onConfirm={handleConfirmDelete} onCancel={() => setConfirmOpen(false)} isDeleting={isDeleting}/>)}
-      {/* {confirmOpen && (
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000
-          }}
-          onClick={() => !isDeleting && setConfirmOpen(false)}
-        >
-          <div 
-            style={{
-              background: 'white',
-              borderRadius: 8,
-              padding: 20,
-              width: 340,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Delete Image?</div>
-            <div style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>
-              This action cannot be undone. Do you want to proceed?
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button
-                style={{ backgroundColor: '#e0e0e0', color: '#333', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
-                onClick={() => setConfirmOpen(false)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                style={{ backgroundColor: '#f44336', color: 'white', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.7 : 1 }}
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
+      
+      {confirmOpen && (
+        <DeleteConfirmDialog 
+          isOpen={confirmOpen} 
+          onConfirm={handleConfirmDelete} 
+          onCancel={() => setConfirmOpen(false)} 
+          isDeleting={isDeleting}
+        />
+      )}
     </div>
   );
 };
