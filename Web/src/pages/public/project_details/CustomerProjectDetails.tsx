@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetProjectDetailsList } from '../../../api/useGetProjectDetails';
 import NextProjects from './NextProjects';
+import { useNextProjectDetails } from '../../../api/useGetNextProject';
  // You'll need to create this hook
 
 interface SubProject {
@@ -32,7 +33,7 @@ interface ProjectContainer {
   backgroundImageAspectRatio?: number;
   backgroundImageUrl?: string;
   backgroundImageFileName?: string;
-  backgroundType: number; // 1 = interior, 2 = exterior
+  backgroundType: number; // 0 = general, 1 = interior, 2 = exterior
   subProjects?: SubProject[];
 }
 
@@ -107,6 +108,7 @@ const ProjectDetailsPage: React.FC = () => {
   const [sections, setSections] = useState<ProjectContainer[]>([]);
   const [exteriorSections, setExteriorSections] = useState<ProjectContainer[]>([]);
   const [interiorSections, setInteriorSections] = useState<ProjectContainer[]>([]);
+  const [hasTypedSections, setHasTypedSections] = useState<boolean>(false); // NEW: Track if we have typed sections
   const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
@@ -131,6 +133,7 @@ const ProjectDetailsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data, isPending, isSuccess } = useGetProjectDetailsList(projectId ? parseInt(projectId, 10) : 0);
+   const { data:nextProjects, isSuccess:isSuccessNextProjects } = useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
 
   // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
   const animationOptions = [
@@ -312,12 +315,15 @@ const ProjectDetailsPage: React.FC = () => {
       sections.forEach((section, index) => {
         const dimensions = getResponsiveSectionDimensions(section);
         
-        // Track where exterior ends and interior begins
-        if (section.backgroundType === 2 && !foundInterior) { // exterior
-          // Still in exterior sections
-        } else if (section.backgroundType === 1 && !foundInterior) { // interior
-          interiorStart = height;
-          foundInterior = true;
+        // Only track exterior/interior if we have typed sections
+        if (hasTypedSections) {
+          // Track where exterior ends and interior begins
+          if (section.backgroundType === 2 && !foundInterior) { // exterior
+            // Still in exterior sections
+          } else if (section.backgroundType === 1 && !foundInterior) { // interior
+            interiorStart = height;
+            foundInterior = true;
+          }
         }
         
         height += dimensions.height;
@@ -331,8 +337,10 @@ const ProjectDetailsPage: React.FC = () => {
       height += footerHeight;
       
       setTotalHeight(height);
-      setExteriorStartY(exteriorStart);
-      setInteriorStartY(interiorStart);
+      if (hasTypedSections) {
+        setExteriorStartY(exteriorStart);
+        setInteriorStartY(interiorStart);
+      }
       
       // Reset scroll if it's beyond the new bounds
       if (targetScrollY.current > height - window.innerHeight) {
@@ -342,14 +350,15 @@ const ProjectDetailsPage: React.FC = () => {
       console.log('Project details coordinate system calculated:', {
         totalHeight: height,
         sectionsCount: sections.length,
-        exteriorStartY: exteriorStart,
-        interiorStartY: interiorStart,
+        hasTypedSections,
+        exteriorStartY: hasTypedSections ? exteriorStart : 'N/A',
+        interiorStartY: hasTypedSections ? interiorStart : 'N/A',
         deviceType,
         footerHeight,
         nextProjectsHeight
       });
     }
-  }, [sections, viewportHeight, viewportWidth, deviceType, nextProjectsHeight]);
+  }, [sections, viewportHeight, viewportWidth, deviceType, nextProjectsHeight, hasTypedSections]);
 
   // Custom smooth scroll animation
   const smoothScrollStep = () => {
@@ -500,18 +509,31 @@ const ProjectDetailsPage: React.FC = () => {
       
       const sortedData = data.data.sort((a, b) => a.sortOrder - a.sortOrder);
       
-      // Separate exterior and interior sections
-      const exterior = sortedData.filter(section => section.backgroundType === 2).sort((a, b) => a.sortOrder - b.sortOrder);
-      const interior = sortedData.filter(section => section.backgroundType === 1).sort((a, b) => a.sortOrder - b.sortOrder);
+      // Check if we have typed sections (backgroundType 1 or 2)
+      const hasTyped = sortedData.some(section => section.backgroundType === 1 || section.backgroundType === 2);
+      setHasTypedSections(hasTyped);
       
-      // Combine exterior first, then interior
-      const combinedSections = [...exterior, ...interior];
-      
-      setTimeout(() => {
-        setSections(combinedSections);
-        setExteriorSections(exterior);
-        setInteriorSections(interior);
-      }, 500);
+      if (hasTyped) {
+        // Separate exterior and interior sections
+        const exterior = sortedData.filter(section => section.backgroundType === 2).sort((a, b) => a.sortOrder - b.sortOrder);
+        const interior = sortedData.filter(section => section.backgroundType === 1).sort((a, b) => a.sortOrder - b.sortOrder);
+        
+        // Combine exterior first, then interior
+        const combinedSections = [...exterior, ...interior];
+        
+        setTimeout(() => {
+          setSections(combinedSections);
+          setExteriorSections(exterior);
+          setInteriorSections(interior);
+        }, 500);
+      } else {
+        // No typed sections, just use original sort order
+        setTimeout(() => {
+          setSections(sortedData);
+          setExteriorSections([]);
+          setInteriorSections([]);
+        }, 500);
+      }
     }
   }, [data]);
 
@@ -519,6 +541,7 @@ const ProjectDetailsPage: React.FC = () => {
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
       console.log('Project Details API Data Structure:', data.data[0]);
+      console.log('Has typed sections:', hasTypedSections);
       if (data.data[0].subProjects && data.data[0].subProjects.length > 0) {
         console.log('First Sub-Project Position:', {
           xPosition: data.data[0].subProjects[0].xPosition,
@@ -527,7 +550,7 @@ const ProjectDetailsPage: React.FC = () => {
         });
       }
     }
-  }, [data]);
+  }, [data, hasTypedSections]);
 
   // Handle menu item click
   const handleMenuItemClick = (item: typeof menuItems[0]) => {
@@ -559,8 +582,10 @@ const ProjectDetailsPage: React.FC = () => {
     setShowConnectForm(true);
   };
 
-  // Handle section navigation
+  // Handle section navigation (only if we have typed sections)
   const handleSectionNavigation = (sectionType: 'exterior' | 'interior') => {
+    if (!hasTypedSections) return;
+    
     const targetY = sectionType === 'exterior' ? exteriorStartY : interiorStartY;
     const maxScroll = Math.max(0, totalHeight - window.innerHeight);
     
@@ -688,12 +713,28 @@ const ProjectDetailsPage: React.FC = () => {
     };
   };
 
-  // Get current active section for navigation buttons
+  // Get current active section for navigation buttons (only if typed sections exist)
   const getCurrentActiveSection = () => {
+    if (!hasTypedSections) return null;
+    
     if (scrollY < interiorStartY) {
       return 'exterior';
     } else {
       return 'interior';
+    }
+  };
+
+  // NEW: Get section type info for display
+  const getSectionTypeInfo = (backgroundType: number) => {
+    if (!hasTypedSections) return null;
+    
+    switch (backgroundType) {
+      case 1:
+        return { label: 'INTERIOR', color: '#ff9800' };
+      case 2:
+        return { label: 'EXTERIOR', color: '#4caf50' };
+      default:
+        return null;
     }
   };
 
@@ -1642,42 +1683,52 @@ const ProjectDetailsPage: React.FC = () => {
   const logoSizes = getResponsiveLogoSizes();
   const currentActiveSection = getCurrentActiveSection();
 
+  const handleButtomScrollButtonClick= () => {
+           targetScrollY.current = 0;
+            if (!isScrolling.current) {
+              isScrolling.current = true;
+              smoothScrollStep();
+  }
+}
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
       <style>{responsiveAnimationStyles}</style>
       
-      {/* Section Navigation Buttons - Responsive positioning */}
-      <div className="section-nav-buttons" style={{
-        top: deviceType === 'mobile' ? '15px' : '20px',
-        right: deviceType === 'mobile' ? '15px' : '20px'
-      }}>
-        <button
-          className={`section-nav-btn ${currentActiveSection === 'exterior' ? 'active' : ''}`}
-          onClick={() => handleSectionNavigation('exterior')}
-          style={{
-            padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
-            fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
-          }}
-        >
-          EXTERIOR
-          {exteriorSections.length > 0 && (
-            <span className="exterior-badge">{exteriorSections.length}</span>
-          )}
-        </button>
-        <button
-          className={`section-nav-btn ${currentActiveSection === 'interior' ? 'active' : ''}`}
-          onClick={() => handleSectionNavigation('interior')}
-          style={{
-            padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
-            fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
-          }}
-        >
-          INTERIOR
-          {interiorSections.length > 0 && (
-            <span className="interior-badge">{interiorSections.length}</span>
-          )}
-        </button>
-      </div>
+      {/* Section Navigation Buttons - Only show if we have typed sections */}
+      {hasTypedSections && (
+        <div className="section-nav-buttons" style={{
+          top: deviceType === 'mobile' ? '15px' : '20px',
+          right: deviceType === 'mobile' ? '15px' : '20px'
+        }}>
+          <button
+            className={`section-nav-btn ${currentActiveSection === 'exterior' ? 'active' : ''}`}
+            onClick={() => handleSectionNavigation('exterior')}
+            style={{
+              padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
+              fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
+            }}
+          >
+            EXTERIOR
+            {exteriorSections.length > 0 && (
+              <span className="exterior-badge">{exteriorSections.length}</span>
+            )}
+          </button>
+          <button
+            className={`section-nav-btn ${currentActiveSection === 'interior' ? 'active' : ''}`}
+            onClick={() => handleSectionNavigation('interior')}
+            style={{
+              padding: deviceType === 'mobile' ? '6px 12px' : deviceType === 'tablet' ? '7px 14px' : '8px 16px',
+              fontSize: deviceType === 'mobile' ? '10px' : deviceType === 'tablet' ? '11px' : '12px'
+            }}
+          >
+            INTERIOR
+            {interiorSections.length > 0 && (
+              <span className="interior-badge">{interiorSections.length}</span>
+            )}
+          </button>
+        </div>
+      )}
       
       {/* Fixed Logo with Menu - Responsive positioning */}
       <div
@@ -1831,8 +1882,8 @@ const ProjectDetailsPage: React.FC = () => {
           const bgStyle = getResponsiveBackgroundStyle(section);
           const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
 
-          const sectionTypeLabel = section.backgroundType === 2 ? 'EXTERIOR' : 'INTERIOR';
-          const sectionTypeColor = section.backgroundType === 2 ? '#4caf50' : '#ff9800';
+          // NEW: Get section type info (null if backgroundType is 0)
+          const sectionTypeInfo = getSectionTypeInfo(section.backgroundType);
 
           return (
             <section
@@ -1862,35 +1913,38 @@ const ProjectDetailsPage: React.FC = () => {
                 }}
               />
 
-              {/* Section Type Badge */}
-              <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                background: sectionTypeColor,
-                color: 'white',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: deviceType === 'mobile' ? '10px' : '12px',
-                fontWeight: '600',
-                zIndex: 100,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-              }}>
-                {sectionTypeLabel}
-              </div>
+              {/* Section Type Badge - Only show if we have typed sections */}
+              {sectionTypeInfo && (
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: '20px',
+                  background: sectionTypeInfo.color,
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  fontSize: deviceType === 'mobile' ? '10px' : '12px',
+                  fontWeight: '600',
+                  zIndex: 100,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}>
+                  {sectionTypeInfo.label}
+                </div>
+              )}
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="coordinate-debug">
                   Screen: {window.innerWidth}×{window.innerHeight}<br/>
                   Device: {deviceType}<br/>
-                  Type: {sectionTypeLabel}<br/>
+                  Type: {sectionTypeInfo?.label || 'GENERAL'}<br/>
                   Ratio: {section.backgroundImageAspectRatio?.toFixed(2) || 'N/A'}<br/>
                   Adjusted: {dimensions.adjustedAspectRatio?.toFixed(2) || 'N/A'}<br/>
                   Section H: {dimensions.height}px<br/>
                   Image H: {dimensions.imageHeight}px<br/>
                   BgSize: {bgStyle.backgroundSize}<br/>
-                  SubProjects: {section.subProjects?.length || 0}
+                  SubProjects: {section.subProjects?.length || 0}<br/>
+                  HasTyped: {hasTypedSections ? 'Yes' : 'No'}
                 </div>
               )}
 
@@ -1936,7 +1990,8 @@ const ProjectDetailsPage: React.FC = () => {
                   deviceType,
                   classes: getAnimationClasses(subProject),
                   dimensions: imageDimensions,
-                  isExterior: subProject.isExterior
+                  isExterior: subProject.isExterior,
+                  hasTypedSections
                 });
 
                 const isHovered = hoveredImageId === subProject.subProjectId;
@@ -1964,6 +2019,7 @@ const ProjectDetailsPage: React.FC = () => {
                       data-animation-trigger={subProject.animationTrigger}
                       data-device-type={deviceType}
                       data-is-exterior={subProject.isExterior}
+                      data-has-typed-sections={hasTypedSections}
                       className={getAnimationClasses(subProject)}
                       onClick={() => handleSubProjectClick(subProject.subProjectId)}
                       onMouseEnter={() => setHoveredImageId(subProject.subProjectId)}
@@ -1989,7 +2045,7 @@ const ProjectDetailsPage: React.FC = () => {
                     {process.env.NODE_ENV === 'development' && subProject.animation !== 'none' && (
                       <div style={{
                         position: 'absolute',
-                        top: '-50px',
+                        top: '-60px',
                         left: '0',
                         background: 'rgba(0,0,0,0.9)',
                         color: 'white',
@@ -2006,7 +2062,10 @@ const ProjectDetailsPage: React.FC = () => {
                         ⚡ {subProject.animationSpeed}<br/>
                         🎯 {subProject.animationTrigger}<br/>
                         📱 {deviceType}<br/>
-                        {subProject.isExterior ? '🏠 EXT' : '🛋️ INT'}
+                        {hasTypedSections 
+                          ? (subProject.isExterior ? '🏠 EXT' : '🛋️ INT')
+                          : '📄 GENERAL'
+                        }
                       </div>
                     )}
                   </div>
@@ -2019,15 +2078,15 @@ const ProjectDetailsPage: React.FC = () => {
                 left: '-9999px', 
                 visibility: 'hidden' 
               }}>
-                {section.title} - {sectionTypeLabel}
+                {section.title} {sectionTypeInfo ? ` - ${sectionTypeInfo.label}` : ''}
               </h1>
             </section>
           );
         })}
 
-        <div ref={nextProjectsRef}>
-          <NextProjects projectId ={projectId ? parseInt(projectId, 10) : 0}/>
-        </div>
+        {nextProjects?.data?.length>0&&<div ref={nextProjectsRef}>
+          <NextProjects data ={nextProjects} handleButtomScrollButtonClick={handleButtomScrollButtonClick}/>
+        </div>}
 
         {/* Responsive Footer Section */}
         <footer
@@ -2136,13 +2195,15 @@ const ProjectDetailsPage: React.FC = () => {
       {/* Responsive Scroll to Top Button */}
       {scrollY > 500 && (
         <button
-          onClick={() => {
-            targetScrollY.current = 0;
-            if (!isScrolling.current) {
-              isScrolling.current = true;
-              smoothScrollStep();
-            }
-          }}
+          onClick={() =>
+            //  {
+            // targetScrollY.current = 0;
+            // if (!isScrolling.current) {
+            //   isScrolling.current = true;
+            //   smoothScrollStep();
+            // }
+            handleButtomScrollButtonClick()
+          }
           style={{
             position: 'fixed',
             bottom: deviceType === 'mobile' ? '20px' : '30px',

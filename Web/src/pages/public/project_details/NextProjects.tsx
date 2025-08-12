@@ -1,21 +1,22 @@
 import React from 'react';
-import { useNextProjectDetails } from '../../../api/useGetNextProject';
+import { useNavigate } from 'react-router-dom';
 
 interface DynamicImageShowcaseProps {
-  projectId?: number;
+  data:any,
+  handleButtomScrollButtonClick: () => void;
 }
 
 const NextProjects: React.FC<DynamicImageShowcaseProps> = ({ 
-  projectId 
+  data,handleButtomScrollButtonClick
 }) => {
   
    
-  const { data, isSuccess } = useNextProjectDetails(projectId|| 0);
+  
   console.log("NextProjects data:", data);
 
   // Limit data to maximum 2 items
   const limitedData = data?.data ? data.data.slice(0, 2) : [];
-  
+   const navigate = useNavigate();
   // Get device type for responsive design
   const getDeviceType = () => {
     const width = window.innerWidth;
@@ -52,11 +53,26 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
     return baseClasses;
   };
 
+  const handleSubImageClick = (subImageId: number) => {
+    console.log(`Navigating to project ${subImageId}`);
+    
+    // Scroll to top before navigation
+   handleButtomScrollButtonClick()
+    
+    // Alternative immediate scroll (uncomment if you prefer instant scroll)
+    // window.scrollTo(0, 0);
+    
+    // Small delay to allow scroll to start, then navigate
+    setTimeout(() => {
+      navigate(`/project_details/${subImageId}`);
+    }, 200);
+  };
+
   const deviceType = getDeviceType();
   const fixedHeight = getFixedHeight();
 
-  return (
-    <div 
+  return (<>
+    {data?.data?.length>0?<div 
       style={{
         height: `${fixedHeight}px`, // FIXED: Use fixed height instead of py-16
         width: '100%',
@@ -104,6 +120,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                     cursor: 'pointer',
                     transition: 'transform 0.2s ease'
                   }}
+                   onClick={() => handleSubImageClick(image.projectId)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.02)';
                   }}
@@ -135,11 +152,13 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
             fontSize: '12px',
             color: '#9ca3af'
           }}>
-            Displaying {limitedData.length} image{limitedData.length !== 1 ? 's' : ''}
+          Next projects
           </div>
         </div>
       </div>
-    </div>
+    </div>:null}
+    {/* End of NextProjects section */}
+    </>
   );
 };
 
