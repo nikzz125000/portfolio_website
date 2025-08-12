@@ -85,8 +85,8 @@ const { showNotification } = useNotification();
   };
 
   const handlePreviewProject = (project: ImageProject) => {
-    console.log("Preview project:", project);
-    alert(`Preview: ${project.title}`);
+   
+    // alert(`Preview: ${project.title}`);
   };
 
   // MUI-style icons as SVG components

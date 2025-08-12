@@ -25,7 +25,7 @@ export const useGetUserDetails= () => {
       return response.data;
     },
     onSuccess: (data:any) => {
-      console.log(500,data)
+    
 localStorage.setItem('user', JSON.stringify(data?.data));
        return data?.data;
     },

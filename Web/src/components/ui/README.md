@@ -255,7 +255,7 @@ Enable debug logging in development:
 
 ```tsx
 // Add to your component
-console.log("Loader props:", { size, variant, className });
+
 ```
 
 ## Contributing

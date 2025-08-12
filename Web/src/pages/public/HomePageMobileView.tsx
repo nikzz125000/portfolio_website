@@ -217,7 +217,7 @@ const Homepage: React.FC = () => {
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
     setIsNavigating(true);
-    console.log(`Navigating to project/${subImageId}`);
+    
 
     // Simulate navigation delay and then navigate
     setTimeout(() => {
@@ -384,14 +384,7 @@ const Homepage: React.FC = () => {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
 
-      console.log("Responsive coordinate system total height calculated:", {
-        totalHeight: height,
-        sectionsCount: sections.length,
-        viewportHeight,
-        viewportWidth,
-        deviceType,
-        footerHeight,
-      });
+     
     }
   }, [sections, viewportHeight, viewportWidth, deviceType]);
 
@@ -551,7 +544,7 @@ const Homepage: React.FC = () => {
   // Load data from API
   useEffect(() => {
     if (data?.data) {
-      console.log("Raw API Data:", data.data);
+      
       setTimeout(() => {
         setSections(data.data.sort((a, b) => a.sortOrder - b.sortOrder));
       }, 500);
@@ -561,15 +554,10 @@ const Homepage: React.FC = () => {
   // COMPREHENSIVE Animation debugging with all animation options
   useEffect(() => {
     if (sections.length > 0) {
-      console.log("=== COMPLETE ANIMATION DEBUG ===");
-      console.log("Total available animations:", animationOptions.length - 1); // Exclude 'none'
-      console.log(
-        "Available animations:",
-        animationOptions.map((a) => a.value).filter((v) => v !== "none")
-      );
+      
 
       sections.forEach((section, sectionIndex) => {
-        console.log(`Section ${sectionIndex} (${section.title}):`);
+        
 
         if (section.projects && section.projects.length > 0) {
           section.projects.forEach((project, projectIndex) => {
@@ -583,65 +571,23 @@ const Homepage: React.FC = () => {
               (t) => t.value === project.animationTrigger
             );
 
-            console.log(`  Project ${projectIndex}:`, {
-              name: project.name,
-              projectId: project.projectId,
-              animation: project.animation,
-              animationExists: !!animationExists,
-              animationSpeed: project.animationSpeed,
-              speedExists: !!speedExists,
-              animationTrigger: project.animationTrigger,
-              triggerExists: !!triggerExists,
-              expectedClasses: getAnimationClasses(project),
-            });
+           
 
             // Validate animation values
-            if (project.animation && project.animation !== "none") {
-              console.log(
-                `    ✅ Animation: ${project.animation} ${
-                  animationExists ? "(FOUND)" : "(NOT FOUND)"
-                }`
-              );
-              console.log(
-                `    ✅ Speed: ${project.animationSpeed} ${
-                  speedExists ? "(FOUND)" : "(NOT FOUND)"
-                }`
-              );
-              console.log(
-                `    ✅ Trigger: ${project.animationTrigger} ${
-                  triggerExists ? "(FOUND)" : "(NOT FOUND)"
-                }`
-              );
-            } else {
-              console.log(`    ❌ No animation set`);
-            }
+            
           });
-        } else {
-          console.log("  No projects found in this section");
-        }
+        } 
       });
 
-      console.log("=== END COMPLETE ANIMATION DEBUG ===");
+
     }
   }, [sections]);
 
-  // Debug API data structure
-  useEffect(() => {
-    if (data?.data && data.data.length > 0) {
-      console.log("API Data Structure:", data.data[0]);
-      if (data.data[0].projects && data.data[0].projects.length > 0) {
-        console.log("First Project Position:", {
-          xPosition: data.data[0].projects[0].xPosition,
-          yPosition: data.data[0].projects[0].yPosition,
-          heightPercent: data.data[0].projects[0].heightPercent,
-        });
-      }
-    }
-  }, [data]);
+  
 
   // Handle menu item click
   const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
-    console.log(`Executing action for ${item.name}`);
+   
     if (item.action) {
       item.action();
     }
@@ -784,17 +730,7 @@ const Homepage: React.FC = () => {
       `trigger-${subImage.animationTrigger || "once"}`,
     ];
 
-    console.log("Applied animation classes:", {
-      name: subImage.name,
-      animation: subImage.animation,
-      animationValid: !!validAnimation,
-      speed: subImage.animationSpeed,
-      speedValid: !!validSpeed,
-      trigger: subImage.animationTrigger,
-      triggerValid: !!validTrigger,
-      finalClasses: classes.join(" "),
-    });
-
+   
     return classes.join(" ");
   };
 
@@ -2117,13 +2053,7 @@ const Homepage: React.FC = () => {
                   section.backgroundImageAspectRatio
                 );
 
-                console.log("Rendering with responsive animations:", {
-                  name: subImage.name,
-                  animation: subImage.animation,
-                  deviceType,
-                  classes: getAnimationClasses(subImage),
-                  dimensions: imageDimensions,
-                });
+                
 
                 const isHovered = hoveredImageId === subImage.projectId;
                 const isDimmed =

@@ -17,7 +17,7 @@ export const useAuthActions = () => {
       const storedUser = localStorage.getItem('user');
       
       if (token && storedUser) {
-        console.log(34, JSON.parse(storedUser))
+      
         const userData = JSON.parse(storedUser);
         // Map your UserResponse to AuthUser format
         const authUser: AuthUser = {
@@ -44,7 +44,7 @@ export const useAuthActions = () => {
         { userName, password },
         {
           onSuccess: (loginResult) => {
-            console.log('Login success:', loginResult);
+     
             
             // Store token from login response
             if (loginResult?.data?.accessToken) {
@@ -54,7 +54,7 @@ export const useAuthActions = () => {
             // Now fetch user details
             userDetailsApi(undefined, {
               onSuccess: (userDetails) => {
-                console.log('User details success:', userDetails);
+            
                 
                 // Map UserResponse to AuthUser
                 const authUser: AuthUser = {

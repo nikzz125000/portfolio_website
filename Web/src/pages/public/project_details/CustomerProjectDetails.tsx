@@ -188,7 +188,7 @@ const ProjectDetailsPage: React.FC = () => {
 
   // Navigation handler for sub-projects
   const handleSubProjectClick = (subProjectId: number) => {
-    console.log(`Navigating to sub-project/${subProjectId}`);
+   
     alert(`Navigating to sub-project/${subProjectId}`);
   };
 
@@ -356,16 +356,7 @@ const ProjectDetailsPage: React.FC = () => {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
       
-      console.log('Project details coordinate system calculated:', {
-        totalHeight: height,
-        sectionsCount: sections.length,
-        hasTypedSections,
-        exteriorStartY: hasTypedSections ? exteriorStart : 'N/A',
-        interiorStartY: hasTypedSections ? interiorStart : 'N/A',
-        deviceType,
-        footerHeight,
-        nextProjectsHeight
-      });
+   
     }
   }, [sections, viewportHeight, viewportWidth, deviceType, nextProjectsHeight, hasTypedSections]);
 
@@ -514,7 +505,7 @@ const ProjectDetailsPage: React.FC = () => {
   // Load data from API and separate exterior/interior
   useEffect(() => {
     if (data?.data) {
-      console.log('Raw Project Details API Data:', data.data);
+    
       
       const sortedData = data.data.sort((a, b) => a.sortOrder - a.sortOrder);
       
@@ -549,21 +540,16 @@ const ProjectDetailsPage: React.FC = () => {
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      console.log('Project Details API Data Structure:', data.data[0]);
-      console.log('Has typed sections:', hasTypedSections);
+     
       if (data.data[0].subProjects && data.data[0].subProjects.length > 0) {
-        console.log('First Sub-Project Position:', {
-          xPosition: data.data[0].subProjects[0].xPosition,
-          yPosition: data.data[0].subProjects[0].yPosition,
-          heightPercent: data.data[0].subProjects[0].heightPercent
-        });
+       
       }
     }
   }, [data, hasTypedSections]);
 
   // Handle menu item click
   const handleMenuItemClick = (item: typeof menuItems[0]) => {
-    console.log(`Navigating to ${item.link}`);
+    
     if (item.link.startsWith('http')) {
       window.open(item.link, '_blank');
     } else {
@@ -576,7 +562,7 @@ const ProjectDetailsPage: React.FC = () => {
   const handleConnectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim()) {
-      console.log('Email submitted:', email);
+      
       setFormSubmitted(true);
       setTimeout(() => {
         setShowConnectForm(false);
@@ -655,16 +641,7 @@ const ProjectDetailsPage: React.FC = () => {
       `trigger-${subProject.animationTrigger || 'once'}`
     ];
     
-    console.log('Applied animation classes:', {
-      name: subProject.name,
-      animation: subProject.animation,
-      animationValid: !!validAnimation,
-      speed: subProject.animationSpeed,
-      speedValid: !!validSpeed,
-      trigger: subProject.animationTrigger,
-      triggerValid: !!validTrigger,
-      finalClasses: classes.join(' ')
-    });
+    
     
     return classes.join(' ');
   };
@@ -2003,15 +1980,7 @@ const ProjectDetailsPage: React.FC = () => {
                   section.backgroundImageAspectRatio
                 );
 
-                console.log('Rendering sub-project with responsive animations:', {
-                  name: subProject.name,
-                  animation: subProject.animation,
-                  deviceType,
-                  classes: getAnimationClasses(subProject),
-                  dimensions: imageDimensions,
-                  isExterior: subProject.isExterior,
-                  hasTypedSections
-                });
+             
 
                 const isHovered = hoveredImageId === subProject.subProjectId;
                 const isDimmed = hoveredImageId !== null && hoveredImageId !== subProject.subProjectId;

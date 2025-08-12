@@ -590,7 +590,7 @@ const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 }
 
   const handleConfirmDelete = (): void => {
-    console.log("Deleting project with ID:", pendingDeleteId);
+
     if (!isDateNowId(pendingDeleteId)) {
 
     deleteProject(
@@ -600,7 +600,7 @@ const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       },
       {
         onSuccess: () => {
-          console.log("Project deleted successfully");
+        
           setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
           if (selectedSubImage === pendingDeleteId) {
             setSelectedSubImage(null);
@@ -673,11 +673,7 @@ const safeName = getSafeFileName(img.name, 50);
         const xPercent = Math.round(img.xPercent);
         const yPercent = Math.round(img.yPercent);
         
-        console.log('Saving position as percentages:', {
-          xPercent,
-          yPercent,
-          dimensions: backgroundDimensions
-        });
+       
         
         formData.append(`Projects[${index}][XPosition]`, xPercent.toString());
         formData.append(`Projects[${index}][YPosition]`, yPercent.toString());
@@ -724,7 +720,7 @@ const safeName = getSafeFileName(img.name, 50);
   // FIXED: Load data and store as percentages
   const loadSampleProject = (apiData = null): void => {
     if (apiData) {
-      console.log('Loading API data:', apiData);
+  
      const loadedTitle = apiData.title || '';
       setTitle(loadedTitle);
       // Validate loaded title
@@ -769,16 +765,16 @@ const safeName = getSafeFileName(img.name, 50);
   const { id } = useParams<{ id: string }>(); 
   const { data, isSuccess } = useContainerDetails(id ? parseInt(id, 10) : 0);
 
-  console.log(700, data);
+  
   useEffect(() => {
     if (isSuccess && data && data.data) {
       setIsLoadingApiData(true);
-      console.log('Fetched data:', data.data);
+     
       
       const apiData = data.data;
       
       if (apiData) {
-        console.log(333, apiData);
+    
         loadSampleProject(apiData);
         setIsLoadingApiData(false);
       }

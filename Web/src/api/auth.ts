@@ -27,7 +27,7 @@ export const useLogin = () => {
       return response.data;
     },
     onSuccess: (data:any) => {
-      console.log(data)
+     
       localStorage.setItem('authToken', data?.data.accessToken);
       localStorage.setItem('refreshToken', data?.data?.refreshToken);
        return data;

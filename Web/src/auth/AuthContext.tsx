@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const savedUser = localStorage.getItem("user");
 
     if (!savedUser) return null;
-    console.log(35, JSON.parse(savedUser));
+  
     const userData = JSON.parse(savedUser);
     // Map your UserResponse to AuthUser format
     const authUser: AuthUser = {

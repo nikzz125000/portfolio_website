@@ -597,7 +597,7 @@ setSelectedSubImage(null);
       },
       {
         onSuccess: () => {
-          console.log("Project deleted successfully");
+       
           setSubImages(prev => prev.filter(img => img.id !== imageId));
           if (selectedSubImage === imageId) {
             setSelectedSubImage(null);

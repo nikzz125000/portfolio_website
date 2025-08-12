@@ -17,7 +17,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
   const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
   const SAMPLE_SUB_IMAGE = "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
    
-  console.log("NextProjects data:", data);
+
 
   // Limit data to maximum 2 items
   const limitedData = data?.data ? data.data.slice(0, 2) : [];
@@ -59,7 +59,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
   };
 
   const handleSubImageClick = (subImageId: number) => {
-    console.log(`Navigating to project ${subImageId}`);
+    
     
     // Scroll to top before navigation if handler is provided
     if (handleButtomScrollButtonClick) {
