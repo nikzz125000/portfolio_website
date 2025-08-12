@@ -56,10 +56,8 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
   };
 
   const handleSubImageClick = (subImageId: number) => {
-
-      // If no scroll handler, navigate immediately
-      navigate(`/project_details/${subImageId}`);
-    
+    // If no scroll handler, navigate immediately
+    navigate(`/project_details/${subImageId}`);
   };
 
   const deviceType = getDeviceType();
@@ -137,7 +135,10 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                       cursor: 'pointer',
                       position: 'relative',
                       backgroundColor: '#f3f4f6',
-                      transition: 'transform 0.2s ease'
+                      transition: 'transform 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                     onClick={() => handleSubImageClick(image.projectId)}
                     onMouseEnter={(e) => {
@@ -157,10 +158,12 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                         alt={image.name}
                         className={getAnimationClasses(image.animation, image.animationSpeed)}
                         style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover', // This ensures images are properly sized and cropped
-                          objectPosition: 'center', // Center the image within the container
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          width: 'auto',
+                          height: 'auto',
+                          objectFit: 'contain', // Changed from 'cover' to 'contain'
+                          objectPosition: 'center',
                           display: 'block'
                         }}
                         onError={(e) => {
