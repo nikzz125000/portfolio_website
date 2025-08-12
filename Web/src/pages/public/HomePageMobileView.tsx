@@ -1708,7 +1708,7 @@ const Homepage: React.FC = () => {
 
           return (
             <section
-              key={section.projectContainerId}
+              key={section.id}
               style={{
                 position: "relative",
                 width: "100vw",
