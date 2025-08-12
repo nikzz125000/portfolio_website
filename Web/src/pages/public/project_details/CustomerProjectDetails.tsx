@@ -120,12 +120,14 @@ const ProjectDetailsPage: React.FC = () => {
   const [interiorStartY, setInteriorStartY] = useState<number>(0);
   
   const containerRef = useRef<HTMLDivElement>(null);
+  const nextProjectsRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
   const currentScrollY = useRef<number>(0);
   const animationFrameId = useRef<number | null>(null);
   const isScrolling = useRef<boolean>(false);
   const [totalHeight, setTotalHeight] = useState<number>(0);
+  const [nextProjectsHeight, setNextProjectsHeight] = useState<number>(0);
   const navigate = useNavigate();
 
   const { data, isPending, isSuccess } = useGetProjectDetailsList(projectId ? parseInt(projectId, 10) : 0);
@@ -286,6 +288,19 @@ const ProjectDetailsPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [deviceType, isMenuOpen]);
 
+  // Measure NextProjects block height whenever layout changes
+  useEffect(() => {
+    const measureNext = () => {
+      if (nextProjectsRef.current) {
+        setNextProjectsHeight(nextProjectsRef.current.offsetHeight || 0);
+      }
+    };
+    measureNext();
+    const handle = () => measureNext();
+    window.addEventListener('resize', handle);
+    return () => window.removeEventListener('resize', handle);
+  }, [sections, viewportWidth, viewportHeight]);
+
   // ENHANCED: Calculate total height and section positions using responsive system
   useEffect(() => {
     if (sections.length > 0) {
@@ -308,6 +323,9 @@ const ProjectDetailsPage: React.FC = () => {
         height += dimensions.height;
       });
       
+      // Include NextProjects measured height (if present)
+      height += nextProjectsHeight;
+      
       // Responsive footer height
       const footerHeight = deviceType === 'mobile' ? 300 : deviceType === 'tablet' ? 250 : 200;
       height += footerHeight;
@@ -327,10 +345,11 @@ const ProjectDetailsPage: React.FC = () => {
         exteriorStartY: exteriorStart,
         interiorStartY: interiorStart,
         deviceType,
-        footerHeight
+        footerHeight,
+        nextProjectsHeight
       });
     }
-  }, [sections, viewportHeight, viewportWidth, deviceType]);
+  }, [sections, viewportHeight, viewportWidth, deviceType, nextProjectsHeight]);
 
   // Custom smooth scroll animation
   const smoothScrollStep = () => {
@@ -2005,7 +2024,11 @@ const ProjectDetailsPage: React.FC = () => {
             </section>
           );
         })}
-<NextProjects/>
+
+        <div ref={nextProjectsRef}>
+          <NextProjects/>
+        </div>
+
         {/* Responsive Footer Section */}
         <footer
           style={{

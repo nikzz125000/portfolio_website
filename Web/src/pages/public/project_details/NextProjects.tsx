@@ -56,7 +56,8 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
   // FIXED: Get fixed height based on device type
   const getFixedHeight = () => {
     const device = getDeviceType();
-    return device === 'mobile' ? 400 : device === 'tablet' ? 450 : 500;
+    // Reduce overall section height; images will be taller inside
+    return device === 'mobile' ? 360 : device === 'tablet' ? 400 : 440;
   };
 
   // Function to get grid classes based on image count
@@ -97,45 +98,25 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
       }}
     >
       <div style={{ 
-        maxWidth: '1152px', // max-w-6xl equivalent
+        maxWidth: '1152px',
         width: '100%',
         margin: '0 auto'
       }}>
         {/* Container */}
         <div style={{
-          padding: '16px',
-          backgroundColor: '#e5e7eb', // bg-gray-200
+          padding: deviceType === 'mobile' ? '10px' : '12px',
+          backgroundColor: '#e5e7eb',
           borderRadius: '8px',
-          height: deviceType === 'mobile' ? '340px' : deviceType === 'tablet' ? '370px' : '420px', // Fixed inner height
+          height: deviceType === 'mobile' ? '320px' : deviceType === 'tablet' ? '350px' : '390px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          {/* Title */}
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '16px'
-          }}>
-            <h2 style={{
-              fontSize: deviceType === 'mobile' ? '20px' : '24px',
-              fontWeight: '600',
-              color: '#374151',
-              margin: '0 0 8px 0'
-            }}>
-              Next Projects
-            </h2>
-            <p style={{
-              fontSize: '14px',
-              color: '#6b7280',
-              margin: 0
-            }}>
-              Discover more amazing work
-            </p>
-          </div>
+          {/* Heading removed as requested */}
 
           {/* Dynamic grid based on image count */}
           <div className={getGridClasses(images.length)} style={{
-            height: deviceType === 'mobile' ? '200px' : deviceType === 'tablet' ? '220px' : '250px', // Fixed grid height
+            height: deviceType === 'mobile' ? '280px' : deviceType === 'tablet' ? '320px' : '380px',
             alignItems: 'center'
           }}>
             {images.map((image) => (
@@ -145,9 +126,10 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                   alt={image.name}
                   className={`w-full object-cover rounded ${getAnimationClasses(image.animation, image.animationSpeed)}`}
                   style={{
+                    // Make images taller so background is less visible
                     height: images.length === 1 ? 
-                      (deviceType === 'mobile' ? '160px' : '200px') : 
-                      (deviceType === 'mobile' ? '120px' : '150px'),
+                      (deviceType === 'mobile' ? '260px' : deviceType === 'tablet' ? '320px' : '360px') : 
+                      (deviceType === 'mobile' ? '220px' : deviceType === 'tablet' ? '280px' : '340px'),
                     width: '100%',
                     borderRadius: '6px',
                     cursor: 'pointer',
@@ -179,7 +161,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
 
           {/* Count info */}
           <div style={{
-            marginTop: '16px',
+            marginTop: '8px',
             textAlign: 'center',
             fontSize: '12px',
             color: '#9ca3af'
