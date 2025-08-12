@@ -1,10 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useSaveContainer } from '../../../api/useSaveContainer';
 import { useContainerDetails } from '../../../api/useContainerDetails';
-import { useDeleteProject } from '../../../api/useDeleteProject';
+
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
 import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
 import { useNotification } from '../../../components/Tostr';
+import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
+import { useDeleteProject } from '../../../api/useDeleteSubProjects';
 
 interface SubImage {
   id: number;
@@ -85,7 +87,8 @@ setSelectedSubImage(null);
   const [dragState, setDragState] = useState<DragState>({ isDragging: false, dragIndex: -1 });
   const [backgroundDimensions, setBackgroundDimensions] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
   const [isLoadingApiData, setIsLoadingApiData] = useState<boolean>(false);
-  
+    const [confirmOpen, setConfirmOpen] = useState(false);
+     const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   // Get isExIn from URL - this should not be changeable via UI
   const isExIn = getIsExInFromUrl();
   
@@ -149,7 +152,7 @@ setSelectedSubImage(null);
   };
 
   const { mutate: addOrUpdateContainer,isPending} = useSaveSubProjectContainer();
-  const { mutate: deleteProject} = useDeleteProject();
+  const { mutate: deleteProject,isPending:isPendingDelete} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
     { value: 'none', label: 'No Animation' },
@@ -589,23 +592,23 @@ setSelectedSubImage(null);
     setBackgroundImage(prev => prev ? { ...prev, [property]: value } : null);
   };
 
-  const deleteSubImage = (imageId: number): void => {
-    deleteProject(
-      { 
-        containerId: id ? parseInt(id, 10) : 0,
-        projectId: typeof imageId === 'number' ? imageId : 0
-      },
-      {
-        onSuccess: () => {
+  // const deleteSubImage = (imageId: number): void => {
+  //   deleteProject(
+  //     { 
+  //       containerId: id ? parseInt(id, 10) : 0,
+  //       projectId: typeof imageId === 'number' ? imageId : 0
+  //     },
+  //     {
+  //       onSuccess: () => {
        
-          setSubImages(prev => prev.filter(img => img.id !== imageId));
-          if (selectedSubImage === imageId) {
-            setSelectedSubImage(null);
-          }
-        }
-      }
-    );
-  };
+  //         setSubImages(prev => prev.filter(img => img.id !== imageId));
+  //         if (selectedSubImage === imageId) {
+  //           setSelectedSubImage(null);
+  //         }
+  //       }
+  //     }
+  //   );
+  // };
 
   function getProjectId(id: number) {
     if (id > 1_000_000_000_000) {
@@ -958,6 +961,47 @@ const safeName = getSafeFileName(img.name, 50);
       fontSize: '10px',
       fontWeight: 'bold'
     }
+  };
+
+  const deleteSubImage = (imageId: number): void => {
+    console.log("Deleting image with ID:", imageId);
+    setPendingDeleteId(imageId);
+    setConfirmOpen(true);
+  
+  };
+
+   function isDateNowId(id) {
+  return typeof id === "number" && id > 1_000_000_000_000; // more than a trillion
+}
+
+  const handleConfirmDelete = (): void => {
+
+    if (!isDateNowId(pendingDeleteId)) {
+
+    deleteProject(
+      { 
+        containerId: id ? parseInt(id, 10) : 0,
+        projectId: typeof pendingDeleteId === 'number' ? pendingDeleteId : 0
+      },
+      {
+        onSuccess: () => {
+        
+          setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
+          if (selectedSubImage === pendingDeleteId) {
+            setSelectedSubImage(null);
+          }
+          setConfirmOpen(false);
+          setPendingDeleteId(null);
+        }
+      }
+    );
+  }else{
+    setSubImages(prev => prev.filter(img => img.id !== pendingDeleteId));
+          if (selectedSubImage === pendingDeleteId) {
+            setSelectedSubImage(null);
+          }
+             setConfirmOpen(false);
+  }
   };
 
   return (
@@ -1340,6 +1384,8 @@ const safeName = getSafeFileName(img.name, 50);
             })}
           </div>
         </div>
+
+        {confirmOpen && (<DeleteConfirmDialog isOpen={confirmOpen} onConfirm={handleConfirmDelete} onCancel={() => setConfirmOpen(false)} isDeleting={isPendingDelete}/>)}
         
         {backgroundImage && (
           <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>

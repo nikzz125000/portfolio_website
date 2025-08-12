@@ -2,6 +2,11 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import ProjectDetails from "./ProjectDetails";
 import { useSubProjectContainerList } from "../../../api/useSubProjectContainerList";
 import { useNavigate, useParams } from "react-router-dom";
+import DeleteConfirmDialog from "../../../components/DeleteConfirmDialog";
+import { useNotification } from "../../../components/Tostr";
+import { useDeleteProject } from "../../../api/useDeleteSubProjectContainer";
+
+
 
 interface ImageProject {
   id: number;
@@ -69,10 +74,10 @@ const ProjectDrawer: React.FC<{
   projectId?:number
   currentProject?: ImageProject;
    refetch?:()=> void;
-}> = ({ isOpen, onClose, mode, subProjectId,projectId,refetch  }) => {
+}> = ({ isOpen, onClose, mode, subProjectId,projectId,  }) => {
 
 
-  
+ 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isOpen && e.key === 'Escape') {
@@ -120,12 +125,13 @@ const ProjectDetailsList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedSubProjectId, setSelectedSubProjectId] = useState<number>(0);
-
+   const [confirmOpen, setConfirmOpen] = useState(false);
   
   const navigate = useNavigate();
     const { projectId } = useParams<{ projectId: string }>(); 
+     const { showNotification } = useNotification(); 
 
-  const { data, isPending, isSuccess,refetch } = useSubProjectContainerList(projectId ? parseInt(projectId, 10) : 0) as {
+  const { data, isPending, isSuccess, refetch } = useSubProjectContainerList(projectId ? parseInt(projectId, 10) : 0) as {
     data?: ApiResponse;
     isPending: boolean;
     isSuccess: boolean;
@@ -163,19 +169,35 @@ const ProjectDetailsList: React.FC = () => {
   };
 
   const handleDeleteProject = (projectId: number) => {
-    const project = projects.find((p) => p.id === projectId);
-    if (
-      project &&
-      window.confirm(`Are you sure you want to delete "${project.title}"?`)
-    ) {
-      setProjects((prev) => prev.filter((p) => p.id !== projectId));
-    }
+   setSelectedSubProjectId(projectId);
+   setConfirmOpen(true);
   };
 
   const handlePreviewProject = (projectId: number) => {
    setSelectedSubProjectId(projectId);
    setIsModalOpen(true);
   }; 
+
+    const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject();
+
+  const handleConfirmDelete = (): void => {
+
+   
+ deleteProject({ containerId: currentItemId }, {
+      onSuccess: (res) => {
+        if (res?.isSuccess) {
+          showNotification("Container Deleted successfully!", "success", "Success");
+         setConfirmOpen(false);
+         refetch()
+        }else{
+           showNotification(
+            res?.message || "Failed to Delete container",
+            "error",
+            "Error"
+          );
+        }
+      }});
+  };
 
   // Icons
   const AddIcon = () => (
@@ -425,6 +447,7 @@ const ProjectDetailsList: React.FC = () => {
        projectId={projectId ? parseInt(projectId, 10) : 0}
        refetch={refetch}
       />
+      {confirmOpen && (<DeleteConfirmDialog isOpen={confirmOpen} onConfirm={handleConfirmDelete} onCancel={() => setConfirmOpen(false)} isDeleting={isDeleting}/>)}
     </div>
   );
 };
