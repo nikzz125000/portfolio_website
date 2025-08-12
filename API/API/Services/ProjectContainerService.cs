@@ -1,6 +1,7 @@
 ﻿using API.Helpers;
 using AutoMapper;
 using Core.Models;
+using NetTopologySuite.Index.HPRtree;
 using Repository;
 using Repository.Shared;
 using System.ComponentModel;
@@ -19,6 +20,7 @@ namespace API.Services
         Task<CommonEntityResponse> DeleteProject(int ProjectId);
         Task<ModelEntityResponse<List<ProjectViewModel>>> GetAllProjects();
         Task<ModelEntityResponse<List<ProjectViewModel>>> GetNextProjects(int projectId);
+        Task<CommonEntityResponse> DeleteProjectContainer(int ProjectContainerId);
 
     }
     public class ProjectContainerService : IProjectContainerService
@@ -149,7 +151,10 @@ namespace API.Services
         public async Task<CommonEntityResponse> DeleteProject(int ProjectId)
         {
             CommonEntityResponse res = new CommonEntityResponse();
+            var proj = await _unitOfWork.Projects.GetById(ProjectId);
             await _unitOfWork.Projects.DeleteProject(ProjectId);
+            string url = Path.Combine(CommonData.ProjectPath, proj.ImageFileName);
+            _media.RemoveFile(url);
             res.CreateSuccessResponse();
             return res;
         }
@@ -226,6 +231,43 @@ namespace API.Services
                 p.ProjectImageUrl = CommonData.GetProjectUrl(p.ImageFileName);
             }
             res.CreateSuccessResponse();
+            return res;
+        }
+
+        public async Task<CommonEntityResponse> DeleteProjectContainer(int ProjectContainerId)
+        {
+            CommonEntityResponse res = new CommonEntityResponse();
+            using (var transaction = _unitOfWork._context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var container = await _unitOfWork.ProjectContainers.GetById(ProjectContainerId);
+
+                    var projects = await _unitOfWork.Projects.GetByProjectContainerId(ProjectContainerId);
+                    var isProjectDelete = await _unitOfWork.Projects.DeleteAllProject(ProjectContainerId);
+                    if (isProjectDelete && projects != null && projects.Count > 0)
+                    {
+                        foreach (var item in projects)
+                        {
+                            string url = Path.Combine(CommonData.ProjectPath, item.ImageFileName);
+                            _media.RemoveFile(url);
+                        }
+                    }
+
+                    var isProjectContainerDelete = await _unitOfWork.ProjectContainers.Delete(ProjectContainerId);
+                    if (isProjectContainerDelete)
+                    {
+                        string containerURL = Path.Combine(CommonData.ProjectContainerPath, container.BackgroundImageFileName);
+                        _media.RemoveFile(containerURL);
+                    }
+                    transaction.Commit();
+                    res.CreateSuccessResponse();
+                }
+                catch (Exception ex) {
+                    transaction.Rollback();
+                    res.CreateFailureResponse();
+                }
+            }
             return res;
         }
     }
