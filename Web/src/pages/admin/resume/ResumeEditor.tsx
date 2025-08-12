@@ -796,12 +796,12 @@ const ResumeEditor: React.FC = () => {
                   ? "Saving..."
                   : "Create"}
               </Button>
-              <Button variant="outlined" onClick={downloadResume}>
+              {/* <Button variant="outlined" onClick={downloadResume}>
                 Download
               </Button>
               <Button variant="outlined" onClick={downloadPDF}>
                 Download PDF
-              </Button>
+              </Button> */}
             </Stack>
           </Paper>
         </Grid>
