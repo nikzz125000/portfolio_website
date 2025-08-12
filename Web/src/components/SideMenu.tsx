@@ -18,7 +18,6 @@ interface SideMenuProps {
 const SideMenu: React.FC<SideMenuProps> = ({
   isMenuOpen,
   deviceType = "desktop",
-  variant = "homepage",
   onMenuItemClick,
 }) => {
   const navigate = useNavigate();

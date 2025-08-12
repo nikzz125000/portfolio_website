@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Step 1: Create NotificationContext.tsx
-import React, { createContext, useContext, useState, ReactNode, ComponentProps } from 'react';
+import React, { createContext, useContext, useState, type ReactNode, type ComponentProps } from 'react';
 import {
   Snackbar,
   Alert,
@@ -58,7 +59,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     });
   };
 
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -67,6 +68,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Make showNotification globally available for axios interceptors
   React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).showNotification = showNotification;
     return () => {
       delete (window as any).showNotification;

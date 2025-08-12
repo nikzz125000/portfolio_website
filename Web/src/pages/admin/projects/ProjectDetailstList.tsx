@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState,  } from "react";
 import ProjectDetails from "./ProjectDetails";
 import { useSubProjectContainerList } from "../../../api/useSubProjectContainerList";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import DeleteConfirmDialog from "../../../components/DeleteConfirmDialog";
 import { useNotification } from "../../../components/Tostr";
 import { useDeleteProject } from "../../../api/useDeleteSubProjectContainer";
@@ -16,49 +17,7 @@ interface ImageProject {
   thumbnail?: string;
 }
 
-interface SubImage {
-  id: number;
-  file: File;
-  url: string;
-  name: string;
-  x: number;
-  y: number;
-  heightPercent: number;
-  animation: string;
-  animationSpeed: string;
-  animationTrigger: string;
-  isExterior: boolean;
-}
 
-interface BackgroundImage {
-  file: File;
-  url: string;
-  name: string;
-  aspectRatio?: number;
-  isExterior?: boolean;
-}
-
-interface DragState {
-  isDragging: boolean;
-  dragIndex: number;
-}
-
-interface AnimationOption {
-  value: string;
-  label: string;
-}
-
-interface SpeedOption {
-  value: string;
-  label: string;
-  duration: string;
-}
-
-interface TriggerOption {
-  value: string;
-  label: string;
-  description: string;
-}
 
 
 
@@ -114,6 +73,9 @@ interface SubProjectContainerItem {
   backgroundImageAspectRatio: number;
   backgroundImageUrl: string;
   backgroundImageFileName: string;
+  imge: string;
+  image: string;
+  id:number;
 }
 
 interface ApiResponse {
@@ -127,7 +89,7 @@ const ProjectDetailsList: React.FC = () => {
   const [selectedSubProjectId, setSelectedSubProjectId] = useState<number>(0);
    const [confirmOpen, setConfirmOpen] = useState(false);
   
-  const navigate = useNavigate();
+ 
     const { projectId } = useParams<{ projectId: string }>(); 
      const { showNotification } = useNotification(); 
 
@@ -135,6 +97,7 @@ const ProjectDetailsList: React.FC = () => {
     data?: ApiResponse;
     isPending: boolean;
     isSuccess: boolean;
+    refetch: () => void;
   };
 
   useEffect(() => {
@@ -152,7 +115,7 @@ const ProjectDetailsList: React.FC = () => {
   // Modal handlers
   const handleAddProject = () => {
     setModalMode('add');
-    setSelectedSubProjectId(undefined);
+    setSelectedSubProjectId(0);
     setIsModalOpen(true);
   };
 
@@ -164,7 +127,7 @@ const ProjectDetailsList: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedSubProjectId(undefined);
+    setSelectedSubProjectId(0);
     refetch()
   };
 
@@ -368,7 +331,7 @@ const ProjectDetailsList: React.FC = () => {
                     <div className="ml-4 flex-shrink-0">
                       <div className="flex flex-col space-y-2">
                         <button
-                          onClick={() => handlePreviewProject(project)}
+                          onClick={() => handlePreviewProject(project.subProjectContainerId)}
                           className="inline-flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 font-medium text-xs rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
                           <PreviewIcon />

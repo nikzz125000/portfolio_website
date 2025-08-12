@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHomePageList } from "../../api/useHomePage";
@@ -7,6 +8,13 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ModernLoader from "../../components/ui/ModernLoader";
 import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
+
+interface MenuItem {
+  name: string;
+  icon: string;
+  link: string;
+  action?: () => void | Promise<void>;
+}
 
 interface SubImage {
   projectId: number;
@@ -36,6 +44,7 @@ interface SectionData {
   backgroundImage?: BackgroundImage | null;
   projects?: SubImage[];
   subImages?: SubImage[];
+  projectContainerId:number
 }
 
 // Enhanced responsive breakpoints
@@ -141,8 +150,8 @@ const Homepage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const navigate = useNavigate();
 
-  const { data, isPending, isSuccess } = useHomePageList();
-  const { data: resumeData, isPending: isResumePending } = useResumeDetails();
+  const { data, isPending,  } = useHomePageList();
+  const { isPending: isResumePending } = useResumeDetails();
 
   // Don't return early - render loading state within the component
 
@@ -183,31 +192,7 @@ const Homepage: React.FC = () => {
     { value: "tada", label: "Tada" },
   ];
 
-  const speedOptions = [
-    { value: "very-slow", label: "Very Slow", duration: "4s" },
-    { value: "slow", label: "Slow", duration: "2.5s" },
-    { value: "normal", label: "Normal", duration: "1.5s" },
-    { value: "fast", label: "Fast", duration: "0.8s" },
-    { value: "very-fast", label: "Very Fast", duration: "0.4s" },
-  ];
 
-  const triggerOptions = [
-    {
-      value: "continuous",
-      label: "Continuous",
-      description: "Animation plays all the time",
-    },
-    {
-      value: "hover",
-      label: "On Hover",
-      description: "Animation plays when mouse hovers",
-    },
-    {
-      value: "once",
-      label: "Play Once",
-      description: "Animation plays once on load",
-    },
-  ];
 
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
@@ -256,7 +241,7 @@ const Homepage: React.FC = () => {
     const coordinateSystem = createResponsiveCoordinateSystem(
       section.backgroundImageAspectRatio
     );
-    const { width, height, adjustedAspectRatio } =
+    const { height, adjustedAspectRatio } =
       coordinateSystem.getImageDimensions(containerWidth);
 
     // Device-specific height calculation to reduce gaps
@@ -493,7 +478,7 @@ const Homepage: React.FC = () => {
   useEffect(() => {
     if (data?.data) {
       setTimeout(() => {
-        setSections(data.data.sort((a, b) => a.sortOrder - b.sortOrder));
+        setSections(data.data.sort((a:any, b:any) => a.sortOrder - b.sortOrder));
       }, 500);
     }
   }, [data]);
@@ -501,18 +486,9 @@ const Homepage: React.FC = () => {
   // COMPREHENSIVE Animation debugging with all animation options
   useEffect(() => {
     if (sections.length > 0) {
-      sections.forEach((section, sectionIndex) => {
+      sections.forEach((section) => {
         if (section.projects && section.projects.length > 0) {
-          section.projects.forEach((project, projectIndex) => {
-            const animationExists = animationOptions.find(
-              (a) => a.value === project.animation
-            );
-            const speedExists = speedOptions.find(
-              (s) => s.value === project.animationSpeed
-            );
-            const triggerExists = triggerOptions.find(
-              (t) => t.value === project.animationTrigger
-            );
+          section.projects.forEach(() => {
 
             // Validate animation values
           });
@@ -521,8 +497,10 @@ const Homepage: React.FC = () => {
     }
   }, [sections]);
 
+ 
+
   // Handle menu item click
-  const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
+  const handleMenuItemClick = (item:MenuItem ) => {
     if (item.action) {
       item.action();
     } else if (item.link.startsWith("http")) {
@@ -568,12 +546,6 @@ const Homepage: React.FC = () => {
     // Validate animation exists in our list
     const validAnimation = animationOptions.find(
       (a) => a.value === subImage.animation
-    );
-    const validSpeed = speedOptions.find(
-      (s) => s.value === subImage.animationSpeed
-    );
-    const validTrigger = triggerOptions.find(
-      (t) => t.value === subImage.animationTrigger
     );
 
     if (!validAnimation) {
@@ -1743,27 +1715,7 @@ const Homepage: React.FC = () => {
               />
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
-              {process.env.NODE_ENV === "development" && (
-                <div className="coordinate-debug">
-                  Screen: {window.innerWidth}×{window.innerHeight}
-                  <br />
-                  Device: {deviceType}
-                  <br />
-                  Ratio:{" "}
-                  {section.backgroundImageAspectRatio?.toFixed(2) || "N/A"}
-                  <br />
-                  Adjusted:{" "}
-                  {dimensions.adjustedAspectRatio?.toFixed(2) || "N/A"}
-                  <br />
-                  Section H: {dimensions.height}px
-                  <br />
-                  Image H: {dimensions.imageHeight}px
-                  <br />
-                  BgSize: {bgStyle.backgroundSize}
-                  <br />
-                  Animations: {animationOptions.length - 1}
-                </div>
-              )}
+             
 
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
@@ -1859,34 +1811,7 @@ const Homepage: React.FC = () => {
                     />
 
                     {/* Enhanced responsive debug info overlay */}
-                    {process.env.NODE_ENV === "development" &&
-                      subImage.animation !== "none" && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "-40px",
-                            left: "0",
-                            background: "rgba(0,0,0,0.9)",
-                            color: "white",
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            fontSize: deviceType === "mobile" ? "8px" : "10px",
-                            whiteSpace: "nowrap",
-                            zIndex: 1000,
-                            pointerEvents: "none",
-                            lineHeight: "1.2",
-                            maxWidth:
-                              deviceType === "mobile" ? "120px" : "150px",
-                          }}
-                        >
-                          🎬 {subImage.animation}
-                          <br />⚡ {subImage.animationSpeed}
-                          <br />
-                          🎯 {subImage.animationTrigger}
-                          <br />
-                          📱 {deviceType}
-                        </div>
-                      )}
+                   
                   </div>
                 );
               })}

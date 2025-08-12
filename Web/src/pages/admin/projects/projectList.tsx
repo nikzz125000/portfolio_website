@@ -13,6 +13,7 @@ interface ImageElement {
   animationSpeed: string;
   animationTrigger: string;
   isExterior?: boolean; // Optional property to indicate if it's exterior or interior
+  id: number;
 }
 
 const ImageElementListPage: React.FC = () => {
@@ -33,27 +34,7 @@ const ImageElementListPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleAddElement = () => {
-    console.log("Navigate to add image element form");
-    alert("Navigate to Add Image Element Page");
-    navigate("/admin/image_elements/add");
-  };
-
-  const handleEditElement = (elementId: number) => {
-    console.log("Navigate to edit image element:", elementId);
-    alert(`Navigate to Edit Image Element Page - ID: ${elementId}`);
-    navigate(`/admin/image_elements/edit/${elementId}`);
-  };
-
-  const handleDeleteElement = (elementId: number) => {
-    const element = projects?.find((e) => e.id === elementId);
-    if (
-      element &&
-      window.confirm(`Are you sure you want to delete "${element.name}"?`)
-    ) {
-      setProjects((prev) => prev.filter((e) => e.id !== elementId));
-    }
-  };
+ 
 
   const handlePreviewElement = (element: ImageElement) => {
     console.log("Preview element:", element);
@@ -61,23 +42,7 @@ const ImageElementListPage: React.FC = () => {
   };
 
   // Icons
-  const AddIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-    </svg>
-  );
-
-  const EditIcon = () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-    </svg>
-  );
-
-  const DeleteIcon = () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-    </svg>
-  );
+ 
 
   const PreviewIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

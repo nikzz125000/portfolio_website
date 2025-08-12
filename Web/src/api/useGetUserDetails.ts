@@ -24,6 +24,7 @@ export const useGetUserDetails= () => {
       const response = await api.get('/BctUser/Get/Details/self');
       return response.data;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data:any) => {
     
 localStorage.setItem('user', JSON.stringify(data?.data));

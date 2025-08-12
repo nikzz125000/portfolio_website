@@ -26,6 +26,7 @@ export const useLogin = () => {
       const response = await api.post('/auth/login', credentials);
       return response.data;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data:any) => {
      
       localStorage.setItem('authToken', data?.data.accessToken);

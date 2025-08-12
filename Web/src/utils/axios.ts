@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import axios, { type AxiosResponse, AxiosError } from 'axios';
 
 
@@ -186,7 +187,7 @@ const handleErrorResponse = async (error: AxiosError): Promise<AxiosResponse | n
     typeof errorData === "object" &&
     "message" in errorData &&
     (errorData as { message?: string })?.message) ||
-  error?.response?.data?.errors?.Title?.[0] ||
+(error as any)?.response?.data?.errors?.Title?.[0] ||
   DEFAULT_ERROR_NOTIFICATION;
 
   // Use global notification instead of Toastr.error

@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useSaveContainer } from '../../../api/useSaveContainer';
-import { useContainerDetails } from '../../../api/useContainerDetails';
+
 
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
 import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
@@ -501,7 +501,7 @@ setSelectedSubImage(null);
             const aspectRatio = img.width / img.height;
             setBackgroundImage({
               file,
-              url: e.target.result as string,
+              url: !e.target?"": e.target.result as string,
               name: file.name,
               aspectRatio,
               isExterior: true
@@ -665,7 +665,7 @@ setSelectedSubImage(null);
         getProjectId(img.id)
       );
 
-          const getSafeFileName = (name, maxLength = 50) => {
+          const getSafeFileName = (name: string, maxLength = 50) => {
   // Remove extension
   const baseName = name.substring(0, name.lastIndexOf(".")) || name;
 
@@ -746,7 +746,8 @@ const safeName = getSafeFileName(img.name, 50);
 
 
   // FIXED: Load data and store as percentages
-  const loadSampleProject = (apiData = null): void => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const loadSampleProject = (apiData:any = null): void => {
     if (apiData) {
       console.log('Loading API data:', apiData);
       
@@ -766,7 +767,7 @@ const safeName = getSafeFileName(img.name, 50);
       }
       
       if (apiData.subProjects && Array.isArray(apiData.subProjects)) {
-        const loadedSubImages = apiData.subProjects.map(subImg => ({
+        const loadedSubImages = apiData.subProjects.map((subImg:any) => ({
           id: subImg.subProjectId || Date.now() + Math.random(),
           file: new File([], subImg.name || 'image.png'),
           url: subImg.projectImageUrl,
@@ -970,7 +971,7 @@ const safeName = getSafeFileName(img.name, 50);
   
   };
 
-   function isDateNowId(id) {
+   function isDateNowId(id: number | null) {
   return typeof id === "number" && id > 1_000_000_000_000; // more than a trillion
 }
 

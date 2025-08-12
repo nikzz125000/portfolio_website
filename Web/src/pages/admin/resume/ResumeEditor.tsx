@@ -1,3 +1,6 @@
+/* eslint-disable no-empty */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -309,59 +312,59 @@ const ResumeEditor: React.FC = () => {
   };
 
   // Download current resume as JSON
-  const downloadResume = () => {
-    try {
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "resume.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error("Failed to download resume", e);
-    }
-  };
+  // const downloadResume = () => {
+  //   try {
+  //     const blob = new Blob([JSON.stringify(data, null, 2)], {
+  //       type: "application/json",
+  //     });
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = "resume.json";
+  //     a.click();
+  //     URL.revokeObjectURL(url);
+  //   } catch (e) {
+  //     console.error("Failed to download resume", e);
+  //   }
+  // };
 
   // Download current preview as PDF (fits on one A4 page)
-  const downloadPDF = async () => {
-    if (!previewRef.current) return;
-    try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
+  // const downloadPDF = async () => {
+  //   if (!previewRef.current) return;
+  //   try {
+  //     const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+  //       import("html2canvas"),
+  //       import("jspdf"),
+  //     ]);
 
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
+  //     const canvas = await html2canvas(previewRef.current, {
+  //       scale: 2,
+  //       useCORS: true,
+  //       backgroundColor: "#ffffff",
+  //     });
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const pageW = pdf.internal.pageSize.getWidth();
+  //     const pageH = pdf.internal.pageSize.getHeight();
 
-      // Scale image to fit within A4 while preserving aspect ratio
-      const imgW = pageW;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      const fitsHeight = imgH <= pageH;
-      const finalW = fitsHeight ? imgW : (canvas.width * pageH) / canvas.height;
-      const finalH = fitsHeight ? imgH : pageH;
-      const x = (pageW - finalW) / 2;
-      const y = (pageH - finalH) / 2;
+  //     // Scale image to fit within A4 while preserving aspect ratio
+  //     const imgW = pageW;
+  //     const imgH = (canvas.height * imgW) / canvas.width;
+  //     const fitsHeight = imgH <= pageH;
+  //     const finalW = fitsHeight ? imgW : (canvas.width * pageH) / canvas.height;
+  //     const finalH = fitsHeight ? imgH : pageH;
+  //     const x = (pageW - finalW) / 2;
+  //     const y = (pageH - finalH) / 2;
 
-      pdf.addImage(imgData, "PNG", x, y, finalW, finalH);
-      pdf.save("resume.pdf");
-    } catch (e) {
-      console.error(
-        "Failed to generate PDF. Ensure html2canvas and jspdf are installed.",
-        e
-      );
-    }
-  };
+  //     pdf.addImage(imgData, "PNG", x, y, finalW, finalH);
+  //     pdf.save("resume.pdf");
+  //   } catch (e) {
+  //     console.error(
+  //       "Failed to generate PDF. Ensure html2canvas and jspdf are installed.",
+  //       e
+  //     );
+  //   }
+  // };
 
   // Education CRUD
   const addEducation = () => {

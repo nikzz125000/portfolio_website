@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import ModernLoader from "../components/ui/ModernLoader";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
+import ModernLoader from "../../components/ui/ModernLoader";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+
 
 const LoaderDemo: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +67,7 @@ const LoaderDemo: React.FC = () => {
           >
             <select
               value={selectedVariant}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onChange={(e) => setSelectedVariant(e.target.value as any)}
               style={{
                 padding: "8px 12px",

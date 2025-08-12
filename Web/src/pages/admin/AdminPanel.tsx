@@ -1,4 +1,4 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from '../../auth/AuthContext';
 import {
   Box,
@@ -9,7 +9,6 @@ import {
   Button,
   Chip,
   Paper,
-  Divider,
 } from '@mui/material';
 import {
   Person as PersonIcon,

@@ -24,10 +24,11 @@ interface ContainerListResponse {
   data: ImageProject[];
 }
 
-const { data, isPending, isSuccess,refetch } = useContainerList() as {
+const { data, isPending, isSuccess, refetch } = useContainerList() as {
   data?: ContainerListResponse;
   isPending: boolean;
   isSuccess: boolean;
+  refetch: ()=> void;
 };
 
 const [confirmOpen, setConfirmOpen] = useState(false);
@@ -84,10 +85,7 @@ const { showNotification } = useNotification();
       }});
   };
 
-  const handlePreviewProject = (project: ImageProject) => {
-   
-    // alert(`Preview: ${project.title}`);
-  };
+ 
 
   // MUI-style icons as SVG components
   const AddIcon = () => (
@@ -295,7 +293,7 @@ const { showNotification } = useNotification();
                     <div className="ml-4 flex-shrink-0">
                       <div className="flex flex-col space-y-2">
                         <button
-                          onClick={() => handlePreviewProject(project)}
+                          onClick={() => {}}
                           className="inline-flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 font-medium text-xs rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
                           <PreviewIcon />

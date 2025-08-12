@@ -2,26 +2,39 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
 
+// Define proper interfaces for type safety
+interface ProjectData {
+  projectId: number;
+  projectImageUrl?: string;
+  name: string;
+  animation: string;
+  animationSpeed: string;
+}
+
+interface ApiResponse {
+  data: ProjectData[];
+}
+
 interface DynamicImageShowcaseProps {
-  data: any;
+  data?: ApiResponse | null;
   handleButtomScrollButtonClick?: () => void;
 }
 
+type DeviceType = 'mobile' | 'tablet' | 'desktop';
+
 const NextProjects: React.FC<DynamicImageShowcaseProps> = ({ 
   data,
-  handleButtomScrollButtonClick
 }) => {
   
   // Sample fallback images for reliability
-  const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
   const SAMPLE_SUB_IMAGE = "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
    
   // Limit data to maximum 2 items
-  const limitedData = data?.data ? data.data.slice(0, 2) : [];
+  const limitedData: ProjectData[] = data?.data ? data.data.slice(0, 2) : [];
   const navigate = useNavigate();
   
   // Get device type for responsive design
-  const getDeviceType = () => {
+  const getDeviceType = (): DeviceType => {
     const width = window.innerWidth;
     if (width <= 768) return 'mobile';
     if (width <= 1024) return 'tablet';
@@ -29,20 +42,20 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
   };
 
   // Get fixed height based on device type
-  const getFixedHeight = () => {
+  const getFixedHeight = (): number => {
     const device = getDeviceType();
     return device === 'mobile' ? 360 : device === 'tablet' ? 400 : 440;
   };
 
   // Function to get grid classes based on image count (now max 2)
-  const getGridClasses = (count: number) => {
+  const getGridClasses = (count: number): string => {
     if (count === 1) return 'grid grid-cols-1 place-items-center gap-4';
     if (count === 2) return 'grid grid-cols-2 gap-4';
     return 'grid grid-cols-2 gap-4';
   };
 
   // Function to get animation classes
-  const getAnimationClasses = (animation: string, speed: string) => {
+  const getAnimationClasses = (animation: string, speed: string): string => {
     const baseClasses = 'transition-all duration-300';
     
     if (animation === 'pulse') {
@@ -55,9 +68,26 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
     return baseClasses;
   };
 
-  const handleSubImageClick = (subImageId: number) => {
+  const handleSubImageClick = (subImageId: number): void => {
     // If no scroll handler, navigate immediately
     navigate(`/project_details/${subImageId}`);
+  };
+
+  // Handle mouse events with proper typing
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>): void => {
+    (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.02)';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>): void => {
+    (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)';
+  };
+
+  // Handle image error with proper typing
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>): void => {
+    const target = e.currentTarget as HTMLImageElement;
+    if (target.src !== SAMPLE_SUB_IMAGE) {
+      target.src = SAMPLE_SUB_IMAGE;
+    }
   };
 
   const deviceType = getDeviceType();
@@ -86,7 +116,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
         </div>
       )}
       
-      {data?.data?.length > 0 ? (
+      {data?.data?.length && data.data.length > 0 ? (
         <div 
           style={{
             height: `${fixedHeight}px`,
@@ -117,7 +147,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                 height: deviceType === 'mobile' ? '280px' : deviceType === 'tablet' ? '320px' : '380px',
                 alignItems: 'center'
               }}>
-                {limitedData.map((image) => (
+                {limitedData.map((image: ProjectData) => (
                   <div key={image.projectId} style={{ 
                     width: '100%', 
                     height: '100%',
@@ -141,12 +171,8 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                       justifyContent: 'center'
                     }}
                     onClick={() => handleSubImageClick(image.projectId)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                     >
                       <img
                         src={
@@ -166,12 +192,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                           objectPosition: 'center',
                           display: 'block'
                         }}
-                        onError={(e) => {
-                          // Fallback to sample image if the original fails to load
-                          if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
-                            e.currentTarget.src = SAMPLE_SUB_IMAGE;
-                          }
-                        }}
+                        onError={handleImageError}
                       />
                     </div>
                     

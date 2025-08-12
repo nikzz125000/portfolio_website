@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetProjectDetailsList } from "../../../api/useGetProjectDetails";
@@ -6,6 +7,13 @@ import SideMenu from "../../../components/SideMenu";
 import NextProjects from "./NextProjects";
 import { useNextProjectDetails } from "../../../api/useGetNextProject";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+
+interface MenuItem {
+  name: string;
+  icon: string;
+  link: string;
+  action?: () => void | Promise<void>;
+}
 
 interface SubProject {
   subProjectId: number;
@@ -21,11 +29,6 @@ interface SubProject {
   isExterior: boolean;
 }
 
-interface BackgroundImage {
-  name: string;
-  url: string;
-  aspectRatio?: number;
-}
 
 interface ProjectContainer {
   subProjectContainerId: number;
@@ -151,10 +154,10 @@ const ProjectDetailsPage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const [nextProjectsHeight, setNextProjectsHeight] = useState<number>(0);
   const navigate = useNavigate();
-  const { data: nextProjects, isSuccess: isSuccessNextProjects, } =
+  const { data: nextProjects, } =
     useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
 
-  const { data, isPending, isSuccess } = useGetProjectDetailsList(
+  const { data, isPending } = useGetProjectDetailsList(
     projectId ? parseInt(projectId, 10) : 0
   );
 
@@ -208,36 +211,12 @@ const ProjectDetailsPage: React.FC = () => {
     { value: "tada", label: "Tada" },
   ];
 
-  const speedOptions = [
-    { value: "very-slow", label: "Very Slow", duration: "4s" },
-    { value: "slow", label: "Slow", duration: "2.5s" },
-    { value: "normal", label: "Normal", duration: "1.5s" },
-    { value: "fast", label: "Fast", duration: "0.8s" },
-    { value: "very-fast", label: "Very Fast", duration: "0.4s" },
-  ];
+  
 
-  const triggerOptions = [
-    {
-      value: "continuous",
-      label: "Continuous",
-      description: "Animation plays all the time",
-    },
-    {
-      value: "hover",
-      label: "On Hover",
-      description: "Animation plays when mouse hovers",
-    },
-    {
-      value: "once",
-      label: "Play Once",
-      description: "Animation plays once on load",
-    },
-  ];
+ 
 
   // Navigation handler for sub-projects
-  const handleSubProjectClick = (subProjectId: number) => {
-    // alert(`Navigating to sub-project/${subProjectId}`);
-  };
+ 
 
   // Handle centered logo click - navigate to /resume
   const handleCenteredLogoClick = () => {
@@ -291,7 +270,7 @@ const ProjectDetailsPage: React.FC = () => {
     const coordinateSystem = createResponsiveCoordinateSystem(
       section.backgroundImageAspectRatio
     );
-    const { width, height, adjustedAspectRatio } =
+    const { height, adjustedAspectRatio } =
       coordinateSystem.getImageDimensions(containerWidth);
 
     // Device-specific height calculation to reduce gaps
@@ -365,11 +344,11 @@ const ProjectDetailsPage: React.FC = () => {
   useEffect(() => {
     if (sections.length > 0) {
       let height = 0;
-      let exteriorStart = 0;
+      const exteriorStart = 0;
       let interiorStart = 0;
       let foundInterior = false;
 
-      sections.forEach((section, index) => {
+      sections.forEach((section) => {
         const dimensions = getResponsiveSectionDimensions(section);
 
         // Only track exterior/interior if we have typed sections
@@ -572,11 +551,11 @@ const ProjectDetailsPage: React.FC = () => {
   // Load data from API and separate exterior/interior
   useEffect(() => {
     if (data?.data) {
-      const sortedData = data.data.sort((a, b) => a.sortOrder - a.sortOrder);
+      const sortedData = data.data.sort((a: { sortOrder: number; }) => a.sortOrder - a.sortOrder);
 
       // Check if we have typed sections (backgroundType 1 or 2)
       const hasTyped = sortedData.some(
-        (section) =>
+        (section: { backgroundType: number; }) =>
           section.backgroundType === 1 || section.backgroundType === 2
       );
       setHasTypedSections(hasTyped);
@@ -584,11 +563,11 @@ const ProjectDetailsPage: React.FC = () => {
       if (hasTyped) {
         // Separate exterior and interior sections
         const exterior = sortedData
-          .filter((section) => section.backgroundType === 2)
-          .sort((a, b) => a.sortOrder - a.sortOrder);
+          .filter((section: { backgroundType: number; }) => section.backgroundType === 2)
+          .sort((a: { sortOrder: number; }) => a.sortOrder - a.sortOrder);
         const interior = sortedData
-          .filter((section) => section.backgroundType === 1)
-          .sort((a, b) => a.sortOrder - b.sortOrder);
+          .filter((section: { backgroundType: number; }) => section.backgroundType === 1)
+          .sort((a: { sortOrder: number; }, b: { sortOrder: number; }) => a.sortOrder - b.sortOrder);
 
         // Combine exterior first, then interior
         const combinedSections = [...exterior, ...interior];
@@ -612,13 +591,12 @@ const ProjectDetailsPage: React.FC = () => {
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      if (data.data[0].subProjects && data.data[0].subProjects.length > 0) {
-      }
+      if (data.data[0].subProjects && data.data[0].subProjects.length > 0) { /* empty */ }
     }
   }, [data, hasTypedSections]);
 
   // Handle menu item click
-  const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
+  const handleMenuItemClick = (item: MenuItem) => {
     if (item.link.startsWith("http")) {
       window.open(item.link, "_blank");
     } else {
@@ -628,22 +606,9 @@ const ProjectDetailsPage: React.FC = () => {
   };
 
   // Handle connect form submission
-  const handleConnectSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setFormSubmitted(true);
-      setTimeout(() => {
-        setShowConnectForm(false);
-        setFormSubmitted(false);
-        setEmail("");
-      }, 2000);
-    }
-  };
+  
 
-  // Handle connect button click
-  const handleConnectClick = () => {
-    setShowConnectForm(true);
-  };
+ 
 
   // Handle section navigation (only if we have typed sections)
   const handleSectionNavigation = (sectionType: "exterior" | "interior") => {
@@ -689,7 +654,7 @@ const ProjectDetailsPage: React.FC = () => {
   }, [sections]);
 
   // FIXED: Updated getAnimationClasses function with validation
-  const getAnimationClasses = (subProject: any): string => {
+  const getAnimationClasses = (subProject:any): string => {
     if (subProject.animation === "none" || !subProject.animation)
       return "clickable-sub-project";
 
@@ -697,12 +662,7 @@ const ProjectDetailsPage: React.FC = () => {
     const validAnimation = animationOptions.find(
       (a) => a.value === subProject.animation
     );
-    const validSpeed = speedOptions.find(
-      (s) => s.value === subProject.animationSpeed
-    );
-    const validTrigger = triggerOptions.find(
-      (t) => t.value === subProject.animationTrigger
-    );
+    
 
     if (!validAnimation) {
       console.warn(`Unknown animation: ${subProject.animation}`);
@@ -1862,31 +1822,7 @@ const ProjectDetailsPage: React.FC = () => {
               )}
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
-              {process.env.NODE_ENV === "development" && (
-                <div className="coordinate-debug">
-                  Screen: {window.innerWidth}×{window.innerHeight}
-                  <br />
-                  Device: {deviceType}
-                  <br />
-                  Type: {sectionTypeInfo?.label || "GENERAL"}
-                  <br />
-                  Ratio:{" "}
-                  {section.backgroundImageAspectRatio?.toFixed(2) || "N/A"}
-                  <br />
-                  Adjusted:{" "}
-                  {dimensions.adjustedAspectRatio?.toFixed(2) || "N/A"}
-                  <br />
-                  Section H: {dimensions.height}px
-                  <br />
-                  Image H: {dimensions.imageHeight}px
-                  <br />
-                  BgSize: {bgStyle.backgroundSize}
-                  <br />
-                  SubProjects: {section.subProjects?.length || 0}
-                  <br />
-                  HasTyped: {hasTypedSections ? "Yes" : "No"}
-                </div>
-              )}
+              
 
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
@@ -1964,8 +1900,8 @@ const ProjectDetailsPage: React.FC = () => {
                       data-is-exterior={subProject.isExterior}
                       data-has-typed-sections={hasTypedSections}
                       className={getAnimationClasses(subProject)}
-                      onClick={() =>
-                        handleSubProjectClick(subProject.subProjectId)
+                      onClick={() =>{}
+                       
                       }
                       onMouseEnter={() =>
                         setHoveredImageId(subProject.subProjectId)
@@ -1995,40 +1931,7 @@ const ProjectDetailsPage: React.FC = () => {
                     />
 
                     {/* Enhanced responsive debug info overlay */}
-                    {process.env.NODE_ENV === "development" &&
-                      subProject.animation !== "none" && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "-60px",
-                            left: "0",
-                            background: "rgba(0,0,0,0.9)",
-                            color: "white",
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            fontSize: deviceType === "mobile" ? "8px" : "10px",
-                            whiteSpace: "nowrap",
-                            zIndex: 1000,
-                            pointerEvents: "none",
-                            lineHeight: "1.2",
-                            maxWidth:
-                              deviceType === "mobile" ? "120px" : "150px",
-                          }}
-                        >
-                          🎬 {subProject.animation}
-                          <br />⚡ {subProject.animationSpeed}
-                          <br />
-                          🎯 {subProject.animationTrigger}
-                          <br />
-                          📱 {deviceType}
-                          <br />
-                          {hasTypedSections
-                            ? subProject.isExterior
-                              ? "🏠 EXT"
-                              : "�️ INT"
-                            : "📄 GENERAL"}
-                        </div>
-                      )}
+                   
                   </div>
                 );
               })}
@@ -2112,3 +2015,5 @@ const ProjectDetailsPage: React.FC = () => {
 };
 
 export default ProjectDetailsPage;
+
+
