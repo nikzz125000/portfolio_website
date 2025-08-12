@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
-import { useCustomerConnect } from "../../api/useCustomerConnect";
+
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ModernLoader from "../../components/ui/ModernLoader";
+import SideMenu from "../../components/SideMenu";
+import Footer from "../../components/Footer";
 
 interface SubImage {
   projectId: number;
@@ -87,12 +89,7 @@ const Homepage: React.FC = () => {
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
-  const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>("");
-  const [mobileNumber, setMobileNumber] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -106,8 +103,6 @@ const Homepage: React.FC = () => {
 
   const { data, isPending, isSuccess } = useHomePageList();
   const { data: resumeData, isPending: isResumePending } = useResumeDetails();
-  const { mutate: customerConnect, isPending: isConnecting } =
-    useCustomerConnect();
 
   // Don't return early - render loading state within the component
 
@@ -190,50 +185,6 @@ const Homepage: React.FC = () => {
   const handleCenteredLogoClick = () => {
     navigate("/resume");
   };
-
-  // Menu items for the animated logo menu - now dynamic from API
-  const menuItems = [
-    {
-      name: "About",
-      icon: "👤",
-      link: "/about",
-      action: () => navigate("/about"),
-    },
-    {
-      name: "Contact",
-      icon: "📞",
-      link: `tel:${resumeData?.data?.phone || ""}`,
-      action: () => {
-        if (resumeData?.data?.phone) {
-          window.open(`tel:${resumeData.data.phone}`, "_self");
-        }
-      },
-    },
-    {
-      name: "Instagram",
-      icon: "📷",
-      link: resumeData?.data?.instagramUrl || "https://instagram.com",
-      action: () => {
-        if (resumeData?.data?.instagramUrl) {
-          window.open(resumeData.data.instagramUrl, "_blank");
-        } else {
-          window.open("https://instagram.com", "_blank");
-        }
-      },
-    },
-    {
-      name: "LinkedIn",
-      icon: "💼",
-      link: resumeData?.data?.linkedinUrl || "https://linkedin.com",
-      action: () => {
-        if (resumeData?.data?.linkedinUrl) {
-          window.open(resumeData.data.linkedinUrl, "_blank");
-        } else {
-          window.open("https://linkedin.com", "_blank");
-        }
-      },
-    },
-  ];
 
   // Handle logo click
   const handleLogoClick = () => {
@@ -574,90 +525,21 @@ const Homepage: React.FC = () => {
   }, [totalHeight]);
 
   // Handle menu item click
-  const handleMenuItemClick = (item: (typeof menuItems)[0]) => {
+  const handleMenuItemClick = (item: {
+    name: string;
+    icon: string;
+    link: string;
+    action?: () => void;
+  }) => {
     console.log(`Executing action for ${item.name}`);
     if (item.action) {
       item.action();
+    } else if (item.link.startsWith("http")) {
+      window.open(item.link, "_blank");
+    } else {
+      navigate(item.link);
     }
     setIsMenuOpen(false);
-  };
-
-  // Handle connect form submission
-  const handleConnectSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Reset previous errors
-    setFormErrors({});
-
-    // Validation
-    const errors: { [key: string]: string } = {};
-
-    if (!email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!mobileNumber.trim()) {
-      errors.mobileNumber = "Mobile number is required";
-    } else if (!/^[0-9]{10,15}$/.test(mobileNumber.trim())) {
-      errors.mobileNumber = "Please enter a valid mobile number";
-    }
-
-    if (!message.trim()) {
-      errors.message = "Message is required";
-    } else if (message.trim().length < 10) {
-      errors.message = "Message must be at least 10 characters long";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    // Submit form
-    const payload = {
-      mobileNumber: mobileNumber.trim(),
-      email: email.trim(),
-      message: message.trim(),
-    };
-
-    customerConnect(payload, {
-      onSuccess: (response) => {
-        if (response.isSuccess) {
-          setFormSubmitted(true);
-          // Reset form
-          setEmail("");
-          setMobileNumber("");
-          setMessage("");
-          setFormErrors({});
-
-          // Close form after 3 seconds
-          setTimeout(() => {
-            setShowConnectForm(false);
-            setFormSubmitted(false);
-          }, 3000);
-        }
-      },
-      onError: (error) => {
-        console.error("Connect API error:", error);
-        setFormErrors({ general: "Failed to send message. Please try again." });
-      },
-    });
-  };
-
-  // Handle connect button click
-  const handleConnectClick = () => {
-    setShowConnectForm(true);
-    // Pre-fill email if available from resume data
-    if (resumeData?.data?.email) {
-      setEmail(resumeData.data.email);
-    }
-    // Reset other fields
-    setMobileNumber("");
-    setMessage("");
-    setFormErrors({});
-    setFormSubmitted(false);
   };
 
   useEffect(() => {
@@ -1235,190 +1117,7 @@ const Homepage: React.FC = () => {
       transform: scale(0.95);
     }
 
-    .connect-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      animation: fadeIn 0.3s ease-out;
-    }
 
-    .connect-form {
-      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .connect-form h2 {
-      margin: 0 0 20px 0;
-      color: #2d3748;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .connect-form p {
-      margin: 0 0 30px 0;
-      color: #4a5568;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .email-input,
-    .mobile-input,
-    .message-input {
-      width: 100%;
-      padding: 15px 20px;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-      font-family: inherit;
-    }
-
-    .email-input:focus,
-    .mobile-input:focus,
-    .message-input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .email-input.error,
-    .mobile-input.error,
-    .message-input.error {
-      border-color: #e53e3e;
-      box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
-    }
-
-    .message-input {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .error-message {
-      color: #e53e3e;
-      font-size: 14px;
-      margin-top: 5px;
-      text-align: left;
-      font-weight: 500;
-    }
-
-    .general-error {
-      background: #fed7d7;
-      color: #c53030;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    .success-container {
-      text-align: center;
-    }
-
-    .success-icon {
-      font-size: 64px;
-      color: #38a169;
-      margin-bottom: 20px;
-      animation: bounce 0.6s ease;
-    }
-
-    .closing-note {
-      color: #718096;
-      font-size: 14px;
-      margin-top: 15px;
-      font-style: italic;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 15px;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 10px;
-      transition: color 0.3s ease;
-    }
-
-    .close-btn:hover {
-      color: #2d3748;
-    }
-
-    .success-message {
-      color: #38a169;
-      font-weight: 600;
-      margin-top: 10px;
-    }
-
-    .connect-button {
-      background: linear-gradient(135deg, #ffffff, #f7fafc);
-      color: #2d3748;
-      border: 2px solid #ffffff;
-      padding: 12px 32px;
-      border-radius: 25px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    .connect-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-      background: linear-gradient(135deg, #ffffff, #ffffff);
-    }
-
-    .connect-button:active {
-      transform: translateY(0);
-    }
 
     /* Unified coordinate system debugging */
     .coordinate-debug {
@@ -1616,103 +1315,13 @@ const Homepage: React.FC = () => {
           />
         </div>
 
-        {/* Animated Menu */}
-        {isMenuOpen && (
-          <div
-            id="logo-menu"
-            style={{
-              position: "absolute",
-              top: "75px",
-              left: "75px",
-              zIndex: 1001,
-            }}
-          >
-            {menuItems?.map((item, index) => {
-              const total = menuItems.length;
-              // Create a tighter arc around the logo for better spacing
-              const startAngle = -25; // Start closer to center
-              const endAngle = 95; // End closer to center
-              const angleStep =
-                total > 1 ? (endAngle - startAngle) / (total - 1) : 0;
-              const currentAngle = startAngle + index * angleStep;
-              const angleRad = (currentAngle * Math.PI) / 180;
-
-              // Smaller radius for tighter grouping
-              const baseRadius = Math.min(
-                75,
-                Math.max(55, window.innerWidth * 0.08)
-              );
-              const radius = Math.max(
-                45,
-                Math.min(baseRadius, window.innerWidth * 0.1)
-              );
-
-              // Center the arc around the logo position
-              const centerX = 75; // Logo left position
-              const centerY = 75; // Logo top position
-              const x = Math.round(centerX + radius * Math.cos(angleRad));
-              const y = Math.round(centerY + radius * Math.sin(angleRad));
-
-              return (
-                <div
-                  key={item.name}
-                  className="menu-item-enter menu-item-clean"
-                  onClick={() => handleMenuItemClick(item)}
-                  style={
-                    {
-                      position: "absolute",
-                      left: `${x}px`,
-                      top: `${y}px`,
-                      transform: `translate(-50%, -50%) rotate(${currentAngle}deg)`,
-                      padding: "4px 8px",
-                      borderRadius: "12px",
-                      cursor: "pointer",
-                      fontSize: "11px",
-                      fontWeight: "500",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      whiteSpace: "nowrap",
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                      animationDelay: `${index * 0.1}s`,
-                      userSelect: "none",
-                      minWidth: "70px",
-                      justifyContent: "center",
-                      background: "rgba(255, 255, 255, 0.85)",
-                      backdropFilter: "blur(8px)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-                      border: "1px solid rgba(255, 255, 255, 0.3)",
-                      "--final-rotation": `${currentAngle}deg`,
-                    } as React.CSSProperties & { "--final-rotation": string }
-                  }
-                >
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      filter: "grayscale(0)",
-                      transition: "all 0.2s ease",
-                      opacity: 0.8,
-                    }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span
-                    style={{
-                      letterSpacing: "0.2px",
-                      fontFamily: "system-ui, -apple-system, sans-serif",
-                      color: "#000000",
-                      display: "inline-block",
-                      fontWeight: "500",
-                      textShadow: "none",
-                    }}
-                  >
-                    {item.name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Side Menu Component */}
+        <SideMenu
+          isMenuOpen={isMenuOpen}
+          deviceType="desktop"
+          variant="homepage"
+          onMenuItemClick={handleMenuItemClick}
+        />
       </div>
 
       {/* Main Content Container */}
@@ -1949,207 +1558,8 @@ const Homepage: React.FC = () => {
         )}
 
         {/* Footer Section */}
-        <footer
-          style={{
-            position: "sticky",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: "200px",
-            background:
-              "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 60px",
-            color: "white",
-            zIndex: 100,
-            marginTop: "auto",
-          }}
-        >
-          {/* Left side - Heart logo and text */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "48px",
-                marginBottom: "10px",
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-              }}
-            >
-              ♥
-            </div>
-            <div
-              style={{
-                fontSize: "14px",
-                lineHeight: "1.4",
-                color: "rgba(255,255,255,0.9)",
-                maxWidth: "200px",
-              }}
-            >
-              <div style={{ fontWeight: "600", marginBottom: "2px" }}>
-                Get in Touch
-              </div>
-              <div>
-                {resumeData?.data?.location || "Los Angeles, California"}
-              </div>
-              <div>{resumeData?.data?.phone || "+1 (626) 555 0134"}</div>
-              <div>{resumeData?.data?.email || "contact@example.com"}</div>
-              <div style={{ marginTop: "8px" }}>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCenteredLogoClick();
-                  }}
-                  style={{
-                    color: "#ffffff",
-                    textDecoration: "none",
-                    fontWeight: "600",
-                    fontSize: "13px",
-                    padding: "6px 12px",
-                    borderRadius: "20px",
-                    background: "rgba(255, 255, 255, 0.2)",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
-                    transition: "all 0.3s ease",
-                    display: "inline-block",
-                    backdropFilter: "blur(10px)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(255, 255, 255, 0.3)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 12px rgba(0, 0, 0, 0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(255, 255, 255, 0.2)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  📄 View Resume
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side - Connect button */}
-          <div>
-            <button className="connect-button" onClick={handleConnectClick}>
-              CONNECT
-            </button>
-          </div>
-        </footer>
+        <Footer />
       </div>
-
-      {/* Connect Form Modal */}
-      {showConnectForm && (
-        <div
-          className="connect-modal"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowConnectForm(false);
-            }
-          }}
-        >
-          <div className="connect-form">
-            {!formSubmitted ? (
-              <form onSubmit={handleConnectSubmit}>
-                <h2>Let's Connect!</h2>
-                <p>Fill out the form below and we'll get back to you soon.</p>
-
-                {formErrors.general && (
-                  <div className="error-message general-error">
-                    {formErrors.general}
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <input
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`email-input ${formErrors.email ? "error" : ""}`}
-                    required
-                  />
-                  {formErrors.email && (
-                    <div className="error-message">{formErrors.email}</div>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <input
-                    type="tel"
-                    placeholder="Enter your mobile number"
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
-                    className={`mobile-input ${
-                      formErrors.mobileNumber ? "error" : ""
-                    }`}
-                    required
-                  />
-                  {formErrors.mobileNumber && (
-                    <div className="error-message">
-                      {formErrors.mobileNumber}
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <textarea
-                    placeholder="Enter your message (minimum 10 characters)"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className={`message-input ${
-                      formErrors.message ? "error" : ""
-                    }`}
-                    rows={4}
-                    required
-                  />
-                  {formErrors.message && (
-                    <div className="error-message">{formErrors.message}</div>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={isConnecting}
-                >
-                  {isConnecting ? "Sending..." : "Send Message"}
-                </button>
-
-                <button
-                  type="button"
-                  className="close-btn"
-                  onClick={() => setShowConnectForm(false)}
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <div className="success-container">
-                <div className="success-icon">✓</div>
-                <h2>Message Sent Successfully!</h2>
-                <p className="success-message">
-                  Thank you for your message. We'll get back to you soon!
-                </p>
-                <p className="closing-note">
-                  This form will close automatically in a few seconds.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Scroll to Top Button */}
       {scrollY > 500 && (
