@@ -29,7 +29,7 @@ namespace API.Controllers
             try
             {
                 
-                if (model.ImageFile == null && model.ProjectContainerId !=0)
+                if (model.ImageFile == null && model.ProjectContainerId ==0)
                 {
                     response.CreateFailureResponse("Image file required");
                     return response;
@@ -134,6 +134,33 @@ namespace API.Controllers
             }
             return response;
         }
+        [Route("Delete/{ProjectContainerId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(ModelEntityResponse<CommonEntityResponse>), 200)]
+        public async Task<CommonEntityResponse> deleteProjectContainers(int ProjectContainerId)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _containerService.DeleteProjectContainer(ProjectContainerId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+
+
         [Route("Project/Delete/{ProjectContainerId}")]
         [HttpDelete]
         [ProducesResponseType(typeof(CommonEntityResponse), 200)]

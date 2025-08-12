@@ -597,7 +597,7 @@ setSelectedSubImage(null);
       },
       {
         onSuccess: () => {
-          console.log("Project deleted successfully");
+       
           setSubImages(prev => prev.filter(img => img.id !== imageId));
           if (selectedSubImage === imageId) {
             setSelectedSubImage(null);
@@ -661,7 +661,20 @@ setSelectedSubImage(null);
         `SubProjects[${index}][ProjectId]`,
         getProjectId(img.id)
       );
-      formData.append(`SubProjects[${index}][Name]`, img.name);
+
+          const getSafeFileName = (name, maxLength = 50) => {
+  // Remove extension
+  const baseName = name.substring(0, name.lastIndexOf(".")) || name;
+
+  // Limit to maxLength characters
+  return baseName.length > maxLength
+    ? baseName.substring(0, maxLength)
+    : baseName;
+};
+
+// Usage
+const safeName = getSafeFileName(img.name, 50);
+      formData.append(`SubProjects[${index}][Name]`, safeName);
 
       const xPercent = Math.round(img.xPercent);
       const yPercent = Math.round(img.yPercent);

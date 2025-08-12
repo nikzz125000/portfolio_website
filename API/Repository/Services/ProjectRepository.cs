@@ -55,6 +55,20 @@ namespace Repository.Services
                 return false;
             }
         }
+        public async Task<bool> DeleteAllProject(int ProjectContainerId)
+        {
+            List<Project> proj = await _context.Projects.Where(x => x.ProjectContainerId == ProjectContainerId).ToListAsync();
+            if (proj!=null & proj.Count>0)
+            {
+                _context.Projects.RemoveRange(proj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public async Task<List<Project>> GetAll()
         {
             return await _context.Projects.ToListAsync();

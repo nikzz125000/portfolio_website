@@ -352,18 +352,10 @@ const ImageElementListPage: React.FC = () => {
                   <ImageIcon />
                 </div>
                 <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  No image elements yet
+                  No Projects yet
                 </h3>
-                <p className="text-base text-gray-500 mb-8 max-w-md mx-auto">
-                  Get started by adding your first image element to begin managing your visual content
-                </p>
-                <button
-                  onClick={handleAddElement}
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg rounded-lg shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <AddIcon />
-                  <span className="ml-2">Add Your First Element</span>
-                </button>
+                
+                
               </div>
             </div>
           )}
