@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetProjectDetailsList } from '../../../api/useGetProjectDetails';
 import NextProjects from './NextProjects';
 import { useNextProjectDetails } from '../../../api/useGetNextProject';
- // You'll need to create this hook
+import LoadingSpinner from '../../../components/ui/LoadingSpinner';
+
 
 interface SubProject {
   subProjectId: number;
@@ -108,7 +109,7 @@ const ProjectDetailsPage: React.FC = () => {
   const [sections, setSections] = useState<ProjectContainer[]>([]);
   const [exteriorSections, setExteriorSections] = useState<ProjectContainer[]>([]);
   const [interiorSections, setInteriorSections] = useState<ProjectContainer[]>([]);
-  const [hasTypedSections, setHasTypedSections] = useState<boolean>(false); // NEW: Track if we have typed sections
+  const [hasTypedSections, setHasTypedSections] = useState<boolean>(false); // Track if we have typed sections
   const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
@@ -133,7 +134,11 @@ const ProjectDetailsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data, isPending, isSuccess } = useGetProjectDetailsList(projectId ? parseInt(projectId, 10) : 0);
-   const { data:nextProjects, isSuccess:isSuccessNextProjects } = useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
+  const { data: nextProjects, isSuccess: isSuccessNextProjects } = useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
+
+  // Sample fallback images using placehold.co for reliability
+  const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
+  const SAMPLE_SUB_IMAGE = "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
 
   // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
   const animationOptions = [
@@ -208,7 +213,11 @@ const ProjectDetailsPage: React.FC = () => {
 
   // ENHANCED: Responsive background strategy
   const getResponsiveBackgroundStyle = (section: ProjectContainer) => {
-    if (!section.backgroundImageUrl) return {};
+    // Use fallback image if the URL is invalid or empty
+    const backgroundUrl =
+      section.backgroundImageUrl && section.backgroundImageUrl.trim() !== ""
+        ? section.backgroundImageUrl
+        : SAMPLE_BACKGROUND_IMAGE;
     
     const device = getDeviceType();
     
@@ -228,7 +237,7 @@ const ProjectDetailsPage: React.FC = () => {
     }
     
     return {
-      backgroundImage: `url(${section.backgroundImageUrl})`,
+      backgroundImage: `url(${backgroundUrl})`,
       backgroundSize,
       backgroundPosition,
       backgroundRepeat: 'no-repeat',
@@ -515,7 +524,7 @@ const ProjectDetailsPage: React.FC = () => {
       
       if (hasTyped) {
         // Separate exterior and interior sections
-        const exterior = sortedData.filter(section => section.backgroundType === 2).sort((a, b) => a.sortOrder - b.sortOrder);
+        const exterior = sortedData.filter(section => section.backgroundType === 2).sort((a, b) => a.sortOrder - a.sortOrder);
         const interior = sortedData.filter(section => section.backgroundType === 1).sort((a, b) => a.sortOrder - b.sortOrder);
         
         // Combine exterior first, then interior
@@ -724,7 +733,7 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
 
-  // NEW: Get section type info for display
+  // Get section type info for display
   const getSectionTypeInfo = (backgroundType: number) => {
     if (!hasTypedSections) return null;
     
@@ -735,6 +744,15 @@ const ProjectDetailsPage: React.FC = () => {
         return { label: 'EXTERIOR', color: '#4caf50' };
       default:
         return null;
+    }
+  };
+
+  // Handle scroll to top
+  const handleButtomScrollButtonClick = () => {
+    targetScrollY.current = 0;
+    if (!isScrolling.current) {
+      isScrolling.current = true;
+      smoothScrollStep();
     }
   };
 
@@ -1683,14 +1701,6 @@ const ProjectDetailsPage: React.FC = () => {
   const logoSizes = getResponsiveLogoSizes();
   const currentActiveSection = getCurrentActiveSection();
 
-  const handleButtomScrollButtonClick= () => {
-           targetScrollY.current = 0;
-            if (!isScrolling.current) {
-              isScrolling.current = true;
-              smoothScrollStep();
-  }
-}
-
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
       <style>{responsiveAnimationStyles}</style>
@@ -1861,17 +1871,26 @@ const ProjectDetailsPage: React.FC = () => {
       >
         {/* Loading state */}
         {isPending && (
-          <div className="loading-overlay">
-            <div style={{
-              padding: '20px',
-              background: 'rgba(255,255,255,0.9)',
-              borderRadius: '10px',
-              textAlign: 'center',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '18px', marginBottom: '10px' }}>Loading Project Details...</div>
-              <div style={{ fontSize: '14px', color: '#666' }}>Please wait while we load the content</div>
-            </div>
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+            }}
+          >
+            <LoadingSpinner
+              variant="gradient"
+              size="large"
+              text="Loading project details..."
+              fullHeight={true}
+            />
           </div>
         )}
 
@@ -1882,7 +1901,7 @@ const ProjectDetailsPage: React.FC = () => {
           const bgStyle = getResponsiveBackgroundStyle(section);
           const coordinateSystem = createResponsiveCoordinateSystem(section.backgroundImageAspectRatio);
 
-          // NEW: Get section type info (null if backgroundType is 0)
+          // Get section type info (null if backgroundType is 0)
           const sectionTypeInfo = getSectionTypeInfo(section.backgroundType);
 
           return (
@@ -2011,7 +2030,12 @@ const ProjectDetailsPage: React.FC = () => {
                     }}
                   >
                     <img
-                      src={subProject.projectImageUrl}
+                      src={
+                        subProject.projectImageUrl &&
+                        subProject.projectImageUrl.trim() !== ""
+                          ? subProject.projectImageUrl
+                          : SAMPLE_SUB_IMAGE
+                      }
                       alt={subProject.name || subProject.imageFileName}
                       data-sub-project-id={subProject.subProjectId}
                       data-animation={subProject.animation}
@@ -2024,6 +2048,12 @@ const ProjectDetailsPage: React.FC = () => {
                       onClick={() => handleSubProjectClick(subProject.subProjectId)}
                       onMouseEnter={() => setHoveredImageId(subProject.subProjectId)}
                       onMouseLeave={() => setHoveredImageId(null)}
+                      onError={(e) => {
+                        // Fallback to sample image if the original fails to load
+                        if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
+                          e.currentTarget.src = SAMPLE_SUB_IMAGE;
+                        }
+                      }}
                       style={{
                         ...imageDimensions,
                         display: 'block',
@@ -2084,9 +2114,11 @@ const ProjectDetailsPage: React.FC = () => {
           );
         })}
 
-        {nextProjects?.data?.length>0&&<div ref={nextProjectsRef}>
-          <NextProjects data ={nextProjects} handleButtomScrollButtonClick={handleButtomScrollButtonClick}/>
-        </div>}
+        {nextProjects?.data?.length > 0 && (
+          <div ref={nextProjectsRef}>
+            <NextProjects data={nextProjects} handleButtomScrollButtonClick={handleButtomScrollButtonClick}/>
+          </div>
+        )}
 
         {/* Responsive Footer Section */}
         <footer
