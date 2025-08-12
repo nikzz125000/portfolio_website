@@ -6,5 +6,7 @@ namespace Repository.Interfaces
     {
         Task<int> CreateOrModify(SubProjectContainer entity);
         Task<List<SubProjectContainer>> GetAllByProjectId(int ProjectId);
+        Task<SubProjectContainer?> GetById(int SubProjectContainerId);
+        Task<bool> Delete(int ContainerId);
     }
 } 

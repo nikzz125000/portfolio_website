@@ -106,5 +106,57 @@ namespace API.Controllers
             }
             return response;
         }
+
+        [Route("Delete/{SubProjectContainerId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(ModelEntityResponse<CommonEntityResponse>), 200)]
+        public async Task<CommonEntityResponse> deleteProjectContainers(int SubProjectContainerId)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _service.DeleteSubProjectContainer(SubProjectContainerId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Container/List";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+
+        [Route("SubProject/Delete/{SubProjectContainerId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        public async Task<CommonEntityResponse> deleteProject(int SubProjectContainerId)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _service.DeleteSubProject(SubProjectContainerId);
+            }
+            catch (Exception e)
+            {
+
+                response.CreateFailureResponse(CommonData.ErrorMessage); ;
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Project/Delete";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                //log.Parameters = JsonConvert.SerializeObject(model, Formatting.Indented);
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
     }
 } 

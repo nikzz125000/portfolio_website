@@ -14,6 +14,8 @@ namespace API.Services
         Task<ModelEntityResponse<List<SubProjectContainerViewModel>>> GetAll(int ProjectId);
         Task<ModelEntityResponse<SubProjectContainerViewModel>> GetDetails(int subProjectContainerId);
         Task<ModelEntityResponse<List<SubProjectContainerDetailsViewModel>>> GetAllSubContainerDetails(int ProjectId);
+        Task<CommonEntityResponse> DeleteSubProject(int SubProjectId);
+        Task<CommonEntityResponse> DeleteSubProjectContainer(int SubProjectContainerId);
     }
 
     public class SubProjectContainerService : ISubProjectContainerService
@@ -188,6 +190,53 @@ namespace API.Services
                 p.ProjectImageUrl = CommonData.GetSubProjectUrl(p.ImageFileName);
             }
 
+            return res;
+        }
+        public async Task<CommonEntityResponse> DeleteSubProject(int SubProjectId)
+        {
+            CommonEntityResponse res = new CommonEntityResponse();
+            var proj = await _unitOfWork.SubProjects.GetById(SubProjectId);
+            await _unitOfWork.SubProjects.DeleteProject(SubProjectId);
+            string url = Path.Combine(CommonData.SubProjectPath, proj.ImageFileName);
+            _media.RemoveFile(url);
+            res.CreateSuccessResponse();
+            return res;
+        }
+        public async Task<CommonEntityResponse> DeleteSubProjectContainer(int SubProjectContainerId)
+        {
+            CommonEntityResponse res = new CommonEntityResponse();
+            using (var transaction = _unitOfWork._context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var container = await _unitOfWork.SubProjectContainers.GetById(SubProjectContainerId);
+
+                    var projects = await _unitOfWork.SubProjects.GetBySubProjectContainerId(SubProjectContainerId);
+                    var isProjectDelete = await _unitOfWork.SubProjects.DeleteAllProject(SubProjectContainerId);
+                    if (isProjectDelete && projects != null && projects.Count > 0)
+                    {
+                        foreach (var item in projects)
+                        {
+                            string url = Path.Combine(CommonData.SubProjectPath, item.ImageFileName);
+                            _media.RemoveFile(url);
+                        }
+                    }
+
+                    var isProjectContainerDelete = await _unitOfWork.SubProjectContainers.Delete(SubProjectContainerId);
+                    if (isProjectContainerDelete)
+                    {
+                        string containerURL = Path.Combine(CommonData.SubProjectContainerPath, container.BackgroundImageFileName);
+                        _media.RemoveFile(containerURL);
+                    }
+                    transaction.Commit();
+                    res.CreateSuccessResponse();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    res.CreateFailureResponse();
+                }
+            }
             return res;
         }
     }
