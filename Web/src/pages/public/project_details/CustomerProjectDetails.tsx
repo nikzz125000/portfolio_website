@@ -29,7 +29,6 @@ interface SubProject {
   isExterior: boolean;
 }
 
-
 interface ProjectContainer {
   subProjectContainerId: number;
   projectId: number;
@@ -154,8 +153,9 @@ const ProjectDetailsPage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const [nextProjectsHeight, setNextProjectsHeight] = useState<number>(0);
   const navigate = useNavigate();
-  const { data: nextProjects, } =
-    useNextProjectDetails(projectId ? parseInt(projectId, 10) : 0);
+  const { data: nextProjects } = useNextProjectDetails(
+    projectId ? parseInt(projectId, 10) : 0
+  );
 
   const { data, isPending } = useGetProjectDetailsList(
     projectId ? parseInt(projectId, 10) : 0
@@ -170,7 +170,7 @@ const ProjectDetailsPage: React.FC = () => {
     currentScrollY.current = 0;
     setScrollY(0);
     if (containerRef.current) {
-      containerRef.current.style.transform = 'translateY(0px)';
+      containerRef.current.style.transform = "translateY(0px)";
     }
   }, [projectId]);
 
@@ -211,12 +211,7 @@ const ProjectDetailsPage: React.FC = () => {
     { value: "tada", label: "Tada" },
   ];
 
-  
-
- 
-
   // Navigation handler for sub-projects
- 
 
   // Handle centered logo click - navigate to /resume
   const handleCenteredLogoClick = () => {
@@ -236,28 +231,11 @@ const ProjectDetailsPage: React.FC = () => {
         ? section.backgroundImageUrl
         : SAMPLE_BACKGROUND_IMAGE;
 
-    const device = getDeviceType();
-
-    // Responsive background sizing strategy
-    let backgroundSize = "cover"; // Default to cover for better mobile experience
-    let backgroundPosition = "center center";
-
-    if (device === "desktop") {
-      backgroundSize = "100% auto"; // Original behavior for desktop
-      backgroundPosition = "center top";
-    } else if (device === "tablet") {
-      backgroundSize = "cover"; // Cover for tablets to prevent gaps
-      backgroundPosition = "center center";
-    } else {
-      // mobile
-      backgroundSize = "cover"; // Cover for mobile to ensure no gaps
-      backgroundPosition = "center center";
-    }
-
+    // Force exact fill of the section box to avoid any visible seams or gaps
     return {
       backgroundImage: `url(${backgroundUrl})`,
-      backgroundSize,
-      backgroundPosition,
+      backgroundSize: "100% 100%",
+      backgroundPosition: "center top",
       backgroundRepeat: "no-repeat",
       backgroundAttachment: "scroll",
     };
@@ -266,43 +244,20 @@ const ProjectDetailsPage: React.FC = () => {
   // ENHANCED: Responsive section dimension calculation
   const getResponsiveSectionDimensions = (section: ProjectContainer) => {
     const containerWidth = window.innerWidth;
-    const device = getDeviceType();
     const coordinateSystem = createResponsiveCoordinateSystem(
       section.backgroundImageAspectRatio
     );
     const { height, adjustedAspectRatio } =
       coordinateSystem.getImageDimensions(containerWidth);
-
-    // Device-specific height calculation to reduce gaps
-    let sectionHeight;
-
-    if (device === "mobile") {
-      // Mobile: Use responsive height, avoid huge gaps
-      const maxMobileHeight = window.innerHeight * 1.2; // Max 120% of viewport
-      const minMobileHeight = window.innerHeight * 0.8; // Min 80% of viewport
-      sectionHeight = Math.min(
-        Math.max(height, minMobileHeight),
-        maxMobileHeight
-      );
-    } else if (device === "tablet") {
-      // Tablet: Balanced approach
-      const maxTabletHeight = window.innerHeight * 1.5;
-      const minTabletHeight = window.innerHeight * 0.9;
-      sectionHeight = Math.min(
-        Math.max(height, minTabletHeight),
-        maxTabletHeight
-      );
-    } else {
-      // Desktop: Original behavior
-      sectionHeight = Math.max(height, window.innerHeight);
-    }
+    // Exact, pixel-snapped height to perfectly stack sections without seams
+    const sectionHeight = Math.max(1, Math.round(height));
 
     return {
       width: containerWidth,
       height: sectionHeight,
       imageHeight: height,
       adjustedAspectRatio,
-      device,
+      device: getDeviceType(),
     };
   };
 
@@ -551,11 +506,13 @@ const ProjectDetailsPage: React.FC = () => {
   // Load data from API and separate exterior/interior
   useEffect(() => {
     if (data?.data) {
-      const sortedData = data.data.sort((a: { sortOrder: number; }) => a.sortOrder - a.sortOrder);
+      const sortedData = data.data.sort(
+        (a: { sortOrder: number }) => a.sortOrder - a.sortOrder
+      );
 
       // Check if we have typed sections (backgroundType 1 or 2)
       const hasTyped = sortedData.some(
-        (section: { backgroundType: number; }) =>
+        (section: { backgroundType: number }) =>
           section.backgroundType === 1 || section.backgroundType === 2
       );
       setHasTypedSections(hasTyped);
@@ -563,11 +520,20 @@ const ProjectDetailsPage: React.FC = () => {
       if (hasTyped) {
         // Separate exterior and interior sections
         const exterior = sortedData
-          .filter((section: { backgroundType: number; }) => section.backgroundType === 2)
-          .sort((a: { sortOrder: number; }) => a.sortOrder - a.sortOrder);
+          .filter(
+            (section: { backgroundType: number }) =>
+              section.backgroundType === 2
+          )
+          .sort((a: { sortOrder: number }) => a.sortOrder - a.sortOrder);
         const interior = sortedData
-          .filter((section: { backgroundType: number; }) => section.backgroundType === 1)
-          .sort((a: { sortOrder: number; }, b: { sortOrder: number; }) => a.sortOrder - b.sortOrder);
+          .filter(
+            (section: { backgroundType: number }) =>
+              section.backgroundType === 1
+          )
+          .sort(
+            (a: { sortOrder: number }, b: { sortOrder: number }) =>
+              a.sortOrder - b.sortOrder
+          );
 
         // Combine exterior first, then interior
         const combinedSections = [...exterior, ...interior];
@@ -591,7 +557,9 @@ const ProjectDetailsPage: React.FC = () => {
   // Debug API data structure
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
-      if (data.data[0].subProjects && data.data[0].subProjects.length > 0) { /* empty */ }
+      if (data.data[0].subProjects && data.data[0].subProjects.length > 0) {
+        /* empty */
+      }
     }
   }, [data, hasTypedSections]);
 
@@ -606,9 +574,6 @@ const ProjectDetailsPage: React.FC = () => {
   };
 
   // Handle connect form submission
-  
-
- 
 
   // Handle section navigation (only if we have typed sections)
   const handleSectionNavigation = (sectionType: "exterior" | "interior") => {
@@ -654,7 +619,7 @@ const ProjectDetailsPage: React.FC = () => {
   }, [sections]);
 
   // FIXED: Updated getAnimationClasses function with validation
-  const getAnimationClasses = (subProject:any): string => {
+  const getAnimationClasses = (subProject: any): string => {
     if (subProject.animation === "none" || !subProject.animation)
       return "clickable-sub-project";
 
@@ -662,7 +627,6 @@ const ProjectDetailsPage: React.FC = () => {
     const validAnimation = animationOptions.find(
       (a) => a.value === subProject.animation
     );
-    
 
     if (!validAnimation) {
       console.warn(`Unknown animation: ${subProject.animation}`);
@@ -777,7 +741,6 @@ const ProjectDetailsPage: React.FC = () => {
       smoothScrollStep();
     }
   };
-
 
   // COMPLETE ANIMATION STYLES - EXACT COPY FROM HOMEPAGE with responsive enhancements
   const responsiveAnimationStyles = `
@@ -1771,12 +1734,6 @@ const ProjectDetailsPage: React.FC = () => {
                 position: "relative",
                 width: "100vw",
                 height: `${dimensions.height}px`,
-                minHeight:
-                  deviceType === "mobile"
-                    ? "80vh"
-                    : deviceType === "tablet"
-                    ? "90vh"
-                    : "100vh",
                 ...bgStyle,
                 overflow: "hidden",
               }}
@@ -1822,7 +1779,6 @@ const ProjectDetailsPage: React.FC = () => {
               )}
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
-              
 
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
@@ -1900,9 +1856,7 @@ const ProjectDetailsPage: React.FC = () => {
                       data-is-exterior={subProject.isExterior}
                       data-has-typed-sections={hasTypedSections}
                       className={getAnimationClasses(subProject)}
-                      onClick={() =>{}
-                       
-                      }
+                      onClick={() => {}}
                       onMouseEnter={() =>
                         setHoveredImageId(subProject.subProjectId)
                       }
@@ -1931,7 +1885,6 @@ const ProjectDetailsPage: React.FC = () => {
                     />
 
                     {/* Enhanced responsive debug info overlay */}
-                   
                   </div>
                 );
               })}
@@ -1951,7 +1904,7 @@ const ProjectDetailsPage: React.FC = () => {
           );
         })}
 
-           {nextProjects?.data?.length > 0 && (
+        {nextProjects?.data?.length > 0 && (
           <div ref={nextProjectsRef}>
             <NextProjects
               data={nextProjects}
@@ -1965,7 +1918,6 @@ const ProjectDetailsPage: React.FC = () => {
           deviceType={deviceType as "mobile" | "tablet" | "desktop"}
           variant="project-details"
         />
-     
       </div>
 
       {/* Responsive Scroll to Top Button */}
@@ -2015,5 +1967,3 @@ const ProjectDetailsPage: React.FC = () => {
 };
 
 export default ProjectDetailsPage;
-
-
