@@ -47,7 +47,8 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyOrigin()
                .AllowAnyHeader()
-               .AllowAnyMethod(); // Allow all origins, headers, and methods
+               .AllowAnyMethod()
+               .WithExposedHeaders("*");  // Allow all origins, headers, and methods
     });
 });
 builder.Services.AddHttpContextAccessor();

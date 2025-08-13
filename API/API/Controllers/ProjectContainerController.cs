@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using AutoMapper;
 using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProjectContainerController : BaseController
     {
         readonly IProjectContainerService _containerService;
@@ -164,12 +166,12 @@ namespace API.Controllers
         [Route("Project/Delete/{ProjectContainerId}")]
         [HttpDelete]
         [ProducesResponseType(typeof(CommonEntityResponse), 200)]
-        public async Task<CommonEntityResponse> deleteProject(int ProjectId)
+        public async Task<CommonEntityResponse> deleteProject(int ProjectContainerId)
         {
             CommonEntityResponse response = new CommonEntityResponse();
             try
             {
-                response = await _containerService.DeleteProject(ProjectId);
+                response = await _containerService.DeleteProject(ProjectContainerId);
             }
             catch (Exception e)
             {

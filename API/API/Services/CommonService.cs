@@ -47,7 +47,15 @@ namespace API.Services
 
         public Task<bool> SaveExceptionLog(ExceptionLog model)
         {
-            return _unitOfWork.ExceptionLogs.Create(model);
+            try
+            {
+                return _unitOfWork.ExceptionLogs.Create(model);
+
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using API.Services;
 using AutoMapper;
 using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -24,6 +25,7 @@ namespace API.Controllers
         [Route("CreateOrModify")]
         [HttpPost]
         [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        [Authorize]
         public async Task<CommonEntityResponse> CreateOrModifyAsync([FromForm] ViewModels.ResumePostModel model)
         {
             CommonEntityResponse response = new CommonEntityResponse();
@@ -54,6 +56,7 @@ namespace API.Controllers
             ModelEntityResponse<ViewModels.ResumeViewModel> response = new ModelEntityResponse<ViewModels.ResumeViewModel>();
             try
             {
+                getCurrentUser();
                 response = await _resumeService.GetById();
             }
             catch (Exception e)
