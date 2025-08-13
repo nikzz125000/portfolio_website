@@ -173,7 +173,7 @@ const handleErrorResponse = async (error: AxiosError): Promise<AxiosResponse | n
       }
 
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/admin';
       }, 100);
 
       return Promise.reject(refreshError);
