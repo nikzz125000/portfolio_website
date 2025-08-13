@@ -152,9 +152,18 @@ namespace API.Services
         {
             CommonEntityResponse res = new CommonEntityResponse();
             var proj = await _unitOfWork.Projects.GetById(ProjectId);
-            await _unitOfWork.Projects.DeleteProject(ProjectId);
-            string url = Path.Combine(CommonData.ProjectPath, proj.ImageFileName);
-            _media.RemoveFile(url);
+            if (proj == null)
+            {
+                res.CreateFailureResponse("Project not found");
+                return res;
+            }
+            bool isDeleted = await _unitOfWork.Projects.DeleteProject(ProjectId);
+            if (isDeleted)
+            {
+                string url = Path.Combine(CommonData.ProjectPath, proj.ImageFileName);
+                _media.RemoveFile(url);
+            }
+            
             res.CreateSuccessResponse();
             return res;
         }
