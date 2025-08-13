@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useResumeDetails } from "../../api/useResumeDetails";
+import { useNavigate } from "react-router-dom";
 
 // Types for the resume data structure
 interface EducationEntry {
@@ -96,6 +97,7 @@ const AnimatedResume: React.FC = () => {
   );
   const observerRef = useRef<IntersectionObserver | null>(null);
   const { data: resumeResponse } = useResumeDetails();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Initialize Intersection Observer for scroll animations
@@ -252,6 +254,22 @@ const AnimatedResume: React.FC = () => {
           transform: scale(1.1);
         }
       `}</style>
+
+      <button
+        onClick={() => navigate(-1)}
+        aria-label="Go back"
+        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 text-gray-900 border border-gray-300 shadow-md backdrop-blur hover:bg-white transition"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+          className="w-4 h-4"
+        >
+          <path d="M15.5 19a1 1 0 0 1-.7-.3l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 1 1 1.4 1.4L10.9 12l5.3 5.3A1 1 0 0 1 15.5 19z" />
+        </svg>
+        <span className="text-sm font-semibold">Back</span>
+      </button>
 
       {/* Header Section */}
       <div className="max-w-6xl mx-auto p-8">
@@ -532,6 +550,9 @@ const AnimatedResume: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Bottom padding to prevent content from being hidden behind fixed footer */}
+        <div style={{ height: "240px", width: "100%" }} />
       </div>
     </div>
   );

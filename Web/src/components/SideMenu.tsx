@@ -27,8 +27,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
     {
       name: "About",
       icon: "👤",
-      link: "/about",
-      action: () => navigate("/about"),
+      link: "/resume",
+      action: () => navigate("/resume"),
     },
     {
       name: "Contact",

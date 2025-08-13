@@ -44,7 +44,7 @@ interface SectionData {
   backgroundImage?: BackgroundImage | null;
   projects?: SubImage[];
   subImages?: SubImage[];
-  projectContainerId:number
+  projectContainerId: number;
 }
 
 // Enhanced responsive breakpoints
@@ -150,7 +150,7 @@ const Homepage: React.FC = () => {
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const navigate = useNavigate();
 
-  const { data, isPending,  } = useHomePageList();
+  const { data, isPending } = useHomePageList();
   const { isPending: isResumePending } = useResumeDetails();
 
   // Don't return early - render loading state within the component
@@ -191,8 +191,6 @@ const Homepage: React.FC = () => {
     { value: "jello", label: "Jello" },
     { value: "tada", label: "Tada" },
   ];
-
-
 
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
@@ -478,7 +476,9 @@ const Homepage: React.FC = () => {
   useEffect(() => {
     if (data?.data) {
       setTimeout(() => {
-        setSections(data.data.sort((a:any, b:any) => a.sortOrder - b.sortOrder));
+        setSections(
+          data.data.sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+        );
       }, 500);
     }
   }, [data]);
@@ -489,7 +489,6 @@ const Homepage: React.FC = () => {
       sections.forEach((section) => {
         if (section.projects && section.projects.length > 0) {
           section.projects.forEach(() => {
-
             // Validate animation values
           });
         }
@@ -497,10 +496,8 @@ const Homepage: React.FC = () => {
     }
   }, [sections]);
 
- 
-
   // Handle menu item click
-  const handleMenuItemClick = (item:MenuItem ) => {
+  const handleMenuItemClick = (item: MenuItem) => {
     if (item.action) {
       item.action();
     } else if (item.link.startsWith("http")) {
@@ -1664,7 +1661,7 @@ const Homepage: React.FC = () => {
           top: 0,
           left: 0,
           width: "100%",
-          paddingBottom: "200px", // Account for sticky footer
+          // paddingBottom: "200px", // Account for sticky footer
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
@@ -1715,7 +1712,6 @@ const Homepage: React.FC = () => {
               />
 
               {/* ENHANCED: Debug info for responsive coordinate system */}
-             
 
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
@@ -1811,7 +1807,6 @@ const Homepage: React.FC = () => {
                     />
 
                     {/* Enhanced responsive debug info overlay */}
-                   
                   </div>
                 );
               })}
@@ -1857,6 +1852,19 @@ const Homepage: React.FC = () => {
 
         {/* Footer Section */}
         <Footer deviceType={deviceType as "mobile" | "tablet" | "desktop"} />
+
+        {/* Bottom padding to prevent content from being hidden behind fixed footer */}
+        <div
+          style={{
+            height:
+              deviceType === "mobile"
+                ? "340px"
+                : deviceType === "tablet"
+                ? "280px"
+                : "240px",
+            width: "100%",
+          }}
+        />
       </div>
 
       {/* Responsive Scroll to Top Button */}

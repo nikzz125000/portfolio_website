@@ -30,6 +30,35 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  padding-bottom: 0; /* Ensure no default padding */
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Sticky Footer Support */
+#root {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Ensure content doesn't get hidden behind fixed footer */
+.main-content {
+  padding-bottom: 240px; /* Default footer height */
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 340px; /* Mobile footer height */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    padding-bottom: 280px; /* Tablet footer height */
+  }
 }
 
 h1 {

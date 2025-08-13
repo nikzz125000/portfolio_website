@@ -1258,7 +1258,7 @@ const ProjectDetailsPage: React.FC = () => {
     .section-nav-buttons {
       position: fixed;
       top: 20px;
-      right: 20px;
+      right: 45px;
       z-index: 1000;
       display: flex;
       gap: 10px;
@@ -1417,7 +1417,7 @@ const ProjectDetailsPage: React.FC = () => {
       /* Mobile section navigation */
       .section-nav-buttons {
         top: 15px !important;
-        right: 15px !important;
+        right: 40px !important;
         gap: 8px !important;
       }
       
@@ -1576,7 +1576,7 @@ const ProjectDetailsPage: React.FC = () => {
           className="section-nav-buttons"
           style={{
             top: deviceType === "mobile" ? "15px" : "20px",
-            right: deviceType === "mobile" ? "15px" : "20px",
+            right: deviceType === "mobile" ? "40px" : "45px",
           }}
         >
           <button
@@ -1917,6 +1917,19 @@ const ProjectDetailsPage: React.FC = () => {
         <Footer
           deviceType={deviceType as "mobile" | "tablet" | "desktop"}
           variant="project-details"
+        />
+
+        {/* Bottom padding to prevent content from being hidden behind fixed footer */}
+        <div
+          style={{
+            height:
+              deviceType === "mobile"
+                ? "340px"
+                : deviceType === "tablet"
+                ? "280px"
+                : "240px",
+            width: "100%",
+          }}
         />
       </div>
 

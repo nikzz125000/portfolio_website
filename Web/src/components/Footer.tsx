@@ -4,6 +4,34 @@ import { useCustomerConnect } from "../api/useCustomerConnect";
 import { useResumeDetails } from "../api/useResumeDetails";
 import { createPortal } from "react-dom";
 
+const Icon = {
+  LinkedIn: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M4.983 3.5C4.983 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.483 1.12 2.483 2.5zM.3 8.1h4.4V24H.3V8.1zm7.2 0h4.215v2.17h.06c.587-1.113 2.022-2.29 4.163-2.29 4.452 0 5.273 2.93 5.273 6.737V24H16.5v-6.94c0-1.656-.03-3.784-2.307-3.784-2.31 0-2.664 1.805-2.664 3.668V24H7.5V8.1z" />
+    </svg>
+  ),
+  Instagram: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.4a4.9 4.9 0 0 1 1.77 1.15 4.9 4.9 0 0 1 1.15 1.77c.16.46.346 1.26.4 2.43.058 1.266.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.4 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.46.16-1.26.346-2.43.4-1.266.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.43-.4a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.16-.46-.346-1.26-.4-2.43C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.054-1.17.24-1.97.4-2.43A4.9 4.9 0 0 1 3.82 2.95 4.9 4.9 0 0 1 5.59 1.8c.46-.16 1.26-.346 2.43-.4C9.284 1.342 9.668 1.33 12 1.33zm0 1.8c-3.16 0-3.535.012-4.78.07-.99.046-1.528.21-1.883.35-.474.184-.81.404-1.165.758-.354.355-.574.691-.758 1.165-.14.355-.304.893-.35 1.883-.058 1.245-.07 1.62-.07 4.78s.012 3.535.07 4.78c.046.99.21 1.528.35 1.883.184.474.404.81.758 1.165.355.354.691.574 1.165.758.355.14.893.304 1.883.35 1.245.058 1.62.07 4.78.07s3.535-.012 4.78-.07c.99-.046 1.528-.21 1.883-.35.474-.184.81-.404 1.165-.758.354-.355.574-.691.758-1.165.14-.355.304-.893.35-1.883.058-1.245.07-1.62.07-4.78s-.012-3.535-.07-4.78c-.046-.99-.21-1.528-.35-1.883a3.1 3.1 0 0 0-.758-1.165 3.1 3.1 0 0 0-1.165-.758c-.355-.14-.893-.304-1.883-.35-1.245-.058-1.62-.07-4.78-.07zm0 3.3a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4zm0 1.8a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8zm5.95-3.1a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z" />
+    </svg>
+  ),
+  Behance: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M22 7h-5V5h5v2zM9.6 11.2c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
+    </svg>
+  ),
+  Globe: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.18a15.9 15.9 0 00-1.2-5.01A8.02 8.02 0 0119.93 11zM12 4c.9 0 2.2 1.8 2.8 5H9.2c.6-3.2 1.9-5 2.8-5zM6.45 14a13.7 13.7 0 010-4h11.1a13.7 13.7 0 010 4H6.45zM8.45 18a15.9 15.9 0 01-1.2-5h9.5a15.9 15.9 0 01-1.2 5A8.02 8.02 0 0112 20a8.02 8.02 0 01-3.55-2zM8.45 5.99A15.9 15.9 0 007.25 11H4.07A8.02 8.02 0 018.45 6zM4.07 13h3.18a15.9 15.9 0 001.2 5.01A8.02 8.02 0 014.07 13z" />
+    </svg>
+  ),
+  ResumeDoc: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm0 0v6h6" />
+    </svg>
+  ),
+};
+
 interface FooterProps {
   deviceType?: "mobile" | "tablet" | "desktop";
   variant?: "homepage" | "project-details";
@@ -145,8 +173,8 @@ const Footer: React.FC<FooterProps> = ({
     switch (deviceType) {
       case "mobile":
         return {
-          height: "300px",
-          padding: "40px 20px",
+          height: "340px",
+          padding: "56px 20px",
           flexDirection: "column" as const,
           justifyContent: "center" as const,
           gap: "30px",
@@ -157,8 +185,8 @@ const Footer: React.FC<FooterProps> = ({
         };
       case "tablet":
         return {
-          height: "250px",
-          padding: "0 40px",
+          height: "280px",
+          padding: "24px 40px",
           flexDirection: "row" as const,
           justifyContent: "space-between" as const,
           gap: "0",
@@ -169,8 +197,8 @@ const Footer: React.FC<FooterProps> = ({
         };
       default: // desktop
         return {
-          height: "200px",
-          padding: "0 60px",
+          height: "240px",
+          padding: "28px 60px",
           flexDirection: "row" as const,
           justifyContent: "space-between" as const,
           gap: "0",
@@ -189,7 +217,9 @@ const Footer: React.FC<FooterProps> = ({
       {/* Footer Section */}
       <footer
         style={{
-          position: "relative",
+          position: "fixed",
+          bottom: 0,
+          left: 0,
           width: "100vw",
           height: dimensions.height,
           background:
@@ -200,7 +230,7 @@ const Footer: React.FC<FooterProps> = ({
           justifyContent: dimensions.justifyContent,
           padding: dimensions.padding,
           color: "white",
-          zIndex: 100,
+          zIndex: 1000,
           gap: dimensions.gap,
         }}
       >
@@ -211,12 +241,12 @@ const Footer: React.FC<FooterProps> = ({
             flexDirection: "column",
             alignItems: deviceType === "mobile" ? "center" : "flex-start",
             textAlign: deviceType === "mobile" ? "center" : "left",
+            paddingBottom: 20,
           }}
         >
           <div
             style={{
               fontSize: dimensions.logoSize,
-              marginBottom: "10px",
               filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
             }}
           >
@@ -240,6 +270,123 @@ const Footer: React.FC<FooterProps> = ({
                 </div>
                 <div>{resumeData.data.phone || "Phone not available"}</div>
                 <div>{resumeData.data.email || "Email not available"}</div>
+                <div
+                  style={{ display: "flex", gap: "10px", marginTop: "10px" }}
+                >
+                  <a
+                    href="/resume"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleResumeClick();
+                    }}
+                    aria-label="Resume"
+                    title="View Resume"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 24,
+                      height: 24,
+                      color: "#ffffff",
+                      position: "relative",
+                    }}
+                  >
+                    <Icon.ResumeDoc width={20} height={20} />
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: -6,
+                        right: -8,
+                        background: "rgba(255,255,255,0.95)",
+                        color: "#111827",
+                        borderRadius: 8,
+                        padding: "1px 4px",
+                        fontSize: 8,
+                        fontWeight: 800,
+                        lineHeight: "10px",
+                        letterSpacing: 0.4,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                        textTransform: "uppercase",
+                        pointerEvents: "none",
+                        userSelect: "none",
+                      }}
+                    >
+                      CV
+                    </span>
+                  </a>
+                  {resumeData.data.websiteUrl && (
+                    <a
+                      href={resumeData.data.websiteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Website"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 24,
+                        height: 24,
+                        color: "#ffffff",
+                      }}
+                    >
+                      <Icon.Globe width={20} height={20} />
+                    </a>
+                  )}
+                  {resumeData.data.linkedinUrl && (
+                    <a
+                      href={resumeData.data.linkedinUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="LinkedIn"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 24,
+                        height: 24,
+                        color: "#ffffff",
+                      }}
+                    >
+                      <Icon.LinkedIn width={20} height={20} />
+                    </a>
+                  )}
+                  {resumeData.data.instagramUrl && (
+                    <a
+                      href={resumeData.data.instagramUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Instagram"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 24,
+                        height: 24,
+                        color: "#ffffff",
+                      }}
+                    >
+                      <Icon.Instagram width={20} height={20} />
+                    </a>
+                  )}
+                  {resumeData.data.behanceUrl && (
+                    <a
+                      href={resumeData.data.behanceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Behance"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 24,
+                        height: 24,
+                        color: "#ffffff",
+                      }}
+                    >
+                      <Icon.Behance width={20} height={20} />
+                    </a>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -247,43 +394,6 @@ const Footer: React.FC<FooterProps> = ({
                 <div>Please wait...</div>
                 <div>...</div>
               </>
-            )}
-            {variant === "homepage" && (
-              <div style={{ marginTop: "8px" }}>
-                <button
-                  onClick={handleResumeClick}
-                  style={{
-                    color: "#ffffff",
-                    textDecoration: "none",
-                    fontWeight: "600",
-                    fontSize: deviceType === "mobile" ? "11px" : "13px",
-                    padding: deviceType === "mobile" ? "4px 8px" : "6px 12px",
-                    borderRadius: "20px",
-                    background: "rgba(255, 255, 255, 0.2)",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
-                    transition: "all 0.3s ease",
-                    display: "inline-block",
-                    backdropFilter: "blur(10px)",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(255, 255, 255, 0.3)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 12px rgba(0, 0, 0, 0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(255, 255, 255, 0.2)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  📄 View Resume
-                </button>
-              </div>
             )}
           </div>
         </div>

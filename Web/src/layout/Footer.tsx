@@ -18,7 +18,7 @@ const Footer = () => {
         <Typography variant="body2" color="text.secondary" align="center">
           © {new Date().getFullYear()} Your Company Name. All rights reserved.
           {" | "}
-          <Link color="inherit" href="/about">
+          <Link color="inherit" href="/resume">
             About
           </Link>
           {" | "}
