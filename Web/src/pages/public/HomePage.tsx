@@ -898,7 +898,7 @@ const Homepage: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          top: deviceType === "mobile" ? "60px" : "80px",
+          top: deviceType === "mobile" ? "60px" : "50px",
           left: deviceType === "mobile" ? "15px" : "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
@@ -1031,7 +1031,7 @@ const Homepage: React.FC = () => {
                           ? "20px"
                           : deviceType === "tablet"
                           ? "30px"
-                          : "40px",
+                          : "80px",
                     }}
                   >
                     <img

@@ -11,6 +11,7 @@ import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import {
   getAnimationVariants,
   projectDetailsStyles,
+  homepageStyles,
 } from "../../../components/Const";
 
 interface MenuItem {
@@ -714,7 +715,7 @@ const ProjectDetailsPage: React.FC = () => {
 
   return (
     <div
-      className="project-details-container"
+      className="project-details-container homepage-gradient-bg"
       style={{
         position: "relative", // CHANGED: From "fixed" to "relative" for proper content flow
         top: 0,
@@ -727,6 +728,8 @@ const ProjectDetailsPage: React.FC = () => {
       }}
     >
       <style>{projectDetailsStyles}</style>
+      <style>{homepageStyles}</style>
+      <div className="gradient-background-pattern" />
 
       {/* Section Navigation Buttons - Only show if we have typed sections */}
       {hasTypedSections && (
@@ -794,7 +797,7 @@ const ProjectDetailsPage: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          top: deviceType === "mobile" ? "60px" : "80px",
+          top: deviceType === "mobile" ? "60px" : "50px",
           left: deviceType === "mobile" ? "15px" : "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
@@ -955,7 +958,7 @@ const ProjectDetailsPage: React.FC = () => {
                           ? "20px"
                           : deviceType === "tablet"
                           ? "30px"
-                          : "40px",
+                          : "80px",
                     }}
                   >
                     <img
