@@ -649,7 +649,7 @@ export const getAnimationVariants = (animationType: string, trigger: string, dur
   return baseVariants[animationType] || baseVariants.none;
 };
 
-export   const projectDetailsStyles = `
+export const projectDetailsStyles = `
     /* Project Details specific Framer Motion styles */
     @keyframes menuSlideIn {
       0% { 
@@ -688,6 +688,17 @@ export   const projectDetailsStyles = `
       100% { 
         opacity: 0; 
         transform: translate(-50%, -50%) scale(0.3) rotate(15deg); 
+      }
+    }
+    @keyframes subtleGlow {
+      0% { 
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      }
+      50% { 
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 24px rgba(255, 255, 255, 0.15));
+      }
+      100% { 
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
       }
     }
     @keyframes glowPulse {
@@ -808,36 +819,22 @@ export   const projectDetailsStyles = `
       transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
       z-index: 20;
+      /* Base glow effect with subtle animation */
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      animation: subtleGlow 3s ease-in-out infinite;
     }
 
     .clickable-sub-project:hover {
-      filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+      filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 60px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 80px rgba(102, 126, 234, 0.3));
       z-index: 50 !important;
+      transform: scale(1.03); /* Slightly more scale for better visual feedback */
+      animation: none; /* Pause the subtle glow animation on hover */
     }
 
-    .section-background {
-      transition: all 0.4s ease;
-    }
-
-    .section-background.dimmed {
-      filter: brightness(0.2) blur(3px);
-    }
-
+    /* REMOVED: All dimming effects for sub-projects */
     .sub-project-container {
       transition: all 0.4s ease;
-    }
-
-    .sub-project-container.dimmed {
-      opacity: 0.2;
-      filter: blur(2px) grayscale(0.5);
-      transform: scale(0.95);
-    }
-
-    .sub-project-container.highlighted {
-      opacity: 1;
-      filter: none;
-      z-index: 50;
-      transform: scale(1);
+      /* No dimming classes needed anymore */
     }
 
     .centered-logo {
@@ -1149,14 +1146,23 @@ export   const projectDetailsStyles = `
       }
       
       .clickable-sub-project:hover {
-        /* Reduce hover effects on touch devices */
-        filter: brightness(1.05) saturate(1.02) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        /* Enhanced glow for touch devices */
+        filter: brightness(1.1) saturate(1.08) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 45px rgba(102, 126, 234, 0.2));
+        transform: scale(1.02); /* Slightly reduced scale on smaller devices */
+        animation: none; /* Pause the subtle glow animation on hover */
       }
       
-      /* Disable hover effects completely on pure touch devices */
+      /* Disable hover effects completely on pure touch devices but keep base glow */
       @media (hover: none) {
+        .clickable-sub-project {
+          /* Enhanced base glow for touch devices */
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+        }
+        
         .clickable-sub-project:hover {
-          filter: none;
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+          transform: none;
+          animation: subtleGlow 3s ease-in-out infinite;
         }
         
         .menu-item-modern:hover {
@@ -1172,7 +1178,7 @@ export   const projectDetailsStyles = `
     }
   `;
 
-  export  const homepageStyles = `
+export const homepageStyles = `
     /* Homepage specific Framer Motion styles */
     @keyframes menuSlideIn {
       0% { 
@@ -1213,6 +1219,18 @@ export   const projectDetailsStyles = `
         transform: translate(-50%, -50%) scale(0.3) rotate(15deg); 
       }
     }
+    @keyframes subtleGlow {
+      0% { 
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      }
+      50% { 
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 24px rgba(255, 255, 255, 0.15));
+      }
+      100% { 
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      }
+    }
+
     @keyframes glowPulse {
       0% { 
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.2);
@@ -1331,36 +1349,22 @@ export   const projectDetailsStyles = `
       transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
       z-index: 20;
+      /* Base glow effect with subtle animation */
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      animation: subtleGlow 3s ease-in-out infinite;
     }
 
     .clickable-sub-image:hover {
-      filter: brightness(1.1) saturate(1.05) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+      filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 60px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 80px rgba(102, 126, 234, 0.3));
       z-index: 50 !important;
+      transform: scale(1.03); /* Slightly more scale for better visual feedback */
+      animation: none; /* Pause the subtle glow animation on hover */
     }
 
-    .section-background {
-      transition: all 0.4s ease;
-    }
-
-    .section-background.dimmed {
-      filter: brightness(0.2) blur(3px);
-    }
-
+    /* REMOVED: All dimming effects for sub-images */
     .sub-image-container {
       transition: all 0.4s ease;
-    }
-
-    .sub-image-container.dimmed {
-      opacity: 0.2;
-      filter: blur(2px) grayscale(0.5);
-      transform: scale(0.95);
-    }
-
-    .sub-image-container.highlighted {
-      opacity: 1;
-      filter: none;
-      z-index: 50;
-      transform: scale(1);
+      /* No dimming classes needed anymore */
     }
 
     .centered-logo {
@@ -1753,14 +1757,23 @@ export   const projectDetailsStyles = `
       }
       
       .clickable-sub-image:hover {
-        /* Reduce hover effects on touch devices */
-        filter: brightness(1.05) saturate(1.02) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        /* Enhanced glow for touch devices */
+        filter: brightness(1.1) saturate(1.08) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 45px rgba(102, 126, 234, 0.2));
+        transform: scale(1.02); /* Slightly reduced scale on smaller devices */
+        animation: none; /* Pause the subtle glow animation on hover */
       }
       
-      /* Disable hover effects completely on pure touch devices */
+      /* Disable hover effects completely on pure touch devices but keep base glow */
       @media (hover: none) {
+        .clickable-sub-image {
+          /* Enhanced base glow for touch devices */
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+        }
+        
         .clickable-sub-image:hover {
-          filter: none;
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+          transform: none;
+          animation: subtleGlow 3s ease-in-out infinite;
         }
         
         .menu-item-modern:hover {

@@ -58,9 +58,6 @@ const getDeviceType = () => {
   return "desktop";
 };
 
-// Framer Motion animation variants - EXACT COPY FROM HOMEPAGE
-
-
 // Get animation duration based on speed - EXACT COPY FROM HOMEPAGE
 const getAnimationDuration = (speed: string): number => {
   const speedMap: { [key: string]: number } = {
@@ -673,18 +670,18 @@ const ProjectDetailsPage: React.FC = () => {
   };
 
   // Get section type info for display
-  const getSectionTypeInfo = (backgroundType: number) => {
-    if (!hasTypedSections) return null;
+  // const getSectionTypeInfo = (backgroundType: number) => {
+  //   if (!hasTypedSections) return null;
 
-    switch (backgroundType) {
-      case 1:
-        return { label: "INTERIOR", color: "#ff9800" };
-      case 2:
-        return { label: "EXTERIOR", color: "#4caf50" };
-      default:
-        return null;
-    }
-  };
+  //   switch (backgroundType) {
+  //     case 1:
+  //       return { label: "INTERIOR", color: "#ff9800" };
+  //     case 2:
+  //       return { label: "EXTERIOR", color: "#4caf50" };
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   // Handle scroll to top
   const handleButtomScrollButtonClick = () => {
@@ -694,9 +691,6 @@ const ProjectDetailsPage: React.FC = () => {
       smoothScrollStep();
     }
   };
-
-  // Project Details specific styles (keep the responsive UI styles, remove CSS animations)
-
 
   const logoSizes = getResponsiveLogoSizes();
   const currentActiveSection = getCurrentActiveSection();
@@ -859,7 +853,7 @@ const ProjectDetailsPage: React.FC = () => {
           </div>
         )}
 
-        {/* ENHANCED: Responsive sections with proper background handling */}
+        {/* ENHANCED: Responsive sections with background blur effect */}
         {sections?.map((section, sectionIndex) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
@@ -869,7 +863,7 @@ const ProjectDetailsPage: React.FC = () => {
           );
 
           // Get section type info (null if backgroundType is 0)
-          const sectionTypeInfo = getSectionTypeInfo(section.backgroundType);
+          // const sectionTypeInfo = getSectionTypeInfo(section.backgroundType);
 
           return (
             <section
@@ -878,240 +872,241 @@ const ProjectDetailsPage: React.FC = () => {
                 position: "relative",
                 width: "100vw",
                 height: `${dimensions.height}px`,
-                ...bgStyle,
                 overflow: "hidden",
               }}
             >
-              {/* Background Overlay */}
+              {/* Separate Background Layer with Blur Effect */}
               <div
-                className={`section-background ${
-                  hoveredImageId !== null ? "dimmed" : ""
-                }`}
                 style={{
                   position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background:
-                    sectionIndex === 0
-                      ? "linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
-                      : "rgba(0,0,0,0.1)",
+                  ...bgStyle,
+                  filter: hoveredImageId !== null ? "blur(3px)" : "none",
+                  transition: "filter 0.3s ease",
                   zIndex: 1,
                 }}
               />
 
-              {/* Section Type Badge - Only show if we have typed sections */}
-              {sectionTypeInfo && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "20px",
-                    left: "20px",
-                    background: sectionTypeInfo.color,
-                    color: "white",
-                    padding: "6px 12px",
-                    borderRadius: "20px",
-                    fontSize: deviceType === "mobile" ? "10px" : "12px",
-                    fontWeight: "600",
-                    zIndex: 100,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  {sectionTypeInfo.label}
-                </div>
-              )}
-
-              {/* Responsive Centered Top Logo - Only show on first section */}
-              {sectionIndex === 0 && (
-                <div
-                  className="centered-logo"
-                  onClick={handleCenteredLogoClick}
-                  style={{
-                    top:
-                      deviceType === "mobile"
-                        ? "20px"
-                        : deviceType === "tablet"
-                        ? "30px"
-                        : "40px",
-                  }}
-                >
-                  <img
-                    src="/logo/logo.webp"
-                    alt="Centered Logo"
-                    style={{
-                      cursor: "pointer",
-                      height: logoSizes.centeredLogo,
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
-              <AnimatePresence>
-                {section.subProjects?.map((subProject) => {
-                  // ENHANCED: Use responsive coordinate system for positioning
-                  const containerWidth = window.innerWidth;
-                  const { x: pixelX, y: pixelY } =
-                    coordinateSystem.getPixelFromPercent(
-                      subProject.xPosition,
-                      subProject.yPosition,
-                      containerWidth
-                    );
-
-                  const imageDimensions = calculateResponsiveImageDimensions(
-                    containerWidth,
-                    subProject.heightPercent,
-                    section.backgroundImageAspectRatio
-                  );
-
-                  const isHovered = hoveredImageId === subProject.subProjectId;
-                  const isDimmed =
-                    hoveredImageId !== null &&
-                    hoveredImageId !== subProject.subProjectId;
-
-                  // Get animation variants for this sub-project
-                  const animationVariants = getAnimationVariants(subProject.animation, subProject.animationTrigger);
-                  const duration = getAnimationDuration(subProject.animationSpeed);
-
-                  // Build proper transition with duration and repeat logic
-                  const transition: any = { duration };
-
-                  // Handle repeat logic based on trigger and animation type
-                  if (subProject.animationTrigger === 'continuous') {
-                    // Animations that should repeat infinitely on continuous
-                    const continuousAnimations = [
-                      'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'rotate', 'flip', 'flipX', 'flipY',
-                      'flash', 'swing', 'rubberBand', 'wobble', 'jello', 'tada', 'rollOut', 'zoomOut', 'headShake',
-                      'fadeIn', 'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight', 'fadeInUpBig', 'fadeInDownBig', 
-                      'fadeInLeftBig', 'fadeInRightBig', 'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
-                      'zoomIn', 'zoomInUp', 'zoomInDown', 'zoomInLeft', 'zoomInRight', 'bounceIn', 'bounceInUp', 
-                      'bounceInDown', 'bounceInLeft', 'bounceInRight', 'elasticIn', 'elasticInUp', 'elasticInDown',
-                      'elasticInLeft', 'elasticInRight', 'rotateIn', 'rotateInUpLeft', 'rotateInUpRight', 
-                      'rotateInDownLeft', 'rotateInDownRight', 'flipInX', 'flipInY', 'lightSpeedInLeft', 
-                      'lightSpeedInRight', 'rollIn', 'jackInTheBox', 'hinge', 'backInUp', 'backInDown', 
-                      'backInLeft', 'backInRight'
-                    ];
-                    
-                    if (continuousAnimations.includes(subProject.animation)) {
-                      transition.repeat = Infinity;
-                    }
-
-                    // Linear easing for rotation animations
-                    if (['rotate', 'flip', 'flipX', 'flipY'].includes(subProject.animation)) {
-                      transition.ease = 'linear';
-                    }
-                  }
-
-                  if (subProject.animationTrigger === 'once') {
-                    // Attention seeking animations that should repeat a few times for "once" trigger
-                    const attentionAnimations = [
-                      'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'flash', 'headShake', 'swing', 
-                      'rubberBand', 'wobble', 'jello', 'tada'
-                    ];
-                    
-                    if (attentionAnimations.includes(subProject.animation)) {
-                      // Different repeat counts for different animation types
-                      const repeatCounts: { [key: string]: number } = {
-                        'bounce': 3,
-                        'shake': 3,
-                        'shakeY': 3,
-                        'pulse': 2,
-                        'heartbeat': 2,
-                        'flash': 3,
-                        'headShake': 2,
-                        'swing': 1,
-                        'rubberBand': 1,
-                        'wobble': 1,
-                        'jello': 1,
-                        'tada': 1
-                      };
-                      transition.repeat = repeatCounts[subProject.animation] || 1;
-                    }
-                  }
-
-                  // Special duration adjustments for specific animations
-                  if (subProject.animation === 'hinge') {
-                    transition.duration = duration * 1.5; // Hinge needs more time
-                  }
-
-                  if (['elasticIn', 'elasticInUp', 'elasticInDown', 'elasticInLeft', 'elasticInRight'].includes(subProject.animation)) {
-                    transition.duration = duration * 1.2; // Elastic animations need more time
-                  }
-
-                  return (
-                    <motion.div
-                      key={subProject.subProjectId}
-                      className={`sub-project-visible sub-project-container ${
-                        isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
-                      }`}
-                      style={{
-                        position: "absolute",
-                        left: `${pixelX}px`,
-                        top: `${pixelY}px`,
-                        zIndex: isHovered ? 50 : 10,
-                      }}
-                    >
-                      <motion.img
-                        src={
-                          subProject.projectImageUrl &&
-                          subProject.projectImageUrl.trim() !== ""
-                            ? subProject.projectImageUrl
-                            : SAMPLE_SUB_IMAGE
-                        }
-                        alt={subProject.name || subProject.imageFileName}
-                        data-sub-project-id={subProject.subProjectId}
-                        data-animation={subProject.animation}
-                        data-animation-speed={subProject.animationSpeed}
-                        data-animation-trigger={subProject.animationTrigger}
-                        data-device-type={deviceType}
-                        data-is-exterior={subProject.isExterior}
-                        data-has-typed-sections={hasTypedSections}
-                        className="clickable-sub-project"
-                        variants={animationVariants}
-                        initial={subProject.animation !== 'none' ? 'initial' : {}}
-                        animate={subProject.animation !== 'none' && subProject.animationTrigger !== 'hover' ? 'animate' : 'initial'}
-                        whileHover={subProject.animation !== 'none' && subProject.animationTrigger === 'hover' ? 'animate' : {}}
-                        transition={transition}
-                        onClick={() => {}}
-                        onMouseEnter={() =>
-                          setHoveredImageId(subProject.subProjectId)
-                        }
-                        onMouseLeave={() => setHoveredImageId(null)}
-                        onError={(e) => {
-                          // Fallback to sample image if the original fails to load
-                          if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
-                            e.currentTarget.src = SAMPLE_SUB_IMAGE;
-                          }
-                        }}
-                        style={{
-                          ...imageDimensions,
-                          display: "block",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                          backfaceVisibility: "hidden",
-                          perspective: "1000px",
-                          // Enhanced touch targets for mobile
-                          minWidth: deviceType === "mobile" ? "44px" : "auto",
-                          minHeight: deviceType === "mobile" ? "44px" : "auto",
-                        }}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-
-              {/* Section Title (Hidden but can be used for SEO) */}
-              <h1
+              {/* Content Layer - Sub-projects and other content */}
+              <div
                 style={{
-                  position: "absolute",
-                  left: "-9999px",
-                  visibility: "hidden",
+                  position: "relative",
+                  width: "100%",
+                  height: "100%",
+                  zIndex: 10,
                 }}
               >
-                {section.title}{" "}
-                {sectionTypeInfo ? ` - ${sectionTypeInfo.label}` : ""}
-              </h1>
+                {/* Section Type Badge - Only show if we have typed sections */}
+                {/* {sectionTypeInfo && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "20px",
+                      left: "20px",
+                      background: sectionTypeInfo.color,
+                      color: "white",
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      fontSize: deviceType === "mobile" ? "10px" : "12px",
+                      fontWeight: "600",
+                      zIndex: 100,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    {/* {sectionTypeInfo.label} */}
+                  {/* </div>
+                )}  */}
+
+                {/* Responsive Centered Top Logo - Only show on first section */}
+                {sectionIndex === 0 && (
+                  <div
+                    className="centered-logo"
+                    onClick={handleCenteredLogoClick}
+                    style={{
+                      top:
+                        deviceType === "mobile"
+                          ? "20px"
+                          : deviceType === "tablet"
+                          ? "30px"
+                          : "40px",
+                    }}
+                  >
+                    <img
+                      src="/logo/logo.webp"
+                      alt="Centered Logo"
+                      style={{
+                        cursor: "pointer",
+                        height: logoSizes.centeredLogo,
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
+                <AnimatePresence>
+                  {section.subProjects?.map((subProject) => {
+                    // ENHANCED: Use responsive coordinate system for positioning
+                    const containerWidth = window.innerWidth;
+                    const { x: pixelX, y: pixelY } =
+                      coordinateSystem.getPixelFromPercent(
+                        subProject.xPosition,
+                        subProject.yPosition,
+                        containerWidth
+                      );
+
+                    const imageDimensions = calculateResponsiveImageDimensions(
+                      containerWidth,
+                      subProject.heightPercent,
+                      section.backgroundImageAspectRatio
+                    );
+
+                    const isHovered = hoveredImageId === subProject.subProjectId;
+
+                    // Get animation variants for this sub-project
+                    const animationVariants = getAnimationVariants(subProject.animation, subProject.animationTrigger);
+                    const duration = getAnimationDuration(subProject.animationSpeed);
+
+                    // Build proper transition with duration and repeat logic
+                    const transition: any = { duration };
+
+                    // Handle repeat logic based on trigger and animation type
+                    if (subProject.animationTrigger === 'continuous') {
+                      // Animations that should repeat infinitely on continuous
+                      const continuousAnimations = [
+                        'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'rotate', 'flip', 'flipX', 'flipY',
+                        'flash', 'swing', 'rubberBand', 'wobble', 'jello', 'tada', 'rollOut', 'zoomOut', 'headShake',
+                        'fadeIn', 'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight', 'fadeInUpBig', 'fadeInDownBig', 
+                        'fadeInLeftBig', 'fadeInRightBig', 'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
+                        'zoomIn', 'zoomInUp', 'zoomInDown', 'zoomInLeft', 'zoomInRight', 'bounceIn', 'bounceInUp', 
+                        'bounceInDown', 'bounceInLeft', 'bounceInRight', 'elasticIn', 'elasticInUp', 'elasticInDown',
+                        'elasticInLeft', 'elasticInRight', 'rotateIn', 'rotateInUpLeft', 'rotateInUpRight', 
+                        'rotateInDownLeft', 'rotateInDownRight', 'flipInX', 'flipInY', 'lightSpeedInLeft', 
+                        'lightSpeedInRight', 'rollIn', 'jackInTheBox', 'hinge', 'backInUp', 'backInDown', 
+                        'backInLeft', 'backInRight'
+                      ];
+                      
+                      if (continuousAnimations.includes(subProject.animation)) {
+                        transition.repeat = Infinity;
+                      }
+
+                      // Linear easing for rotation animations
+                      if (['rotate', 'flip', 'flipX', 'flipY'].includes(subProject.animation)) {
+                        transition.ease = 'linear';
+                      }
+                    }
+
+                    if (subProject.animationTrigger === 'once') {
+                      // Attention seeking animations that should repeat a few times for "once" trigger
+                      const attentionAnimations = [
+                        'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'flash', 'headShake', 'swing', 
+                        'rubberBand', 'wobble', 'jello', 'tada'
+                      ];
+                      
+                      if (attentionAnimations.includes(subProject.animation)) {
+                        // Different repeat counts for different animation types
+                        const repeatCounts: { [key: string]: number } = {
+                          'bounce': 3,
+                          'shake': 3,
+                          'shakeY': 3,
+                          'pulse': 2,
+                          'heartbeat': 2,
+                          'flash': 3,
+                          'headShake': 2,
+                          'swing': 1,
+                          'rubberBand': 1,
+                          'wobble': 1,
+                          'jello': 1,
+                          'tada': 1
+                        };
+                        transition.repeat = repeatCounts[subProject.animation] || 1;
+                      }
+                    }
+
+                    // Special duration adjustments for specific animations
+                    if (subProject.animation === 'hinge') {
+                      transition.duration = duration * 1.5; // Hinge needs more time
+                    }
+
+                    if (['elasticIn', 'elasticInUp', 'elasticInDown', 'elasticInLeft', 'elasticInRight'].includes(subProject.animation)) {
+                      transition.duration = duration * 1.2; // Elastic animations need more time
+                    }
+
+                    return (
+                      <motion.div
+                        key={subProject.subProjectId}
+                        className="sub-project-visible sub-project-container"
+                        style={{
+                          position: "absolute",
+                          left: `${pixelX}px`,
+                          top: `${pixelY}px`,
+                          zIndex: isHovered ? 50 : 20,
+                        }}
+                      >
+                        <motion.img
+                          src={
+                            subProject.projectImageUrl &&
+                            subProject.projectImageUrl.trim() !== ""
+                              ? subProject.projectImageUrl
+                              : SAMPLE_SUB_IMAGE
+                          }
+                          alt={subProject.name || subProject.imageFileName}
+                          data-sub-project-id={subProject.subProjectId}
+                          data-animation={subProject.animation}
+                          data-animation-speed={subProject.animationSpeed}
+                          data-animation-trigger={subProject.animationTrigger}
+                          data-device-type={deviceType}
+                          data-is-exterior={subProject.isExterior}
+                          data-has-typed-sections={hasTypedSections}
+                          className="clickable-sub-project"
+                          variants={animationVariants}
+                          initial={subProject.animation !== 'none' ? 'initial' : {}}
+                          animate={subProject.animation !== 'none' && subProject.animationTrigger !== 'hover' ? 'animate' : 'initial'}
+                          whileHover={subProject.animation !== 'none' && subProject.animationTrigger === 'hover' ? 'animate' : {}}
+                          transition={transition}
+                          onClick={() => {}}
+                          onMouseEnter={() =>
+                            setHoveredImageId(subProject.subProjectId)
+                          }
+                          onMouseLeave={() => setHoveredImageId(null)}
+                          onError={(e) => {
+                            // Fallback to sample image if the original fails to load
+                            if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
+                              e.currentTarget.src = SAMPLE_SUB_IMAGE;
+                            }
+                          }}
+                          style={{
+                            ...imageDimensions,
+                            display: "block",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            backfaceVisibility: "hidden",
+                            perspective: "1000px",
+                            // Enhanced touch targets for mobile
+                            minWidth: deviceType === "mobile" ? "44px" : "auto",
+                            minHeight: deviceType === "mobile" ? "44px" : "auto",
+                          }}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+
+                {/* Section Title (Hidden but can be used for SEO) */}
+                <h1
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    visibility: "hidden",
+                  }}
+                >
+                  {section.title}{" "}
+                  {/* {sectionTypeInfo ? ` - ${sectionTypeInfo.label}` : ""} */}
+                </h1>
+              
+              </div> {/* End Content Layer */}
             </section>
           );
         })}

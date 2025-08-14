@@ -64,9 +64,6 @@ const getDeviceType = () => {
   return "desktop";
 };
 
-// Framer Motion animation variants - FIXED: Remove hardcoded durations
-
-
 // Get animation duration based on speed
 const getAnimationDuration = (speed: string): number => {
   const speedMap: { [key: string]: number } = {
@@ -78,99 +75,6 @@ const getAnimationDuration = (speed: string): number => {
   };
   return speedMap[speed] || 1.5;
 };
-
-// ENHANCED ANIMATION OPTIONS LIST - EXACT COPY FROM IMAGE EDITOR
-// const animationOptions = [
-//   { value: 'none', label: '🚫 No Animation' },
-  
-//   // === FADE ANIMATIONS ===
-//   { value: 'fadeIn', label: '✨ Fade In' },
-//   { value: 'fadeInUp', label: '⬆️ Fade In Up' },
-//   { value: 'fadeInDown', label: '⬇️ Fade In Down' },
-//   { value: 'fadeInLeft', label: '⬅️ Fade In Left' },
-//   { value: 'fadeInRight', label: '➡️ Fade In Right' },
-//   { value: 'fadeInUpBig', label: '⬆️ Fade In Up Big' },
-//   { value: 'fadeInDownBig', label: '⬇️ Fade In Down Big' },
-//   { value: 'fadeInLeftBig', label: '⬅️ Fade In Left Big' },
-//   { value: 'fadeInRightBig', label: '➡️ Fade In Right Big' },
-  
-//   // === SLIDE ANIMATIONS ===
-//   { value: 'slideInLeft', label: '⬅️ Slide In Left' },
-//   { value: 'slideInRight', label: '➡️ Slide In Right' },
-//   { value: 'slideInUp', label: '⬆️ Slide In Up' },
-//   { value: 'slideInDown', label: '⬇️ Slide In Down' },
-  
-//   // === ZOOM ANIMATIONS ===
-//   { value: 'zoomIn', label: '🔍 Zoom In' },
-//   { value: 'zoomInUp', label: '🔍⬆️ Zoom In Up' },
-//   { value: 'zoomInDown', label: '🔍⬇️ Zoom In Down' },
-//   { value: 'zoomInLeft', label: '🔍⬅️ Zoom In Left' },
-//   { value: 'zoomInRight', label: '🔍➡️ Zoom In Right' },
-//   { value: 'zoomOut', label: '🔍 Zoom Out' },
-  
-//   // === BOUNCE ANIMATIONS ===
-//   { value: 'bounce', label: '⚽ Bounce' },
-//   { value: 'bounceIn', label: '⚽ Bounce In' },
-//   { value: 'bounceInUp', label: '⚽⬆️ Bounce In Up' },
-//   { value: 'bounceInDown', label: '⚽⬇️ Bounce In Down' },
-//   { value: 'bounceInLeft', label: '⚽⬅️ Bounce In Left' },
-//   { value: 'bounceInRight', label: '⚽➡️ Bounce In Right' },
-  
-//   // === ATTENTION SEEKERS ===
-//   { value: 'shake', label: '🫨 Shake X' },
-//   { value: 'shakeY', label: '🫨 Shake Y' },
-//   { value: 'pulse', label: '💓 Pulse' },
-//   { value: 'heartbeat', label: '💗 Heartbeat' },
-//   { value: 'flash', label: '⚡ Flash' },
-//   { value: 'headShake', label: '🙄 Head Shake' },
-  
-//   // === ELASTIC ANIMATIONS ===
-//   { value: 'elasticIn', label: '🪃 Elastic In' },
-//   { value: 'elasticInUp', label: '🪃⬆️ Elastic In Up' },
-//   { value: 'elasticInDown', label: '🪃⬇️ Elastic In Down' },
-//   { value: 'elasticInLeft', label: '🪃⬅️ Elastic In Left' },
-//   { value: 'elasticInRight', label: '🪃➡️ Elastic In Right' },
-  
-//   // === ROTATION & SWING ===
-//   { value: 'swing', label: '🎭 Swing' },
-//   { value: 'rotate', label: '🌀 Rotate' },
-//   { value: 'rotateIn', label: '🌀 Rotate In' },
-//   { value: 'rotateInUpLeft', label: '🌀↖️ Rotate In Up Left' },
-//   { value: 'rotateInUpRight', label: '🌀↗️ Rotate In Up Right' },
-//   { value: 'rotateInDownLeft', label: '🌀↙️ Rotate In Down Left' },
-//   { value: 'rotateInDownRight', label: '🌀↘️ Rotate In Down Right' },
-  
-//   // === FLIP ANIMATIONS ===
-//   { value: 'flip', label: '🔄 Flip Y' },
-//   { value: 'flipX', label: '🔃 Flip X' },
-//   { value: 'flipY', label: '🔄 Flip Y Continuous' },
-//   { value: 'flipInX', label: '🔃 Flip In X' },
-//   { value: 'flipInY', label: '🔄 Flip In Y' },
-  
-//   // === SPECIAL EFFECTS ===
-//   { value: 'rubberBand', label: '🪀 Rubber Band' },
-//   { value: 'wobble', label: '🌊 Wobble' },
-//   { value: 'jello', label: '🍮 Jello' },
-//   { value: 'tada', label: '🎉 Tada' },
-  
-//   // === LIGHTSPEED ===
-//   { value: 'lightSpeedInRight', label: '⚡➡️ Light Speed In Right' },
-//   { value: 'lightSpeedInLeft', label: '⚡⬅️ Light Speed In Left' },
-  
-//   // === ROLL ANIMATIONS ===
-//   { value: 'rollIn', label: '🎳 Roll In' },
-//   { value: 'rollOut', label: '🎳 Roll Out' },
-  
-//   // === SPECIAL GEOMETRIC ===
-//   { value: 'jackInTheBox', label: '📦 Jack In The Box' },
-//   { value: 'hinge', label: '🚪 Hinge' },
-  
-//   // === BACK ANIMATIONS ===
-//   { value: 'backInUp', label: '↩️⬆️ Back In Up' },
-//   { value: 'backInDown', label: '↩️⬇️ Back In Down' },
-//   { value: 'backInLeft', label: '↩️⬅️ Back In Left' },
-//   { value: 'backInRight', label: '↩️➡️ Back In Right' }
-// ];
 
 // ENHANCED: Mobile-first unified coordinate system
 const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
@@ -660,8 +564,6 @@ const Homepage: React.FC = () => {
     };
   };
 
-  // Homepage specific styles (keep the responsive UI styles, remove CSS animations)
- 
   const logoSizes = getResponsiveLogoSizes();
 
   return (
@@ -791,7 +693,7 @@ const Homepage: React.FC = () => {
           willChange: "transform",
         }}
       >
-        {/* ENHANCED: Responsive sections with proper background handling */}
+        {/* ENHANCED: Responsive sections with background blur effect */}
         {sections?.map((section, sectionIndex) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
@@ -813,29 +715,33 @@ const Homepage: React.FC = () => {
                     : deviceType === "tablet"
                     ? "90vh"
                     : "100vh",
-                ...bgStyle,
                 overflow: "hidden",
               }}
             >
-              {/* Background Overlay */}
+              {/* Separate Background Layer with Blur Effect */}
               <div
-                className={`section-background ${
-                  hoveredImageId !== null ? "dimmed" : ""
-                }`}
                 style={{
                   position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background:
-                    sectionIndex === 0
-                      ? "linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
-                      : "rgba(0,0,0,0.1)",
+                  ...bgStyle,
+                  filter: hoveredImageId !== null ? "blur(3px)" : "none",
+                  transition: "filter 0.3s ease",
                   zIndex: 1,
                 }}
               />
 
+              {/* Content Layer - Sub-images and other content */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: "100%",
+                  zIndex: 10,
+                }}
+              >
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
                 <div
@@ -880,9 +786,6 @@ const Homepage: React.FC = () => {
                   );
 
                   const isHovered = hoveredImageId === subImage.projectId;
-                  const isDimmed =
-                    hoveredImageId !== null &&
-                    hoveredImageId !== subImage.projectId;
 
                   // Get animation variants for this image
                   const animationVariants = getAnimationVariants(subImage.animation, subImage.animationTrigger);
@@ -956,14 +859,12 @@ const Homepage: React.FC = () => {
                   return (
                     <motion.div
                       key={subImage.projectId}
-                      className={`sub-image-visible sub-image-container ${
-                        isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
-                      }`}
+                      className="sub-image-visible sub-image-container"
                       style={{
                         position: "absolute",
                         left: `${pixelX}px`,
                         top: `${pixelY}px`,
-                        zIndex: isHovered ? 50 : 10,
+                        zIndex: isHovered ? 50 : 20,
                       }}
                     >
                       <motion.img
@@ -1017,6 +918,8 @@ const Homepage: React.FC = () => {
               >
                 {section.title}
               </h1>
+              
+              </div> {/* End Content Layer */}
             </section>
           );
         })}
