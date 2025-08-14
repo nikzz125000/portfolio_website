@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useResumeDetails } from "../../api/useResumeDetails";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { homepageStyles } from "../../components/Const";
 
 // Types for the resume data structure
 interface EducationEntry {
@@ -75,17 +77,24 @@ const Icon = {
   ),
   Instagram: (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.4a4.9 4.9 0 0 1 1.77 1.15 4.9 4.9 0 0 1 1.15 1.77c.16.46.346 1.26.4 2.43.058 1.266.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.4 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.46.16-1.26.346-2.43.4-1.266.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.43-.4a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.16-.46-.346-1.26-.4-2.43C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.054-1.17.24-1.97.4-2.43A4.9 4.9 0 0 1 3.82 2.95 4.9 4.9 0 0 1 5.59 1.8c.46-.16 1.26-.346 2.43-.4C9.284 1.342 9.668 1.33 12 1.33zm0 1.8c-3.16 0-3.535.012-4.78.07-.99.046-1.528.21-1.883.35-.474.184-.81.404-1.165.758-.354.355-.574.691-.758 1.165-.14.355-.304.893-.35 1.883-.058 1.245-.07 1.62-.07 4.78s.012 3.535.07 4.78c.046.99.21 1.528.35 1.883.184.474.404.81.758 1.165.355.354.691.574 1.165.758.355.14.893.304 1.883.35 1.245.058 1.62.07 4.78.07s3.535-.012 4.78-.07c.99-.046 1.528-.21 1.883-.35.474-.184.81-.404 1.165-.758.354-.355.574-.691.758-1.165.14-.355.304-.893.35-1.883.058-1.245.07-1.62.07-4.78s-.012-3.535-.07-4.78c-.046-.99-.21-1.528-.35-1.883a3.1 3.1 0 0 0-.758-1.165 3.1 3.1 0 0 0-1.165-.758c-.355-.14-.893-.304-1.883-.35-1.245-.058-1.62-.07-4.78-.07zm0 3.3a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4zm0 1.8a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8zm5.95-3.1a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z" />
+      {/* Modern Instagram Icon - Updated 2024 */}
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.645.07 4.849 0 3.205-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 3.266-.058 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
     </svg>
   ),
   Behance: (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M22 7h-5V5h5v2zM9.6 11.2c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
+      {/* Modern Behance Icon - Updated 2024 */}
+      <path d="M22 7h-6V5h6v2zm-6 10h6v-2h-6v2zm-6-7c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
     </svg>
   ),
   Globe: (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.18a15.9 15.9 0 00-1.2-5.01A8.02 8.02 0 0119.93 11zM12 4c.9 0 2.2 1.8 2.8 5H9.2c.6-3.2 1.9-5 2.8-5zM6.45 14a13.7 13.7 0 010-4h11.1a13.7 13.7 0 010 4H6.45zM8.45 18a15.9 15.9 0 01-1.2-5h9.5a15.9 15.9 0 01-1.2 5A8.02 8.02 0 0112 20a8.02 8.02 0 01-3.55-2zM8.45 5.99A15.9 15.9 0 007.25 11H4.07A8.02 8.02 0 018.45 6zM4.07 13h3.18a15.9 15.9 0 001.2 5.01A8.02 8.02 0 014.07 13z" />
+    </svg>
+  ),
+  ResumeDoc: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm0 0v6h6" />
     </svg>
   ),
 };
@@ -98,6 +107,43 @@ const AnimatedResume: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const { data: resumeResponse } = useResumeDetails();
   const navigate = useNavigate();
+
+  // Visual design tokens
+  const gradient8 =
+    "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)";
+  const cardStyle: React.CSSProperties = {
+    background:
+      "linear-gradient(135deg, rgba(9, 9, 9, 0.71) 0%, rgba(60, 35, 49, 0.78) 14%, rgba(43, 5, 20, 0.5) 28%, rgba(50, 21, 32, 0.56) 42%, rgba(253, 51, 107, 0.12) 56%, rgba(242, 61, 100, 0.10) 70%, rgba(246, 93, 85, 0.10) 84%, rgba(245, 101, 93, 0.10) 100%), rgba(10, 10, 14, 0.65)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 16,
+    padding: 24,
+    boxShadow:
+      "0 8px 30px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.04)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    // backgroundColor: "rgba(0, 0, 0, 0.74)",
+  };
+  const sectionTitleStyle: React.CSSProperties = {
+    background: gradient8,
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    color: "transparent",
+  };
+  const fadeUp: any = {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, ease: "easeOut" },
+    viewport: { once: true, amount: 0.2 },
+  };
+
+  // Ensure natural page scrolling is enabled even after visiting custom-scroll pages
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "auto";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
 
   useEffect(() => {
     // Initialize Intersection Observer for scroll animations
@@ -166,7 +212,23 @@ const AnimatedResume: React.FC = () => {
   }, [resumeResponse]);
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div
+      className="min-h-screen homepage-gradient-bg ff-brand"
+      style={{ color: "#e5e7eb", overflowY: "auto" }}
+    >
+      {/* Reuse homepage gradient styles */}
+      <style>{homepageStyles}</style>
+      {/* Force-enable scrolling on this page (override any global scroll lock) */}
+      <style>{`
+        html, body { overflow: auto !important; }
+        #root, main { overflow: visible !important; }
+        .smooth-scroll-container, .smooth-scroll-content { 
+          overflow: visible !important; 
+          transform: none !important; 
+        }
+      `}</style>
+      {/* Subtle gradient pattern overlay */}
+      <div className="gradient-background-pattern" />
       <style>{`
         @keyframes fadeInLeft {
           from {
@@ -258,7 +320,11 @@ const AnimatedResume: React.FC = () => {
       <button
         onClick={() => navigate(-1)}
         aria-label="Go back"
-        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 text-gray-900 border border-gray-300 shadow-md backdrop-blur hover:bg-white transition"
+        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/20 shadow-md backdrop-blur transition"
+        style={{
+          background: "rgba(0,0,0,0.45)",
+          color: "#fff",
+        }}
       >
         <svg
           viewBox="0 0 24 24"
@@ -273,7 +339,11 @@ const AnimatedResume: React.FC = () => {
 
       {/* Header Section */}
       <div className="max-w-6xl mx-auto p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <motion.div
+          {...fadeUp}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16"
+          style={cardStyle}
+        >
           {/* Left Side - Photo and Name */}
           <div className="flex flex-col">
             <div
@@ -286,7 +356,7 @@ const AnimatedResume: React.FC = () => {
               <img
                 src={resumeData.personalInfo.photo || DEFAULT_AVATAR}
                 alt={resumeData.personalInfo.name}
-                className="w-full h-full object-cover grayscale"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   if (e.currentTarget.src !== DEFAULT_AVATAR) {
                     e.currentTarget.src = DEFAULT_AVATAR;
@@ -301,11 +371,12 @@ const AnimatedResume: React.FC = () => {
               className={`text-6xl font-bold mb-4 animate-left ${
                 visibleElements.has("name") ? "visible" : ""
               }`}
+              style={sectionTitleStyle}
             >
               {resumeData.personalInfo.name}
             </h1>
             {resumeData.personalInfo.location && (
-              <div className="text-gray-600 text-lg">
+              <div className="text-gray-300 text-lg">
                 {resumeData.personalInfo.location}
               </div>
             )}
@@ -326,7 +397,7 @@ const AnimatedResume: React.FC = () => {
               <div className="text-lg mb-4">
                 {resumeData.personalInfo.email}
               </div>
-              <div className="flex justify-end gap-3 text-gray-800">
+              <div className="flex justify-end gap-3 text-white/90">
                 {resumeData.personalInfo.socials?.website && (
                   <a
                     href={resumeData.personalInfo.socials.website}
@@ -380,6 +451,7 @@ const AnimatedResume: React.FC = () => {
               className={`text-lg leading-relaxed animate-right ${
                 visibleElements.has("bio") ? "visible" : ""
               }`}
+              style={{ color: "#e5e7eb" }}
             >
               {resumeData.personalInfo.bio
                 .split(". ")
@@ -389,7 +461,7 @@ const AnimatedResume: React.FC = () => {
                     return (
                       <span key={index}>
                         {parts[0]}
-                        <em className="italic">
+                        <em className="italic" style={{ color: "#fca5a5" }}>
                           {resumeData.personalInfo.focus}
                         </em>
                         {parts[1]}
@@ -409,24 +481,28 @@ const AnimatedResume: React.FC = () => {
                 })}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Education Section */}
         {resumeData.education && resumeData.education.length > 0 && (
-          <div className="mb-16">
+          <motion.div {...fadeUp} className="mb-16" style={cardStyle}>
             <h2
               id="education-title"
               data-animate
               className={`text-5xl font-bold mb-12 animate-left ${
                 visibleElements.has("education-title") ? "visible" : ""
               }`}
+              style={sectionTitleStyle}
             >
               education
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative">
               {/* Vertical divider line */}
-              <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
+              <div
+                className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 transform -translate-x-1/2"
+                style={{ background: "rgba(255,255,255,0.18)" }}
+              ></div>
 
               <div
                 id="education-left"
@@ -437,11 +513,13 @@ const AnimatedResume: React.FC = () => {
               >
                 {resumeData.education.map((ed, i) => (
                   <div key={i} className="mb-6">
-                    <div className="text-lg font-semibold mb-2">
+                    <div className="text-lg font-semibold mb-2 text-white">
                       {ed.period}
                     </div>
-                    <div className="text-lg">{ed.institution}</div>
-                    <div className="text-lg text-gray-600">{ed.location}</div>
+                    <div className="text-lg text-white/90">
+                      {ed.institution}
+                    </div>
+                    <div className="text-lg text-gray-300">{ed.location}</div>
                   </div>
                 ))}
               </div>
@@ -455,34 +533,38 @@ const AnimatedResume: React.FC = () => {
               >
                 {resumeData.education.map((ed, i) => (
                   <div key={i} className="mb-6">
-                    <div className="text-lg">{ed.degree}</div>
+                    <div className="text-lg text-white/90">{ed.degree}</div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Experience Section */}
-        {resumeData.experience && resumeData.experience.length > 0 && (
-          <div>
-            <h2
-              id="experience-title"
-              data-animate
-              className={`text-5xl font-bold mb-12 animate-left ${
-                visibleElements.has("experience-title") ? "visible" : ""
-              }`}
-            >
-              experience
-            </h2>
+        <motion.div {...fadeUp} style={cardStyle}>
+          <h2
+            id="experience-title"
+            data-animate
+            className={`text-5xl font-bold mb-12 animate-left ${
+              visibleElements.has("experience-title") ? "visible" : ""
+            }`}
+            style={sectionTitleStyle}
+          >
+            experience
+          </h2>
 
-            {resumeData.experience.map((exp, index) => (
+          {resumeData.experience && resumeData.experience.length > 0 ? (
+            resumeData.experience.map((exp, index) => (
               <div
                 key={index}
                 className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12 relative"
               >
                 {/* Vertical divider line */}
-                <div className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 bg-gray-400 transform -translate-x-1/2"></div>
+                <div
+                  className="hidden lg:block absolute left-1/2 top-0 h-full w-0.5 transform -translate-x-1/2"
+                  style={{ background: "rgba(255,255,255,0.18)" }}
+                ></div>
 
                 <div
                   id={`exp-left-${index}`}
@@ -491,11 +573,17 @@ const AnimatedResume: React.FC = () => {
                     visibleElements.has(`exp-left-${index}`) ? "visible" : ""
                   }`}
                 >
-                  <div className="text-lg font-semibold mb-2">{exp.period}</div>
-                  <div className="text-lg italic mb-1">{exp.title}</div>
-                  <div className="text-lg font-semibold">{exp.company}</div>
+                  <div className="text-lg font-semibold mb-2 text-white">
+                    {exp.period}
+                  </div>
+                  <div className="text-lg italic mb-1 text-white/90">
+                    {exp.title}
+                  </div>
+                  <div className="text-lg font-semibold text-white">
+                    {exp.company}
+                  </div>
                   {exp.location && (
-                    <div className="text-lg text-gray-600">{exp.location}</div>
+                    <div className="text-lg text-gray-300">{exp.location}</div>
                   )}
                 </div>
 
@@ -506,32 +594,35 @@ const AnimatedResume: React.FC = () => {
                     visibleElements.has(`exp-right-${index}`) ? "visible" : ""
                   }`}
                 >
-                  <div className="text-lg leading-relaxed">
+                  <div className="text-lg leading-relaxed text-white/90">
                     {exp.description}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <div className="text-white/80 text-base">No experience found.</div>
+          )}
+        </motion.div>
 
         {/* Skills Section */}
-        {resumeData.skills && resumeData.skills.length > 0 && (
-          <div className="mt-16">
-            <h2
-              id="skills-title"
-              data-animate
-              className={`text-5xl font-bold mb-12 animate-left ${
-                visibleElements.has("skills-title") ? "visible" : ""
-              }`}
-            >
-              skills
-            </h2>
+        <motion.div {...fadeUp} className="mt-16" style={cardStyle}>
+          <h2
+            id="skills-title"
+            data-animate
+            className={`text-5xl font-bold mb-12 animate-left ${
+              visibleElements.has("skills-title") ? "visible" : ""
+            }`}
+            style={sectionTitleStyle}
+          >
+            skills
+          </h2>
+          {resumeData.skills && resumeData.skills.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {resumeData.skills.map((cat, idx) => (
                 <div key={idx}>
                   {cat.title && (
-                    <div className="text-xl font-semibold mb-3">
+                    <div className="text-xl font-semibold mb-3 text-white">
                       {cat.title}
                     </div>
                   )}
@@ -539,7 +630,13 @@ const AnimatedResume: React.FC = () => {
                     {(cat.items || []).map((it, j) => (
                       <div
                         key={j}
-                        className="inline-block h-7 leading-[28px] px-3 rounded-full bg-gray-200 text-gray-800 text-xs font-medium text-center align-middle whitespace-nowrap"
+                        className="inline-block h-7 leading-[28px] px-3 rounded-full text-xs font-medium text-center align-middle whitespace-nowrap"
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          color: "#fff",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
+                        }}
                       >
                         {it}
                       </div>
@@ -548,11 +645,13 @@ const AnimatedResume: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-white/80 text-base">No skills found.</div>
+          )}
+        </motion.div>
 
-        {/* Bottom padding to prevent content from being hidden behind fixed footer */}
-        <div style={{ height: "240px", width: "100%" }} />
+        {/* Soft spacing after content */}
+        <div style={{ height: 80, width: "100%" }} />
       </div>
     </div>
   );

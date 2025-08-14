@@ -1,7 +1,5 @@
-import { Box } from '@mui/material';
-import Footer from './Footer';
-
-
+import { Box } from "@mui/material";
+import Footer from "./Footer";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -9,11 +7,18 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Box component="main" sx={{ flexGrow: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
         {children}
       </Box>
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 };

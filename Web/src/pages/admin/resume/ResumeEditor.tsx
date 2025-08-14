@@ -18,6 +18,7 @@ import { useResumeDetails } from "../../../api/useResumeDetails";
 import type { SaveResumePayload } from "../../../api/useSaveResume";
 import { useSaveResume } from "../../../api/useSaveResume";
 import type { SaveResumeResponse } from "../../../api/useSaveResume";
+import { homepageStyles } from "../../../components/Const";
 
 // Keep this aligned with the public resume view
 export interface EducationEntry {
@@ -163,6 +164,27 @@ const ResumeEditor: React.FC = () => {
       } catch {}
     }
   }, [resumeResponse]);
+
+  // Visual tokens to mirror public resume design
+  const gradient8 =
+    "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)";
+  const cardStyle: React.CSSProperties = {
+    background:
+      "linear-gradient(135deg, rgba(110, 34, 110, 0.22) 0%, rgba(165, 32, 106, 0.18) 14%, rgba(211, 22, 99, 0.16) 28%, rgba(237, 49, 118, 0.14) 42%, rgba(253, 51, 107, 0.12) 56%, rgba(242, 61, 100, 0.10) 70%, rgba(246, 93, 85, 0.10) 84%, rgba(245, 101, 93, 0.10) 100%), rgba(10, 10, 14, 0.65)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 16,
+    padding: 24,
+    boxShadow:
+      "0 8px 30px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.04)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+  };
+  const sectionTitleStyle: React.CSSProperties = {
+    background: gradient8,
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    color: "transparent",
+  };
 
   const handleSave = () => {
     const payload: SaveResumePayload = {
@@ -825,15 +847,33 @@ const ResumeEditor: React.FC = () => {
                 </Typography>
               )}
             </Stack>
-            <Box className="bg-white">
+            {/* Mirror public resume visual system */}
+            <Box
+              className="homepage-gradient-bg ff-brand"
+              sx={{ color: "#e5e7eb", borderRadius: 1, overflow: "hidden" }}
+            >
+              <style>{homepageStyles}</style>
+              {/* Force-enable scrolling in admin preview; do not adopt homepage scroll lock */}
+              <style>{`
+                html, body { overflow: auto !important; }
+                #root, main { overflow: visible !important; }
+                .smooth-scroll-container, .smooth-scroll-content {
+                  overflow: visible !important;
+                  transform: none !important;
+                }
+              `}</style>
+              <div className="gradient-background-pattern" />
               <div ref={previewRef} className="max-w-3xl mx-auto px-6 py-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
+                  style={cardStyle}
+                >
                   <div className="flex flex-col">
                     <div className="w-64 h-72 mb-6 overflow-hidden rounded-md">
                       <img
                         src={data.personalInfo.photo || DEFAULT_AVATAR}
                         alt={data.personalInfo.name}
-                        className="w-full h-full object-cover grayscale"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           if (e.currentTarget.src !== DEFAULT_AVATAR) {
                             e.currentTarget.src = DEFAULT_AVATAR;
@@ -841,10 +881,13 @@ const ResumeEditor: React.FC = () => {
                         }}
                       />
                     </div>
-                    <h1 className="text-4xl font-bold mb-2">
+                    <h1
+                      className="text-6xl font-bold mb-2"
+                      style={sectionTitleStyle}
+                    >
                       {data.personalInfo.name}
                     </h1>
-                    <div className="text-gray-600">
+                    <div className="text-gray-300">
                       {data.personalInfo.location}
                     </div>
                   </div>
@@ -853,7 +896,7 @@ const ResumeEditor: React.FC = () => {
                       {data.personalInfo.phone}
                     </div>
                     <div className="text-base">{data.personalInfo.email}</div>
-                    <div className="flex justify-end gap-3 mt-3 text-gray-800">
+                    <div className="flex justify-end gap-3 mt-3 text-white/90">
                       {data.personalInfo.socials?.website && (
                         <a
                           href={data.personalInfo.socials.website}
@@ -902,36 +945,53 @@ const ResumeEditor: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mb-8">
-                  <p className="text-base leading-relaxed">
+                <div className="mb-8" style={cardStyle}>
+                  <p
+                    className="text-base leading-relaxed"
+                    style={{ color: "#e5e7eb" }}
+                  >
                     {data.personalInfo.bio}
                   </p>
                 </div>
 
-                <div className="mb-8">
-                  <h2 className="text-3xl font-bold mb-5">education</h2>
+                <div className="mb-8" style={cardStyle}>
+                  <h2
+                    className="text-5xl font-bold mb-12"
+                    style={sectionTitleStyle}
+                  >
+                    education
+                  </h2>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
                     {data.education.map((ed, i) => (
                       <React.Fragment key={i}>
                         <div>
-                          <div className="text-base font-semibold mb-1">
+                          <div className="text-base font-semibold mb-1 text-white">
                             {ed.period}
                           </div>
-                          <div className="text-base">{ed.institution}</div>
-                          <div className="text-base text-gray-600">
+                          <div className="text-base text-white/90">
+                            {ed.institution}
+                          </div>
+                          <div className="text-base text-gray-300">
                             {ed.location}
                           </div>
                         </div>
                         <div>
-                          <div className="text-base">{ed.degree}</div>
+                          <div className="text-base text-white/90">
+                            {ed.degree}
+                          </div>
                         </div>
                       </React.Fragment>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <h2 className="text-3xl font-bold mb-5">experience</h2>
+                <div style={cardStyle}>
+                  <h2
+                    className="text-5xl font-bold mb-12"
+                    style={sectionTitleStyle}
+                  >
+                    experience
+                  </h2>
                   <div className="space-y-5">
                     {data.experience.map((exp, i) => (
                       <div
@@ -939,21 +999,23 @@ const ResumeEditor: React.FC = () => {
                         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
                       >
                         <div>
-                          <div className="text-base font-semibold mb-1">
+                          <div className="text-base font-semibold mb-1 text-white">
                             {exp.period}
                           </div>
-                          <div className="text-base italic">{exp.title}</div>
-                          <div className="text-base font-semibold">
+                          <div className="text-base italic text-white/90">
+                            {exp.title}
+                          </div>
+                          <div className="text-base font-semibold text-white">
                             {exp.company}
                           </div>
                           {exp.location && (
-                            <div className="text-base text-gray-600">
+                            <div className="text-base text-gray-300">
                               {exp.location}
                             </div>
                           )}
                         </div>
                         <div>
-                          <div className="text-base leading-relaxed">
+                          <div className="text-base leading-relaxed text-white/90">
                             {exp.description}
                           </div>
                         </div>
@@ -962,19 +1024,30 @@ const ResumeEditor: React.FC = () => {
                   </div>
                 </div>
                 {data.skills && data.skills.length > 0 && (
-                  <div className="mt-8">
-                    <h2 className="text-3xl font-bold mb-5">skills</h2>
+                  <div className="mt-8" style={cardStyle}>
+                    <h2
+                      className="text-5xl font-bold mb-12"
+                      style={sectionTitleStyle}
+                    >
+                      skills
+                    </h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
                       {data.skills.map((cat, idx) => (
                         <div key={idx}>
-                          <div className="text-lg font-semibold mb-2">
+                          <div className="text-lg font-semibold mb-2 text-white">
                             {cat.title}
                           </div>
                           <div className="flex flex-wrap gap-x-2 gap-y-1.5 items-start">
                             {cat.items.map((it, j) => (
                               <div
                                 key={j}
-                                className="inline-block h-6 leading-[24px] px-3 rounded-full bg-gray-200 text-gray-800 text-xs font-medium text-center align-middle whitespace-nowrap"
+                                className="inline-block h-6 leading-[24px] px-3 rounded-full text-xs font-medium text-center align-middle whitespace-nowrap"
+                                style={{
+                                  background: "rgba(255,255,255,0.08)",
+                                  color: "#fff",
+                                  border: "1px solid rgba(255,255,255,0.12)",
+                                  boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
+                                }}
                               >
                                 {it}
                               </div>
@@ -985,6 +1058,7 @@ const ResumeEditor: React.FC = () => {
                     </div>
                   </div>
                 )}
+                <div style={{ height: 60 }} />
               </div>
             </Box>
           </Paper>

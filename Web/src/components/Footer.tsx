@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCustomerConnect } from "../api/useCustomerConnect";
 import { useResumeDetails } from "../api/useResumeDetails";
@@ -12,12 +12,14 @@ const Icon = {
   ),
   Instagram: (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.4a4.9 4.9 0 0 1 1.77 1.15 4.9 4.9 0 0 1 1.15 1.77c.16.46.346 1.26.4 2.43.058 1.266.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.4 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.46.16-1.26.346-2.43.4-1.266.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.43-.4a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.16-.46-.346-1.26-.4-2.43C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.054-1.17.24-1.97.4-2.43A4.9 4.9 0 0 1 3.82 2.95 4.9 4.9 0 0 1 5.59 1.8c.46-.16 1.26-.346 2.43-.4C9.284 1.342 9.668 1.33 12 1.33zm0 1.8c-3.16 0-3.535.012-4.78.07-.99.046-1.528.21-1.883.35-.474.184-.81.404-1.165.758-.354.355-.574.691-.758 1.165-.14.355-.304.893-.35 1.883-.058 1.245-.07 1.62-.07 4.78s.012 3.535.07 4.78c.046.99.21 1.528.35 1.883.184.474.404.81.758 1.165.355.354.691.574 1.165.758.355.14.893.304 1.883.35 1.245.058 1.62.07 4.78.07s3.535-.012 4.78-.07c.99-.046 1.528-.21 1.883-.35.474-.184.81-.404 1.165-.758.354-.355.574-.691.758-1.165.14-.355.304-.893.35-1.883.058-1.245.07-1.62.07-4.78s-.012-3.535-.07-4.78c-.046-.99-.21-1.528-.35-1.883a3.1 3.1 0 0 0-.758-1.165 3.1 3.1 0 0 0-1.165-.758c-.355-.14-.893-.304-1.883-.35-1.245-.058-1.62-.07-4.78-.07zm0 3.3a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4zm0 1.8a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8zm5.95-3.1a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z" />
+      {/* Modern Instagram Icon - Updated 2024 */}
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.645.07 4.849 0 3.205-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 3.266-.058 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
     </svg>
   ),
   Behance: (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M22 7h-5V5h5v2zM9.6 11.2c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
+      {/* Modern Behance Icon - Updated 2024 */}
+      <path d="M22 7h-6V5h6v2zm-6 10h6v-2h-6v2zm-6-7c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
     </svg>
   ),
   Globe: (props: React.SVGProps<SVGSVGElement>) => (
@@ -36,17 +38,33 @@ interface FooterProps {
   deviceType?: "mobile" | "tablet" | "desktop";
   variant?: "homepage" | "project-details";
   onResumeClick?: () => void;
+  className?: string; // ADDED: Support for custom CSS classes
 }
 
 const Footer: React.FC<FooterProps> = ({
   deviceType = "desktop",
   variant = "homepage",
   onResumeClick,
+  className, // ADDED: Extract className prop
 }) => {
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
+  // Refs for dynamic layout calculations
+  const footerRef = useRef<HTMLElement | null>(null);
+  const iconBoxRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [linePoints, setLinePoints] = useState<{
+    x1: number;
+    x2: number;
+    y: number;
+  }>({ x1: 0, x2: 0, y: 0 });
   const [email, setEmail] = useState<string>("");
   const [mobileNumber, setMobileNumber] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [buttonYOffset, setButtonYOffset] = useState<number>(0);
+  // UI tweak offsets (px)
+  const LINE_Y_OFFSET = 8; // move the horizontal line down (+) or up (-)
+  const ICON_Y_OFFSET = 28; // move the left icon down (+) or up (-)
+  const LINE_TRIM_PX = 1; // reduce overall line length by this many pixels
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
@@ -212,18 +230,77 @@ const Footer: React.FC<FooterProps> = ({
 
   const dimensions = getResponsiveDimensions();
 
+  // Compute connecting line so it touches icon and button precisely
+  useLayoutEffect(() => {
+    const computeLine = () => {
+      if (!footerRef.current || !iconBoxRef.current || !buttonRef.current)
+        return;
+      const footerRect = footerRef.current.getBoundingClientRect();
+      const iconRect = iconBoxRef.current.getBoundingClientRect();
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+
+      // Anchor inside the icon (lower-right quadrant) so the line seems to start from it
+      const anchorXRatio = 0.66; // ~two-thirds from left → near right side
+      const anchorYRatio = 0.68; // ~lower third for that tangent feel
+      const iconAnchorXAbs = iconRect.left + iconRect.width * anchorXRatio;
+      const iconAnchorYAbs = iconRect.top + iconRect.height * anchorYRatio;
+
+      // End slightly inside the button so the line visually tucks under its rounded edge
+      const endXAbs =
+        buttonRect.left + Math.max(6, Math.round(buttonRect.height * 0.2));
+
+      // Blend Y toward the button center a bit so the joint looks aligned, but keep bias toward icon
+      const buttonCenterYAbs2 = buttonRect.top + buttonRect.height / 2;
+      const blendedYAbs =
+        iconAnchorYAbs + (buttonCenterYAbs2 - iconAnchorYAbs) * 0.3; // 30% toward button
+
+      const startX = Math.max(iconAnchorXAbs - footerRect.left, 0);
+      let endX = Math.min(endXAbs - footerRect.left, footerRect.width);
+      // Trim the line length a bit from the end to match visual spec
+      endX = Math.max(
+        endX - LINE_TRIM_PX,
+        iconAnchorXAbs - footerRect.left + 6
+      );
+      const y = Math.round(blendedYAbs - footerRect.top + LINE_Y_OFFSET);
+
+      setLinePoints({ x1: startX, x2: endX, y });
+
+      // Compute how much to vertically shift the button so its center aligns to the line
+      const lineAbsY = y + footerRect.top; // already includes LINE_Y_OFFSET
+      const btnCenterForOffset = buttonRect.top + buttonRect.height / 2;
+      setButtonYOffset(Math.round(lineAbsY - btnCenterForOffset));
+    };
+
+    computeLine();
+    const ro = new ResizeObserver(computeLine);
+    if (footerRef.current) ro.observe(footerRef.current);
+    if (iconBoxRef.current) ro.observe(iconBoxRef.current);
+    if (buttonRef.current) ro.observe(buttonRef.current);
+    window.addEventListener("resize", computeLine);
+    window.addEventListener("scroll", computeLine, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", computeLine);
+      window.removeEventListener("scroll", computeLine);
+    };
+  }, [deviceType]);
+
   return (
     <>
       {/* Footer Section */}
       <footer
+        className={className}
+        ref={(el) => {
+          footerRef.current = el;
+        }}
         style={{
-          position: "fixed",
-          bottom: 0,
+          position: "relative",
+          bottom: "auto",
           left: 0,
-          width: "100vw",
+          width: "100%",
           height: dimensions.height,
           background:
-            "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+            "linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
           display: "flex",
           flexDirection: dimensions.flexDirection,
           alignItems: "center",
@@ -232,46 +309,125 @@ const Footer: React.FC<FooterProps> = ({
           color: "white",
           zIndex: 1000,
           gap: dimensions.gap,
+          marginTop: "auto",
+          overflow: "hidden", // Prevent content from going outside footer
         }}
       >
-        {/* Left side - Heart logo and text */}
+        {/* Left side - Font logo and text */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: deviceType === "mobile" ? "center" : "flex-start",
             textAlign: deviceType === "mobile" ? "center" : "left",
-            paddingBottom: 20,
+            flex: 1, // Take available space
+            maxWidth: deviceType === "mobile" ? "100%" : "40%", // Limit width to prevent overflow
+            position: "relative",
+            zIndex: 2,
           }}
         >
+          {/* Font Icon - Properly sized and positioned */}
           <div
+            ref={iconBoxRef}
             style={{
-              fontSize: dimensions.logoSize,
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+              width:
+                deviceType === "mobile"
+                  ? "50px"
+                  : deviceType === "tablet"
+                  ? "70px"
+                  : "90px",
+              height:
+                deviceType === "mobile"
+                  ? "50px"
+                  : deviceType === "tablet"
+                  ? "70px"
+                  : "90px",
+              marginBottom: "15px",
+              marginTop: `${ICON_Y_OFFSET}px`,
+              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.4))",
+              flexShrink: 0, // Prevent icon from shrinking
             }}
           >
-            ♥
+            <img
+              src="/logo/font.png"
+              alt="Font Logo"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                filter: "brightness(0) invert(1)", // Make icon white
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                const fallbackText = document.createElement("div");
+                fallbackText.textContent = "B";
+                fallbackText.style.cssText = `
+                  width: 100%;
+                  height: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: ${
+                    deviceType === "mobile"
+                      ? "30px"
+                      : deviceType === "tablet"
+                      ? "40px"
+                      : "50px"
+                  }px;
+                  font-weight: bold;
+                  color: white;
+                  background: rgba(255, 255, 255, 0.1);
+                  border-radius: 50%;
+                `;
+                e.currentTarget.parentNode?.appendChild(fallbackText);
+              }}
+            />
           </div>
+
           <div
             style={{
               fontSize: dimensions.textSize,
-              lineHeight: "1.4",
-              color: "rgba(255,255,255,0.9)",
-              maxWidth: "200px",
+              lineHeight: "1.5",
+              color: "rgba(255,255,255,0.95)",
+              width: "100%", // Use full width of container
             }}
           >
-            <div style={{ fontWeight: "600", marginBottom: "2px" }}>
-              Get in Touch
-            </div>
             {resumeData?.data ? (
               <>
-                <div>
-                  {resumeData.data.location || "Location not available"}
-                </div>
-                <div>{resumeData.data.phone || "Phone not available"}</div>
-                <div>{resumeData.data.email || "Email not available"}</div>
+                {/* Display Name, Email, and Phone */}
                 <div
-                  style={{ display: "flex", gap: "10px", marginTop: "10px" }}
+                  style={{
+                    fontWeight: "500",
+                    fontSize: deviceType === "mobile" ? "13px" : "15px",
+                  }}
+                >
+                  {resumeData.data.name || "Name not available"}
+                </div>
+                <div
+                  style={{
+                    fontSize: deviceType === "mobile" ? "12px" : "14px",
+                  }}
+                >
+                  {resumeData.data.email || "Email not available"}
+                </div>
+                <div
+                  style={{
+                    marginBottom: "12px",
+                    fontSize: deviceType === "mobile" ? "12px" : "14px",
+                  }}
+                >
+                  {resumeData.data.phone || "Phone not available"}
+                </div>
+
+                {/* Social Media Icons - Properly contained */}
+                {/* <div
+                  style={{
+                    display: "flex",
+                    gap: deviceType === "mobile" ? "8px" : "10px",
+                    flexWrap: "wrap", // Allow wrapping on small screens
+                    justifyContent:
+                      deviceType === "mobile" ? "center" : "flex-start",
+                  }}
                 >
                   <a
                     href="/resume"
@@ -285,13 +441,17 @@ const Footer: React.FC<FooterProps> = ({
                       display: "inline-flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: 24,
-                      height: 24,
+                      width: deviceType === "mobile" ? "20px" : "24px",
+                      height: deviceType === "mobile" ? "20px" : "24px",
                       color: "#ffffff",
                       position: "relative",
+                      flexShrink: 0,
                     }}
                   >
-                    <Icon.ResumeDoc width={20} height={20} />
+                    <Icon.ResumeDoc
+                      width={deviceType === "mobile" ? "16" : "20"}
+                      height={deviceType === "mobile" ? "16" : "20"}
+                    />
                     <span
                       style={{
                         position: "absolute",
@@ -301,7 +461,7 @@ const Footer: React.FC<FooterProps> = ({
                         color: "#111827",
                         borderRadius: 8,
                         padding: "1px 4px",
-                        fontSize: 8,
+                        fontSize: deviceType === "mobile" ? "6px" : "8px",
                         fontWeight: 800,
                         lineHeight: "10px",
                         letterSpacing: 0.4,
@@ -324,12 +484,16 @@ const Footer: React.FC<FooterProps> = ({
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 24,
-                        height: 24,
+                        width: deviceType === "mobile" ? "20px" : "24px",
+                        height: deviceType === "mobile" ? "20px" : "24px",
                         color: "#ffffff",
+                        flexShrink: 0,
                       }}
                     >
-                      <Icon.Globe width={20} height={20} />
+                      <Icon.Globe
+                        width={deviceType === "mobile" ? "16" : "20"}
+                        height={deviceType === "mobile" ? "16" : "20"}
+                      />
                     </a>
                   )}
                   {resumeData.data.linkedinUrl && (
@@ -342,12 +506,16 @@ const Footer: React.FC<FooterProps> = ({
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 24,
-                        height: 24,
+                        width: deviceType === "mobile" ? "20px" : "24px",
+                        height: deviceType === "mobile" ? "20px" : "24px",
                         color: "#ffffff",
+                        flexShrink: 0,
                       }}
                     >
-                      <Icon.LinkedIn width={20} height={20} />
+                      <Icon.LinkedIn
+                        width={deviceType === "mobile" ? "16" : "20"}
+                        height={deviceType === "mobile" ? "16" : "20"}
+                      />
                     </a>
                   )}
                   {resumeData.data.instagramUrl && (
@@ -360,12 +528,16 @@ const Footer: React.FC<FooterProps> = ({
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 24,
-                        height: 24,
+                        width: deviceType === "mobile" ? "20px" : "24px",
+                        height: deviceType === "mobile" ? "20px" : "24px",
                         color: "#ffffff",
+                        flexShrink: 0,
                       }}
                     >
-                      <Icon.Instagram width={20} height={20} />
+                      <Icon.Instagram
+                        width={deviceType === "mobile" ? "16" : "20"}
+                        height={deviceType === "mobile" ? "16" : "20"}
+                      />
                     </a>
                   )}
                   {resumeData.data.behanceUrl && (
@@ -378,15 +550,19 @@ const Footer: React.FC<FooterProps> = ({
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 24,
-                        height: 24,
+                        width: deviceType === "mobile" ? "20px" : "24px",
+                        height: deviceType === "mobile" ? "20px" : "24px",
                         color: "#ffffff",
+                        flexShrink: 0,
                       }}
                     >
-                      <Icon.Behance width={20} height={20} />
+                      <Icon.Behance
+                        width={deviceType === "mobile" ? "16" : "20"}
+                        height={deviceType === "mobile" ? "16" : "20"}
+                      />
                     </a>
                   )}
-                </div>
+                </div> */}
               </>
             ) : (
               <>
@@ -398,36 +574,49 @@ const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
 
-        {/* Right side - Connect button */}
-        <div>
-          <button
-            className="connect-button"
-            onClick={handleConnectClick}
+        {/* Connecting Line - dynamically sized to touch icon and button */}
+        {deviceType !== "mobile" && linePoints.x2 - linePoints.x1 > 6 && (
+          <svg
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${Math.max(
+              footerRef.current?.clientWidth || 0,
+              1
+            )} ${Math.max(footerRef.current?.clientHeight || 0, 1)}`}
             style={{
-              padding: dimensions.buttonPadding,
-              fontSize: dimensions.buttonFontSize,
-              background: "rgba(255, 255, 255, 0.2)",
-              border: "2px solid rgba(255, 255, 255, 0.8)",
-              borderRadius: "25px",
-              color: "white",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              pointerEvents: "none",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
-            }}
+          >
+            <line
+              x1={linePoints.x1}
+              y1={linePoints.y}
+              x2={linePoints.x2}
+              y2={linePoints.y}
+              stroke="rgba(255,255,255,0.92)"
+              strokeWidth={0.4}
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+
+        {/* Right side - Connect button */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            flexShrink: 0, // Prevent button from shrinking
+            marginLeft: deviceType === "mobile" ? "0" : "auto",
+            transform: `translateY(${buttonYOffset}px)`,
+          }}
+        >
+          <button
+            ref={buttonRef}
+            className="connect-button"
+            onClick={handleResumeClick}
+            style={{}}
           >
             CONNECT
           </button>
@@ -568,25 +757,51 @@ const Footer: React.FC<FooterProps> = ({
 
       <style>
         {`
-          .connect-button {
-            background: rgba(255, 255, 255, 0.2) !important;
-            border: 2px solid rgba(255, 255, 255, 0.8) !important;
-            border-radius: 25px !important;
-            color: white !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            backdrop-filter: blur(10px) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important;
+          /* Ensure footer is properly positioned in content flow */
+          footer {
+            flex-shrink: 0 !important;
+            margin-top: auto !important;
           }
 
-          .connect-button:hover {
-            background: rgba(255, 255, 255, 0.3) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+          /* Enforce brand font in footer regardless of component styles */
+          footer, .connect-button {
+            font-family: var(--brand-font) !important;
           }
+
+          .connect-button {
+            background: #ffffff !important;
+            border: none !important;
+            border-radius: 15px !important;
+            color: #9b1242 !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            padding: 5px 40px 5px 25px !important;
+            font-size: 16px !important;
+            min-width: 140px !important;
+            height: auto !important;
+            white-space: nowrap !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 10px 18px rgba(0,0,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.9) !important;
+          }
+
+          @media (max-width: 768px) {
+            .connect-button {
+              padding: 8px 20px !important;
+              font-size: 14px !important;
+              min-width: 120px !important;
+            }
+          }
+
+          @media (min-width: 769px) and (max-width: 1024px) {
+            .connect-button {
+              padding: 9px 22px !important;
+              font-size: 15px !important;
+              min-width: 130px !important;
+            }
+          }
+
+          .connect-button:hover { transform: translateY(-2px) !important; }
 
           .connect-modal {
             position: fixed !important;

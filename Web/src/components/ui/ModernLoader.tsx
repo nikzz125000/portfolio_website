@@ -28,7 +28,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: 0,
                 borderRadius: "50%",
                 background:
-                  "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                  "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                 animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
               }}
             />
@@ -47,7 +47,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: `calc(${sizeMap[size].inner} * 2)`,
                 borderRadius: "50%",
                 background:
-                  "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                  "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                 animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
               }}
             />
@@ -77,7 +77,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                       ? "16px"
                       : "20px",
                   background:
-                    "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                    "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                   borderRadius: "2px",
                   animation: "wave 1.2s ease-in-out infinite",
                   animationDelay: `${i * 0.1}s`,
@@ -105,7 +105,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                   width: "8px",
                   height: "8px",
                   background:
-                    "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                    "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                   borderRadius: "50%",
                   animation: "bounce 1.4s ease-in-out infinite",
                   animationDelay: `${i * 0.2}s`,
@@ -124,7 +124,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: 0,
                 borderRadius: "50%",
                 background:
-                  "conic-gradient(from 0deg, #9f4f96, #ff6b6b, #ff8e53, #9f4f96)",
+                  "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                 animation: "rotate 2s linear infinite",
               }}
             />
@@ -145,7 +145,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                   height: "8px",
                   borderRadius: "50%",
                   background:
-                    "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                    "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                   animation: "pulse 1.5s ease-in-out infinite",
                 }}
               />
@@ -163,10 +163,10 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: 0,
                 borderRadius: "50%",
                 border: `${sizeMap[size].border} solid transparent`,
-                borderTop: `${sizeMap[size].border} solid #9f4f96`,
-                borderRight: `${sizeMap[size].border} solid #ff6b6b`,
-                borderBottom: `${sizeMap[size].border} solid #ff8e53`,
-                borderLeft: `${sizeMap[size].border} solid #9f4f96`,
+                borderTop: `${sizeMap[size].border} solid #6e226e`,
+                borderRight: `${sizeMap[size].border} solid #a5206a`,
+                borderBottom: `${sizeMap[size].border} solid #d31663`,
+                borderLeft: `${sizeMap[size].border} solid #6e226e`,
                 animation: "spin 1s linear infinite",
               }}
             />
@@ -178,10 +178,10 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: sizeMap[size].inner,
                 borderRadius: "50%",
                 border: `${sizeMap[size].border} solid transparent`,
-                borderTop: `${sizeMap[size].border} solid #ff6b6b`,
-                borderRight: `${sizeMap[size].border} solid #ff8e53`,
-                borderBottom: `${sizeMap[size].border} solid #9f4f96`,
-                borderLeft: `${sizeMap[size].border} solid #ff6b6b`,
+                borderTop: `${sizeMap[size].border} solid #a5206a`,
+                borderRight: `${sizeMap[size].border} solid #d31663`,
+                borderBottom: `${sizeMap[size].border} solid #6e226e`,
+                borderLeft: `${sizeMap[size].border} solid #a5206a`,
                 animation: "spin 1.5s linear infinite reverse",
               }}
             />
@@ -193,7 +193,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 inset: `calc(${sizeMap[size].inner} * 2)`,
                 borderRadius: "50%",
                 background:
-                  "linear-gradient(135deg, #9f4f96 0%, #ff6b6b 30%, #ff8e53 100%)",
+                  "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
                 animation: "pulse 2s ease-in-out infinite",
               }}
             />

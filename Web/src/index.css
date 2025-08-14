@@ -2,8 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted F25 Bank Printer (Regular/Bold) */
+@font-face {
+  font-family: "F25 Bank Printer";
+  src: url("/fonts/f25_bank_printer/F25_Bank_Printer.ttf") format("truetype"),
+       url("/fonts/f25_bank_printer/F25_Bank_Printer.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "F25 Bank Printer";
+  src: url("/fonts/f25_bank_printer/F25_Bank_Printer_Bold.ttf") format("truetype"),
+       url("/fonts/f25_bank_printer/F25_Bank_Printer_Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Brand font: F25 Bank Printer with safe fallbacks */
+  --brand-font: "F25 Bank Printer", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--brand-font);
   line-height: 1.5;
   font-weight: 400;
 
@@ -16,6 +36,17 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Ensure everything inherits brand font */
+html, body, #root,
+button, input, textarea, select,
+a, p, span, label,
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--brand-font);
+}
+
+/* Utility to force brand font when needed */
+.ff-brand { font-family: var(--brand-font) !important; }
 
 a {
   font-weight: 500;
@@ -46,19 +77,59 @@ html {
 
 /* Ensure content doesn't get hidden behind fixed footer */
 .main-content {
-  padding-bottom: 240px; /* Default footer height */
+  padding-bottom: 240px; /* Default footer height - optimized */
 }
 
 @media (max-width: 768px) {
   .main-content {
-    padding-bottom: 340px; /* Mobile footer height */
+    padding-bottom: 320px; /* Mobile footer height - optimized */
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .main-content {
-    padding-bottom: 280px; /* Tablet footer height */
+    padding-bottom: 280px; /* Tablet footer height - optimized */
   }
+}
+
+/* HomePage specific footer positioning */
+.homepage-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+.homepage-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.homepage-footer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  position: relative !important;
+  bottom: auto !important;
+}
+
+/* Project Details specific footer positioning */
+.project-details-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+.project-details-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.project-details-footer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  position: relative !important;
+  bottom: auto !important;
 }
 
 h1 {

@@ -1,649 +1,986 @@
-export const getAnimationVariants = (animationType: string, trigger: string, duration: number = 1.5) => {
+export const getAnimationVariants = (
+  animationType: string,
+  trigger: string,
+  duration: number = 1.5
+) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const baseVariants: any = {
     none: {
       initial: {},
       animate: {},
-      exit: {}
+      exit: {},
     },
     // === FADE ANIMATIONS ===
     fadeIn: {
-      initial: { opacity: trigger === 'continuous' ? 1 : 0 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.3, 1], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, transition: { duration } },
-      exit: { opacity: 0, transition: { duration: duration * 0.5 } }
+      initial: { opacity: trigger === "continuous" ? 1 : 0 },
+      animate:
+        trigger === "continuous"
+          ? { opacity: [1, 0.3, 1], transition: { repeat: Infinity, duration } }
+          : { opacity: 1, transition: { duration } },
+      exit: { opacity: 0, transition: { duration: duration * 0.5 } },
     },
     fadeInUp: {
-      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.3, 1], y: [0, 15, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, y: 0, transition: { duration } },
-      exit: { opacity: 0, y: 30, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous" ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.3, 1],
+              y: [0, 15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, y: 0, transition: { duration } },
+      exit: { opacity: 0, y: 30, transition: { duration: duration * 0.5 } },
     },
     fadeInDown: {
-      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.3, 1], y: [0, -15, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, y: 0, transition: { duration } },
-      exit: { opacity: 0, y: -30, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: -30 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.3, 1],
+              y: [0, -15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, y: 0, transition: { duration } },
+      exit: { opacity: 0, y: -30, transition: { duration: duration * 0.5 } },
     },
     fadeInLeft: {
-      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.3, 1], x: [0, -15, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, x: 0, transition: { duration } },
-      exit: { opacity: 0, x: -30, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, x: 0 }
+          : { opacity: 0, x: -30 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.3, 1],
+              x: [0, -15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, x: 0, transition: { duration } },
+      exit: { opacity: 0, x: -30, transition: { duration: duration * 0.5 } },
     },
     fadeInRight: {
-      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.3, 1], x: [0, 15, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, x: 0, transition: { duration } },
-      exit: { opacity: 0, x: 30, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous" ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.3, 1],
+              x: [0, 15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, x: 0, transition: { duration } },
+      exit: { opacity: 0, x: 30, transition: { duration: duration * 0.5 } },
     },
     fadeInUpBig: {
-      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.2, 1], y: [0, 30, 0], transition: { repeat: Infinity, duration: duration * 1.2 } }
-        : { opacity: 1, y: 0, transition: { duration: duration * 1.2 } },
-      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.2, 1],
+              y: [0, 30, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : { opacity: 1, y: 0, transition: { duration: duration * 1.2 } },
+      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } },
     },
     fadeInDownBig: {
-      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: -100 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.2, 1], y: [0, -30, 0], transition: { repeat: Infinity, duration: duration * 1.2 } }
-        : { opacity: 1, y: 0, transition: { duration: duration * 1.2 } },
-      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.2, 1],
+              y: [0, -30, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : { opacity: 1, y: 0, transition: { duration: duration * 1.2 } },
+      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } },
     },
     fadeInLeftBig: {
-      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.2, 1], x: [0, -30, 0], transition: { repeat: Infinity, duration: duration * 1.2 } }
-        : { opacity: 1, x: 0, transition: { duration: duration * 1.2 } },
-      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, x: 0 }
+          : { opacity: 0, x: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.2, 1],
+              x: [0, -30, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : { opacity: 1, x: 0, transition: { duration: duration * 1.2 } },
+      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } },
     },
     fadeInRightBig: {
-      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: 100 },
-      animate: trigger === 'continuous' 
-        ? { opacity: [1, 0.2, 1], x: [0, 30, 0], transition: { repeat: Infinity, duration: duration * 1.2 } }
-        : { opacity: 1, x: 0, transition: { duration: duration * 1.2 } },
-      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { opacity: 1, x: 0 }
+          : { opacity: 0, x: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              opacity: [1, 0.2, 1],
+              x: [0, 30, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : { opacity: 1, x: 0, transition: { duration: duration * 1.2 } },
+      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } },
     },
-    
+
     // === SLIDE ANIMATIONS ===
     slideInLeft: {
-      initial: trigger === 'continuous' ? { x: 0 } : { x: '-100%' },
-      animate: trigger === 'continuous' 
-        ? { x: [0, -20, 0], transition: { repeat: Infinity, duration } }
-        : { x: 0, transition: { duration, type: 'spring', damping: 20 } },
-      exit: { x: '-100%', transition: { duration: duration * 0.7 } }
+      initial: trigger === "continuous" ? { x: 0 } : { x: "-100%" },
+      animate:
+        trigger === "continuous"
+          ? { x: [0, -20, 0], transition: { repeat: Infinity, duration } }
+          : { x: 0, transition: { duration, type: "spring", damping: 20 } },
+      exit: { x: "-100%", transition: { duration: duration * 0.7 } },
     },
     slideInRight: {
-      initial: trigger === 'continuous' ? { x: 0 } : { x: '100%' },
-      animate: trigger === 'continuous' 
-        ? { x: [0, 20, 0], transition: { repeat: Infinity, duration } }
-        : { x: 0, transition: { duration, type: 'spring', damping: 20 } },
-      exit: { x: '100%', transition: { duration: duration * 0.7 } }
+      initial: trigger === "continuous" ? { x: 0 } : { x: "100%" },
+      animate:
+        trigger === "continuous"
+          ? { x: [0, 20, 0], transition: { repeat: Infinity, duration } }
+          : { x: 0, transition: { duration, type: "spring", damping: 20 } },
+      exit: { x: "100%", transition: { duration: duration * 0.7 } },
     },
     slideInUp: {
-      initial: trigger === 'continuous' ? { y: 0 } : { y: '100%' },
-      animate: trigger === 'continuous' 
-        ? { y: [0, 20, 0], transition: { repeat: Infinity, duration } }
-        : { y: 0, transition: { duration, type: 'spring', damping: 20 } },
-      exit: { y: '100%', transition: { duration: duration * 0.7 } }
+      initial: trigger === "continuous" ? { y: 0 } : { y: "100%" },
+      animate:
+        trigger === "continuous"
+          ? { y: [0, 20, 0], transition: { repeat: Infinity, duration } }
+          : { y: 0, transition: { duration, type: "spring", damping: 20 } },
+      exit: { y: "100%", transition: { duration: duration * 0.7 } },
     },
     slideInDown: {
-      initial: trigger === 'continuous' ? { y: 0 } : { y: '-100%' },
-      animate: trigger === 'continuous' 
-        ? { y: [0, -20, 0], transition: { repeat: Infinity, duration } }
-        : { y: 0, transition: { duration, type: 'spring', damping: 20 } },
-      exit: { y: '-100%', transition: { duration: duration * 0.7 } }
+      initial: trigger === "continuous" ? { y: 0 } : { y: "-100%" },
+      animate:
+        trigger === "continuous"
+          ? { y: [0, -20, 0], transition: { repeat: Infinity, duration } }
+          : { y: 0, transition: { duration, type: "spring", damping: 20 } },
+      exit: { y: "-100%", transition: { duration: duration * 0.7 } },
     },
-    
+
     // === ZOOM ANIMATIONS ===
     zoomIn: {
-      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0.3 },
-      animate: trigger === 'continuous' 
-        ? { scale: [1, 1.1, 1], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, scale: 1, transition: { duration } },
-      exit: { opacity: 0, scale: 0.3, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous" ? { scale: 1 } : { opacity: 0, scale: 0.3 },
+      animate:
+        trigger === "continuous"
+          ? { scale: [1, 1.1, 1], transition: { repeat: Infinity, duration } }
+          : { opacity: 1, scale: 1, transition: { duration } },
+      exit: {
+        opacity: 0,
+        scale: 0.3,
+        transition: { duration: duration * 0.5 },
+      },
     },
     zoomInUp: {
-      initial: trigger === 'continuous' ? { scale: 1, y: 0 } : { opacity: 0, scale: 0.1, y: 100 },
-      animate: trigger === 'continuous' 
-        ? { scale: [1, 1.1, 1], y: [0, -10, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, scale: 1, y: 0, transition: { duration } },
-      exit: { opacity: 0, scale: 0.1, y: 100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { scale: 1, y: 0 }
+          : { opacity: 0, scale: 0.1, y: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 1.1, 1],
+              y: [0, -10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, scale: 1, y: 0, transition: { duration } },
+      exit: {
+        opacity: 0,
+        scale: 0.1,
+        y: 100,
+        transition: { duration: duration * 0.6 },
+      },
     },
     zoomInDown: {
-      initial: trigger === 'continuous' ? { scale: 1, y: 0 } : { opacity: 0, scale: 0.1, y: -100 },
-      animate: trigger === 'continuous' 
-        ? { scale: [1, 1.1, 1], y: [0, 10, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, scale: 1, y: 0, transition: { duration } },
-      exit: { opacity: 0, scale: 0.1, y: -100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { scale: 1, y: 0 }
+          : { opacity: 0, scale: 0.1, y: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 1.1, 1],
+              y: [0, 10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, scale: 1, y: 0, transition: { duration } },
+      exit: {
+        opacity: 0,
+        scale: 0.1,
+        y: -100,
+        transition: { duration: duration * 0.6 },
+      },
     },
     zoomInLeft: {
-      initial: trigger === 'continuous' ? { scale: 1, x: 0 } : { opacity: 0, scale: 0.1, x: -100 },
-      animate: trigger === 'continuous' 
-        ? { scale: [1, 1.1, 1], x: [0, 10, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, scale: 1, x: 0, transition: { duration } },
-      exit: { opacity: 0, scale: 0.1, x: -100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { scale: 1, x: 0 }
+          : { opacity: 0, scale: 0.1, x: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 1.1, 1],
+              x: [0, 10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, scale: 1, x: 0, transition: { duration } },
+      exit: {
+        opacity: 0,
+        scale: 0.1,
+        x: -100,
+        transition: { duration: duration * 0.6 },
+      },
     },
     zoomInRight: {
-      initial: trigger === 'continuous' ? { scale: 1, x: 0 } : { opacity: 0, scale: 0.1, x: 100 },
-      animate: trigger === 'continuous' 
-        ? { scale: [1, 1.1, 1], x: [0, -10, 0], transition: { repeat: Infinity, duration } }
-        : { opacity: 1, scale: 1, x: 0, transition: { duration } },
-      exit: { opacity: 0, scale: 0.1, x: 100, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { scale: 1, x: 0 }
+          : { opacity: 0, scale: 0.1, x: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 1.1, 1],
+              x: [0, -10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { opacity: 1, scale: 1, x: 0, transition: { duration } },
+      exit: {
+        opacity: 0,
+        scale: 0.1,
+        x: 100,
+        transition: { duration: duration * 0.6 },
+      },
     },
     zoomOut: {
       initial: { scale: 1 },
-      animate: { 
+      animate: {
         scale: [1, 1.3, 1],
-        transition: { repeat: trigger === 'continuous' ? Infinity : 0, duration }
+        transition: {
+          repeat: trigger === "continuous" ? Infinity : 0,
+          duration,
+        },
       },
-      exit: { scale: 1 }
+      exit: { scale: 1 },
     },
-    
+
     // === BOUNCE ANIMATIONS ===
     bounce: {
       initial: { y: 0 },
-      animate: { 
+      animate: {
         y: [0, -30, 0, -15, 0, -4, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 2 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 2 : 0,
+          duration,
+        },
       },
-      exit: { y: 0 }
+      exit: { y: 0 },
     },
     bounceIn: {
-      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0.3 },
-      animate: trigger === 'continuous' 
-        ? { 
-            scale: [1, 0.8, 1.1, 0.95, 1.05, 1],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: [0, 1, 1, 1],
-            scale: [0.3, 1.05, 0.9, 1],
-            transition: { duration }
-          },
-      exit: { opacity: 0, scale: 0.3, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous" ? { scale: 1 } : { opacity: 0, scale: 0.3 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 0.8, 1.1, 0.95, 1.05, 1],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: [0, 1, 1, 1],
+              scale: [0.3, 1.05, 0.9, 1],
+              transition: { duration },
+            },
+      exit: {
+        opacity: 0,
+        scale: 0.3,
+        transition: { duration: duration * 0.5 },
+      },
     },
     bounceInUp: {
-      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: 100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, 20, -10, 5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: [0, 1, 1, 1],
-            y: [100, -30, 10, 0],
-            transition: { duration }
-          },
-      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { y: 0 } : { opacity: 0, y: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, 20, -10, 5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: [0, 1, 1, 1],
+              y: [100, -30, 10, 0],
+              transition: { duration },
+            },
+      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } },
     },
     bounceInDown: {
-      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: -100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, -20, 10, -5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: [0, 1, 1, 1],
-            y: [-100, 30, -10, 0],
-            transition: { duration }
-          },
-      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { y: 0 } : { opacity: 0, y: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, -20, 10, -5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: [0, 1, 1, 1],
+              y: [-100, 30, -10, 0],
+              transition: { duration },
+            },
+      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } },
     },
     bounceInLeft: {
-      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: -100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, -20, 10, -5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: [0, 1, 1, 1],
-            x: [-100, 30, -10, 0],
-            transition: { duration }
-          },
-      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { x: 0 } : { opacity: 0, x: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, -20, 10, -5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: [0, 1, 1, 1],
+              x: [-100, 30, -10, 0],
+              transition: { duration },
+            },
+      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } },
     },
     bounceInRight: {
-      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: 100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, 20, -10, 5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: [0, 1, 1, 1],
-            x: [100, -30, 10, 0],
-            transition: { duration }
-          },
-      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { x: 0 } : { opacity: 0, x: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, 20, -10, 5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: [0, 1, 1, 1],
+              x: [100, -30, 10, 0],
+              transition: { duration },
+            },
+      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } },
     },
-    
+
     // === ATTENTION SEEKERS ===
     shake: {
       initial: { x: 0 },
-      animate: { 
+      animate: {
         x: [0, -10, 10, -10, 10, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 3 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 3 : 0,
+          duration,
+        },
       },
-      exit: { x: 0 }
+      exit: { x: 0 },
     },
     shakeY: {
       initial: { y: 0 },
-      animate: { 
+      animate: {
         y: [0, -10, 10, -10, 10, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 3 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 3 : 0,
+          duration,
+        },
       },
-      exit: { y: 0 }
+      exit: { y: 0 },
     },
     pulse: {
       initial: { scale: 1 },
-      animate: { 
+      animate: {
         scale: [1, 1.1, 1],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 2 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 2 : 0,
+          duration,
+        },
       },
-      exit: { scale: 1 }
+      exit: { scale: 1 },
     },
     heartbeat: {
       initial: { scale: 1 },
-      animate: { 
+      animate: {
         scale: [1, 1.3, 1, 1.3, 1],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 2 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 2 : 0,
+          duration,
+        },
       },
-      exit: { scale: 1 }
+      exit: { scale: 1 },
     },
     flash: {
       initial: { opacity: 1 },
-      animate: { 
+      animate: {
         opacity: [1, 0, 1, 0, 1],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 3 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 3 : 0,
+          duration,
+        },
       },
-      exit: { opacity: 1 }
+      exit: { opacity: 1 },
     },
     headShake: {
       initial: { x: 0, rotate: 0 },
-      animate: { 
+      animate: {
         x: [0, -6, 6, -3, 3, 0],
         rotate: [0, -9, 7, -5, 3, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 2 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 2 : 0,
+          duration,
+        },
       },
-      exit: { x: 0, rotate: 0 }
+      exit: { x: 0, rotate: 0 },
     },
-    
+
     // === ELASTIC ANIMATIONS ===
     elasticIn: {
-      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            scale: [1, 1.2, 0.8, 1.1, 0.95, 1.03, 1],
-            transition: { repeat: Infinity, duration: duration * 1.2 }
-          }
-        : { 
-            opacity: 1,
-            scale: [0, 1.25, 0.75, 1.15, 0.95, 1.05, 1],
-            transition: { duration: duration * 1.1 }
-          },
-      exit: { opacity: 0, scale: 0, transition: { duration: duration * 0.5 } }
+      initial:
+        trigger === "continuous" ? { scale: 1 } : { opacity: 0, scale: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 1.2, 0.8, 1.1, 0.95, 1.03, 1],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : {
+              opacity: 1,
+              scale: [0, 1.25, 0.75, 1.15, 0.95, 1.05, 1],
+              transition: { duration: duration * 1.1 },
+            },
+      exit: { opacity: 0, scale: 0, transition: { duration: duration * 0.5 } },
     },
     elasticInUp: {
-      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: 100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, -20, 8, -4, 2, 0],
-            transition: { repeat: Infinity, duration: duration * 1.2 }
-          }
-        : { 
-            opacity: 1,
-            y: [100, -25, 10, -5, 2, 0],
-            transition: { duration: duration * 1.1 }
-          },
-      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { y: 0 } : { opacity: 0, y: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, -20, 8, -4, 2, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : {
+              opacity: 1,
+              y: [100, -25, 10, -5, 2, 0],
+              transition: { duration: duration * 1.1 },
+            },
+      exit: { opacity: 0, y: 100, transition: { duration: duration * 0.6 } },
     },
     elasticInDown: {
-      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: -100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, 20, -8, 4, -2, 0],
-            transition: { repeat: Infinity, duration: duration * 1.2 }
-          }
-        : { 
-            opacity: 1,
-            y: [-100, 25, -10, 5, -2, 0],
-            transition: { duration: duration * 1.1 }
-          },
-      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { y: 0 } : { opacity: 0, y: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, 20, -8, 4, -2, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : {
+              opacity: 1,
+              y: [-100, 25, -10, 5, -2, 0],
+              transition: { duration: duration * 1.1 },
+            },
+      exit: { opacity: 0, y: -100, transition: { duration: duration * 0.6 } },
     },
     elasticInLeft: {
-      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: -100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, 20, -8, 4, -2, 0],
-            transition: { repeat: Infinity, duration: duration * 1.2 }
-          }
-        : { 
-            opacity: 1,
-            x: [-100, 25, -10, 5, -2, 0],
-            transition: { duration: duration * 1.1 }
-          },
-      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { x: 0 } : { opacity: 0, x: -100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, 20, -8, 4, -2, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : {
+              opacity: 1,
+              x: [-100, 25, -10, 5, -2, 0],
+              transition: { duration: duration * 1.1 },
+            },
+      exit: { opacity: 0, x: -100, transition: { duration: duration * 0.6 } },
     },
     elasticInRight: {
-      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: 100 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, -20, 8, -4, 2, 0],
-            transition: { repeat: Infinity, duration: duration * 1.2 }
-          }
-        : { 
-            opacity: 1,
-            x: [100, -25, 10, -5, 2, 0],
-            transition: { duration: duration * 1.1 }
-          },
-      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } }
+      initial: trigger === "continuous" ? { x: 0 } : { opacity: 0, x: 100 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, -20, 8, -4, 2, 0],
+              transition: { repeat: Infinity, duration: duration * 1.2 },
+            }
+          : {
+              opacity: 1,
+              x: [100, -25, 10, -5, 2, 0],
+              transition: { duration: duration * 1.1 },
+            },
+      exit: { opacity: 0, x: 100, transition: { duration: duration * 0.6 } },
     },
-    
+
     // === SWING & ROTATION ===
     swing: {
       initial: { rotate: 0 },
-      animate: { 
+      animate: {
         rotate: [0, 15, -10, 5, -5, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { rotate: 0 }
+      exit: { rotate: 0 },
     },
     rotate: {
       initial: { rotate: 0 },
-      animate: { 
+      animate: {
         rotate: 360,
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration, ease: 'linear' }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+          ease: "linear",
+        },
       },
-      exit: { rotate: 0 }
+      exit: { rotate: 0 },
     },
     rotateIn: {
-      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -200, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, -30, 30, -15, 15, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { rotate: 0, opacity: 1, transition: { duration } },
-      exit: { rotate: -200, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous" ? { rotate: 0 } : { rotate: -200, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, -30, 30, -15, 15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        rotate: -200,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     rotateInUpLeft: {
-      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -45, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, -20, 20, -10, 10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { rotate: 0, opacity: 1, transition: { duration } },
-      exit: { rotate: -45, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous" ? { rotate: 0 } : { rotate: -45, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, -20, 20, -10, 10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        rotate: -45,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     rotateInUpRight: {
-      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: 45, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, 20, -20, 10, -10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { rotate: 0, opacity: 1, transition: { duration } },
-      exit: { rotate: 45, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous" ? { rotate: 0 } : { rotate: 45, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, 20, -20, 10, -10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        rotate: 45,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     rotateInDownLeft: {
-      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: 45, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, 20, -20, 10, -10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { rotate: 0, opacity: 1, transition: { duration } },
-      exit: { rotate: 45, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous" ? { rotate: 0 } : { rotate: 45, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, 20, -20, 10, -10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        rotate: 45,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     rotateInDownRight: {
-      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -45, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, -20, 20, -10, 10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { rotate: 0, opacity: 1, transition: { duration } },
-      exit: { rotate: -45, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous" ? { rotate: 0 } : { rotate: -45, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, -20, 20, -10, 10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        rotate: -45,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
-    
+
     // === FLIP ANIMATIONS ===
     flip: {
       initial: { rotateY: 0 },
-      animate: { 
+      animate: {
         rotateY: 360,
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration, ease: 'linear' }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+          ease: "linear",
+        },
       },
-      exit: { rotateY: 0 }
+      exit: { rotateY: 0 },
     },
     flipInX: {
-      initial: trigger === 'continuous' ? { rotateX: 0 } : { rotateX: 90, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotateX: [0, 45, -15, 5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            rotateX: [90, -10, 10, 0],
-            opacity: [0, 1, 1, 1],
-            transition: { duration }
-          },
-      exit: { rotateX: 90, opacity: 0, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous" ? { rotateX: 0 } : { rotateX: 90, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotateX: [0, 45, -15, 5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              rotateX: [90, -10, 10, 0],
+              opacity: [0, 1, 1, 1],
+              transition: { duration },
+            },
+      exit: {
+        rotateX: 90,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
     },
     flipInY: {
-      initial: trigger === 'continuous' ? { rotateY: 0 } : { rotateY: 90, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotateY: [0, 45, -15, 5, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            rotateY: [90, -10, 10, 0],
-            opacity: [0, 1, 1, 1],
-            transition: { duration }
-          },
-      exit: { rotateY: 90, opacity: 0, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous" ? { rotateY: 0 } : { rotateY: 90, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              rotateY: [0, 45, -15, 5, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              rotateY: [90, -10, 10, 0],
+              opacity: [0, 1, 1, 1],
+              transition: { duration },
+            },
+      exit: {
+        rotateY: 90,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
     },
     flipX: {
       initial: { rotateX: 0 },
-      animate: { 
+      animate: {
         rotateX: 360,
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration, ease: 'linear' }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+          ease: "linear",
+        },
       },
-      exit: { rotateX: 0 }
+      exit: { rotateX: 0 },
     },
     flipY: {
       initial: { rotateY: 0 },
-      animate: { 
+      animate: {
         rotateY: 360,
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration, ease: 'linear' }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+          ease: "linear",
+        },
       },
-      exit: { rotateY: 0 }
+      exit: { rotateY: 0 },
     },
-    
+
     // === SPECIAL EFFECTS ===
     rubberBand: {
       initial: { scale: 1 },
-      animate: { 
+      animate: {
         scale: [1, 1.25, 0.75, 1.15, 1],
         scaleX: [1, 0.75, 1.25, 0.85, 1],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { scale: 1 }
+      exit: { scale: 1 },
     },
     wobble: {
       initial: { x: 0, rotate: 0 },
-      animate: { 
+      animate: {
         x: [0, -25, 20, -15, 10, -5, 0],
         rotate: [0, -5, 3, -3, 2, -1, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { x: 0, rotate: 0 }
+      exit: { x: 0, rotate: 0 },
     },
     jello: {
       initial: { skewX: 0, skewY: 0 },
-      animate: { 
-        skewX: [0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0],
-        skewY: [0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+      animate: {
+        skewX: [
+          0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0,
+        ],
+        skewY: [
+          0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0,
+        ],
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { skewX: 0, skewY: 0 }
+      exit: { skewX: 0, skewY: 0 },
     },
     tada: {
       initial: { scale: 1, rotate: 0 },
-      animate: { 
+      animate: {
         scale: [1, 0.9, 1.1, 1.1, 1.1, 1.1, 1.1, 1],
         rotate: [0, -3, 3, -3, 3, -3, 3, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { scale: 1, rotate: 0 }
+      exit: { scale: 1, rotate: 0 },
     },
-    
+
     // === LIGHTSPEED ===
     lightSpeedInRight: {
-      initial: trigger === 'continuous' ? { x: 0, skewX: 0 } : { x: '100%', skewX: -30, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, 50, -10, 0],
-            skewX: [0, -15, 10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            x: [100, -20, 0],
-            skewX: [-30, 20, -5, 0],
-            opacity: [0, 1, 1, 1],
-            transition: { duration }
-          },
-      exit: { x: '100%', skewX: -30, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous"
+          ? { x: 0, skewX: 0 }
+          : { x: "100%", skewX: -30, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, 50, -10, 0],
+              skewX: [0, -15, 10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              x: [100, -20, 0],
+              skewX: [-30, 20, -5, 0],
+              opacity: [0, 1, 1, 1],
+              transition: { duration },
+            },
+      exit: {
+        x: "100%",
+        skewX: -30,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     lightSpeedInLeft: {
-      initial: trigger === 'continuous' ? { x: 0, skewX: 0 } : { x: '-100%', skewX: 30, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, -50, 10, 0],
-            skewX: [0, 15, -10, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            x: [-100, 20, 0],
-            skewX: [30, -20, 5, 0],
-            opacity: [0, 1, 1, 1],
-            transition: { duration }
-          },
-      exit: { x: '-100%', skewX: 30, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous"
+          ? { x: 0, skewX: 0 }
+          : { x: "-100%", skewX: 30, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, -50, 10, 0],
+              skewX: [0, 15, -10, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              x: [-100, 20, 0],
+              skewX: [30, -20, 5, 0],
+              opacity: [0, 1, 1, 1],
+              transition: { duration },
+            },
+      exit: {
+        x: "-100%",
+        skewX: 30,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
-    
+
     // === ROLL ANIMATIONS ===
     rollIn: {
-      initial: trigger === 'continuous' ? { x: 0, rotate: 0 } : { x: '-100%', rotate: -120, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, -30, 30, 0],
-            rotate: [0, -30, 30, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { x: 0, rotate: 0, opacity: 1, transition: { duration } },
-      exit: { x: '-100%', rotate: -120, opacity: 0, transition: { duration: duration * 0.7 } }
+      initial:
+        trigger === "continuous"
+          ? { x: 0, rotate: 0 }
+          : { x: "-100%", rotate: -120, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, -30, 30, 0],
+              rotate: [0, -30, 30, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : { x: 0, rotate: 0, opacity: 1, transition: { duration } },
+      exit: {
+        x: "-100%",
+        rotate: -120,
+        opacity: 0,
+        transition: { duration: duration * 0.7 },
+      },
     },
     rollOut: {
       initial: { x: 0, rotate: 0, opacity: 1 },
-      animate: { 
-        x: trigger === 'continuous' ? [0, 50, 0] : ['0%', '100%'],
-        rotate: trigger === 'continuous' ? [0, 60, 0] : [0, 120],
-        opacity: trigger === 'continuous' ? [1, 0.5, 1] : [1, 0],
-        transition: { repeat: trigger === 'continuous' ? Infinity : (trigger === 'once' ? 1 : 0), duration }
+      animate: {
+        x: trigger === "continuous" ? [0, 50, 0] : ["0%", "100%"],
+        rotate: trigger === "continuous" ? [0, 60, 0] : [0, 120],
+        opacity: trigger === "continuous" ? [1, 0.5, 1] : [1, 0],
+        transition: {
+          repeat:
+            trigger === "continuous" ? Infinity : trigger === "once" ? 1 : 0,
+          duration,
+        },
       },
-      exit: { x: 0, rotate: 0, opacity: 1 }
+      exit: { x: 0, rotate: 0, opacity: 1 },
     },
-    
+
     // === GEOMETRIC ===
     jackInTheBox: {
-      initial: trigger === 'continuous' ? { scale: 1, rotate: 0 } : { opacity: 0, scale: 0.1, rotate: 30 },
-      animate: trigger === 'continuous' 
-        ? { 
-            scale: [1, 0.8, 1.2, 1],
-            rotate: [0, 15, -15, 0],
-            transition: { repeat: Infinity, duration }
-          }
-        : { 
-            opacity: 1,
-            scale: [0.1, 0.5, 0.8, 1],
-            rotate: [30, -10, 3, 0],
-            transition: { duration }
-          },
-      exit: { opacity: 0, scale: 0.1, rotate: 30, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { scale: 1, rotate: 0 }
+          : { opacity: 0, scale: 0.1, rotate: 30 },
+      animate:
+        trigger === "continuous"
+          ? {
+              scale: [1, 0.8, 1.2, 1],
+              rotate: [0, 15, -15, 0],
+              transition: { repeat: Infinity, duration },
+            }
+          : {
+              opacity: 1,
+              scale: [0.1, 0.5, 0.8, 1],
+              rotate: [30, -10, 3, 0],
+              transition: { duration },
+            },
+      exit: {
+        opacity: 0,
+        scale: 0.1,
+        rotate: 30,
+        transition: { duration: duration * 0.6 },
+      },
     },
     hinge: {
       initial: { rotate: 0, transformOrigin: "top left" },
-      animate: trigger === 'continuous' 
-        ? { 
-            rotate: [0, 40, 20, 40, 20, 0],
-            transition: { repeat: Infinity, duration: duration * 1.5 }
-          }
-        : { 
-            rotate: [0, 80, 60, 80, 60, 60],
-            opacity: [1, 1, 1, 1, 1, 0],
-            y: [0, 0, 0, 0, 0, 200],
-            transition: { duration: duration * 1.8 }
-          },
-      exit: { rotate: 0, opacity: 1, y: 0 }
+      animate:
+        trigger === "continuous"
+          ? {
+              rotate: [0, 40, 20, 40, 20, 0],
+              transition: { repeat: Infinity, duration: duration * 1.5 },
+            }
+          : {
+              rotate: [0, 80, 60, 80, 60, 60],
+              opacity: [1, 1, 1, 1, 1, 0],
+              y: [0, 0, 0, 0, 0, 200],
+              transition: { duration: duration * 1.8 },
+            },
+      exit: { rotate: 0, opacity: 1, y: 0 },
     },
-    
+
     // === BACK ANIMATIONS ===
     backInUp: {
-      initial: trigger === 'continuous' ? { y: 0, scale: 1 } : { y: 50, scale: 0.7, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, 20, 0],
-            scale: [1, 0.9, 1],
-            transition: { repeat: Infinity, duration }
-          }
-        : { y: 0, scale: 1, opacity: 1, transition: { duration } },
-      exit: { y: 50, scale: 0.7, opacity: 0, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { y: 0, scale: 1 }
+          : { y: 50, scale: 0.7, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, 20, 0],
+              scale: [1, 0.9, 1],
+              transition: { repeat: Infinity, duration },
+            }
+          : { y: 0, scale: 1, opacity: 1, transition: { duration } },
+      exit: {
+        y: 50,
+        scale: 0.7,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
     },
     backInDown: {
-      initial: trigger === 'continuous' ? { y: 0, scale: 1 } : { y: -50, scale: 0.7, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            y: [0, -20, 0],
-            scale: [1, 0.9, 1],
-            transition: { repeat: Infinity, duration }
-          }
-        : { y: 0, scale: 1, opacity: 1, transition: { duration } },
-      exit: { y: -50, scale: 0.7, opacity: 0, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { y: 0, scale: 1 }
+          : { y: -50, scale: 0.7, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              y: [0, -20, 0],
+              scale: [1, 0.9, 1],
+              transition: { repeat: Infinity, duration },
+            }
+          : { y: 0, scale: 1, opacity: 1, transition: { duration } },
+      exit: {
+        y: -50,
+        scale: 0.7,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
     },
     backInLeft: {
-      initial: trigger === 'continuous' ? { x: 0, scale: 1 } : { x: -50, scale: 0.7, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, -20, 0],
-            scale: [1, 0.9, 1],
-            transition: { repeat: Infinity, duration }
-          }
-        : { x: 0, scale: 1, opacity: 1, transition: { duration } },
-      exit: { x: -50, scale: 0.7, opacity: 0, transition: { duration: duration * 0.6 } }
+      initial:
+        trigger === "continuous"
+          ? { x: 0, scale: 1 }
+          : { x: -50, scale: 0.7, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, -20, 0],
+              scale: [1, 0.9, 1],
+              transition: { repeat: Infinity, duration },
+            }
+          : { x: 0, scale: 1, opacity: 1, transition: { duration } },
+      exit: {
+        x: -50,
+        scale: 0.7,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
     },
     backInRight: {
-      initial: trigger === 'continuous' ? { x: 0, scale: 1 } : { x: 50, scale: 0.7, opacity: 0 },
-      animate: trigger === 'continuous' 
-        ? { 
-            x: [0, 20, 0],
-            scale: [1, 0.9, 1],
-            transition: { repeat: Infinity, duration }
-          }
-        : { x: 0, scale: 1, opacity: 1, transition: { duration } },
-      exit: { x: 50, scale: 0.7, opacity: 0, transition: { duration: duration * 0.6 } }
-    }
+      initial:
+        trigger === "continuous"
+          ? { x: 0, scale: 1 }
+          : { x: 50, scale: 0.7, opacity: 0 },
+      animate:
+        trigger === "continuous"
+          ? {
+              x: [0, 20, 0],
+              scale: [1, 0.9, 1],
+              transition: { repeat: Infinity, duration },
+            }
+          : { x: 0, scale: 1, opacity: 1, transition: { duration } },
+      exit: {
+        x: 50,
+        scale: 0.7,
+        opacity: 0,
+        transition: { duration: duration * 0.6 },
+      },
+    },
   };
 
   return baseVariants[animationType] || baseVariants.none;
@@ -1121,6 +1458,150 @@ export const projectDetailsStyles = `
       margin: 0;
       padding: 0;
       overflow: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ENHANCED: Smooth scrolling support */
+    .smooth-scroll-container {
+      overflow: hidden;
+      position: relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+
+    .smooth-scroll-content {
+      position: relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      transition: transform 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Enhanced scroll progress indicator */
+    .scroll-progress-indicator {
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .scroll-progress-bar {
+      width: 4px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+
+    .scroll-progress-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+      transform-origin: bottom;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .scroll-percentage {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: opacity 0.3s ease;
+    }
+
+    /* Enhanced scroll to top button */
+    .scroll-to-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scroll-to-top-btn:hover {
+      transform: translateY(-2px) scale(1.1);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+    }
+
+    .scroll-to-top-btn:active {
+      transform: translateY(0) scale(0.95);
+      transition: all 0.1s ease;
+    }
+
+    /* Mobile responsive scroll elements */
+    @media (max-width: 768px) {
+      .scroll-progress-indicator {
+        left: 15px;
+      }
+      
+      .scroll-progress-bar {
+        width: 3px;
+        height: 100px;
+      }
+      
+      .scroll-percentage {
+        font-size: 10px;
+        padding: 3px 6px;
+      }
+      
+      .scroll-to-top-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .scroll-progress-indicator {
+        left: 18px;
+      }
+      
+      .scroll-progress-bar {
+        width: 3.5px;
+        height: 110px;
+      }
+      
+      .scroll-to-top-btn {
+        bottom: 25px;
+        right: 25px;
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+      }
     }
 
     /* LOADING OVERLAY */
@@ -1746,6 +2227,164 @@ export const homepageStyles = `
       margin: 0;
       padding: 0;
       overflow: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ENHANCED: Smooth scrolling support */
+    .smooth-scroll-container {
+      overflow: hidden;
+      position: relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+
+    .smooth-scroll-content {
+      position: relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      transition: transform 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Enhanced scroll progress indicator */
+    .scroll-progress-indicator {
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .scroll-progress-bar {
+      width: 4px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+
+    .scroll-progress-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+      transform-origin: bottom;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .scroll-percentage {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: opacity 0.3s ease;
+    }
+
+    /* Enhanced scroll to top button */
+    .scroll-to-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scroll-to-top-btn:hover {
+      transform: translateY(-2px) scale(1.1);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+    }
+
+    .scroll-to-top-btn:active {
+      transform: translateY(0) scale(0.95);
+      transition: all 0.1s ease;
+    }
+
+    /* Mobile responsive scroll elements */
+    @media (max-width: 768px) {
+      .scroll-progress-indicator {
+        left: 15px;
+      }
+      
+      .scroll-progress-bar {
+        width: 3px;
+        height: 100px;
+      }
+      
+      .scroll-percentage {
+        font-size: 10px;
+        padding: 3px 6px;
+      }
+      
+      .scroll-to-top-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .scroll-progress-indicator {
+        left: 18px;
+      }
+      
+      .scroll-progress-bar {
+        width: 3.5px;
+        height: 110px;
+      }
+      
+      .scroll-to-top-btn {
+        bottom: 25px;
+        right: 25px;
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+      }
+    }
+
+    /* LOADING OVERLAY */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
 
     /* RESPONSIVE IMPROVEMENTS FOR TOUCH INTERFACES */
@@ -1782,9 +2421,89 @@ export const homepageStyles = `
         }
       }
     }
+
+    /* Reusable Gradient Background System */
+    .gradient-background {
+      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%) !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+
+    .gradient-background::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%) !important;
+      z-index: -1 !important;
+    }
+
+    .gradient-background-overlay {
+      background: linear-gradient(135deg, rgba(110, 34, 110, 0.95) 0%, rgba(165, 32, 106, 0.95) 14%, rgba(211, 22, 99, 0.95) 28%, rgba(237, 49, 118, 0.95) 42%, rgba(253, 51, 107, 0.95) 56%, rgba(242, 61, 100, 0.95) 70%, rgba(246, 93, 85, 0.95) 84%, rgba(245, 101, 93, 0.95) 100%) !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      z-index: -1 !important;
+    }
+
+    .gradient-background-pattern {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%) !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      z-index: -1 !important;
+      pointer-events: none !important;
+    }
+
+    /* Enhanced HomePage Background */
+    .homepage-gradient-bg {
+      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%) !important;
+      position: relative !important;
+      min-height: 100vh !important;
+    }
+
+    .homepage-gradient-bg::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: 
+        linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%) !important;
+      z-index: -1 !important;
+    }
+
+    /* Responsive gradient adjustments */
+    @media (max-width: 768px) {
+      .homepage-gradient-bg::before {
+        background: 
+          linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 60%) !important;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .homepage-gradient-bg::before {
+        background: 
+          linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
+          radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.09) 0%, transparent 55%) !important;
+      }
+    }
   `;
 
-      interface AnimationOption {
+interface AnimationOption {
   value: string;
   label: string;
 }
@@ -1801,455 +2520,465 @@ interface TriggerOption {
   description: string;
 }
 
-  export   const animationOptions: AnimationOption[] = [
-      { value: 'none', label: '🚫 No Animation' },
-      
-      // === FADE ANIMATIONS ===
-      { value: 'fadeIn', label: '✨ Fade In' },
-      { value: 'fadeInUp', label: '⬆️ Fade In Up' },
-      { value: 'fadeInDown', label: '⬇️ Fade In Down' },
-      { value: 'fadeInLeft', label: '⬅️ Fade In Left' },
-      { value: 'fadeInRight', label: '➡️ Fade In Right' },
-      { value: 'fadeInUpBig', label: '⬆️ Fade In Up Big' },
-      { value: 'fadeInDownBig', label: '⬇️ Fade In Down Big' },
-      { value: 'fadeInLeftBig', label: '⬅️ Fade In Left Big' },
-      { value: 'fadeInRightBig', label: '➡️ Fade In Right Big' },
-      
-      // === SLIDE ANIMATIONS ===
-      { value: 'slideInLeft', label: '⬅️ Slide In Left' },
-      { value: 'slideInRight', label: '➡️ Slide In Right' },
-      { value: 'slideInUp', label: '⬆️ Slide In Up' },
-      { value: 'slideInDown', label: '⬇️ Slide In Down' },
-      
-      // === ZOOM ANIMATIONS ===
-      { value: 'zoomIn', label: '🔍 Zoom In' },
-      { value: 'zoomInUp', label: '🔍⬆️ Zoom In Up' },
-      { value: 'zoomInDown', label: '🔍⬇️ Zoom In Down' },
-      { value: 'zoomInLeft', label: '🔍⬅️ Zoom In Left' },
-      { value: 'zoomInRight', label: '🔍➡️ Zoom In Right' },
-      { value: 'zoomOut', label: '🔍 Zoom Out' },
-      
-      // === BOUNCE ANIMATIONS ===
-      { value: 'bounce', label: '⚽ Bounce' },
-      { value: 'bounceIn', label: '⚽ Bounce In' },
-      { value: 'bounceInUp', label: '⚽⬆️ Bounce In Up' },
-      { value: 'bounceInDown', label: '⚽⬇️ Bounce In Down' },
-      { value: 'bounceInLeft', label: '⚽⬅️ Bounce In Left' },
-      { value: 'bounceInRight', label: '⚽➡️ Bounce In Right' },
-      
-      // === ATTENTION SEEKERS ===
-      { value: 'shake', label: '🫨 Shake X' },
-      { value: 'shakeY', label: '🫨 Shake Y' },
-      { value: 'pulse', label: '💓 Pulse' },
-      { value: 'heartbeat', label: '💗 Heartbeat' },
-      { value: 'flash', label: '⚡ Flash' },
-      { value: 'headShake', label: '🙄 Head Shake' },
-      
-      // === ELASTIC ANIMATIONS ===
-      { value: 'elasticIn', label: '🪃 Elastic In' },
-      { value: 'elasticInUp', label: '🪃⬆️ Elastic In Up' },
-      { value: 'elasticInDown', label: '🪃⬇️ Elastic In Down' },
-      { value: 'elasticInLeft', label: '🪃⬅️ Elastic In Left' },
-      { value: 'elasticInRight', label: '🪃➡️ Elastic In Right' },
-      
-      // === ROTATION & SWING ===
-      { value: 'swing', label: '🎭 Swing' },
-      { value: 'rotate', label: '🌀 Rotate' },
-      { value: 'rotateIn', label: '🌀 Rotate In' },
-      { value: 'rotateInUpLeft', label: '🌀↖️ Rotate In Up Left' },
-      { value: 'rotateInUpRight', label: '🌀↗️ Rotate In Up Right' },
-      { value: 'rotateInDownLeft', label: '🌀↙️ Rotate In Down Left' },
-      { value: 'rotateInDownRight', label: '🌀↘️ Rotate In Down Right' },
-      
-      // === FLIP ANIMATIONS ===
-      { value: 'flip', label: '🔄 Flip Y' },
-      { value: 'flipX', label: '🔃 Flip X' },
-      { value: 'flipY', label: '🔄 Flip Y Continuous' },
-      { value: 'flipInX', label: '🔃 Flip In X' },
-      { value: 'flipInY', label: '🔄 Flip In Y' },
-      
-      // === SPECIAL EFFECTS ===
-      { value: 'rubberBand', label: '🪀 Rubber Band' },
-      { value: 'wobble', label: '🌊 Wobble' },
-      { value: 'jello', label: '🍮 Jello' },
-      { value: 'tada', label: '🎉 Tada' },
-      
-      // === LIGHTSPEED ===
-      { value: 'lightSpeedInRight', label: '⚡➡️ Light Speed In Right' },
-      { value: 'lightSpeedInLeft', label: '⚡⬅️ Light Speed In Left' },
-      
-      // === ROLL ANIMATIONS ===
-      { value: 'rollIn', label: '🎳 Roll In' },
-      { value: 'rollOut', label: '🎳 Roll Out' },
-      
-      // === SPECIAL GEOMETRIC ===
-      { value: 'jackInTheBox', label: '📦 Jack In The Box' },
-      { value: 'hinge', label: '🚪 Hinge' },
-      
-      // === BACK ANIMATIONS ===
-      { value: 'backInUp', label: '↩️⬆️ Back In Up' },
-      { value: 'backInDown', label: '↩️⬇️ Back In Down' },
-      { value: 'backInLeft', label: '↩️⬅️ Back In Left' },
-      { value: 'backInRight', label: '↩️➡️ Back In Right' }
-    ];
-  
-   export const triggerOptions: TriggerOption[] = [
-      { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
-      { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
-      { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
-    ];
-  
- export   const speedOptions: SpeedOption[] = [
-      { value: 'very-slow', label: 'Very Slow', duration: 4 },
-      { value: 'slow', label: 'Slow', duration: 2.5 },
-      { value: 'normal', label: 'Normal', duration: 1.5 },
-      { value: 'fast', label: 'Fast', duration: 0.8 },
-      { value: 'very-fast', label: 'Very Fast', duration: 0.4 }
-    ];
+export const animationOptions: AnimationOption[] = [
+  { value: "none", label: "🚫 No Animation" },
 
+  // === FADE ANIMATIONS ===
+  { value: "fadeIn", label: "✨ Fade In" },
+  { value: "fadeInUp", label: "⬆️ Fade In Up" },
+  { value: "fadeInDown", label: "⬇️ Fade In Down" },
+  { value: "fadeInLeft", label: "⬅️ Fade In Left" },
+  { value: "fadeInRight", label: "➡️ Fade In Right" },
+  { value: "fadeInUpBig", label: "⬆️ Fade In Up Big" },
+  { value: "fadeInDownBig", label: "⬇️ Fade In Down Big" },
+  { value: "fadeInLeftBig", label: "⬅️ Fade In Left Big" },
+  { value: "fadeInRightBig", label: "➡️ Fade In Right Big" },
 
-  export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
-    container: {
-      fontFamily: 'Arial, sans-serif',
-      display: 'flex',
-      height: '100vh',
-      backgroundColor: '#f5f5f5'
-    },
-    leftPanel: {
-      width: '380px',
-      backgroundColor: 'white',
-      padding: '20px 20px 150px 20px',
-      borderRight: '1px solid #ddd',
-      overflowY: 'auto',
-      maxHeight: '100vh',
-      position: 'relative',
-      boxSizing: 'border-box'
-    },
-    rightPanel: {
-      flex: 1,
-      padding: '20px',
-      backgroundColor: 'white',
-      margin: '20px',
-      overflowY: 'auto',
-      maxHeight: 'calc(100vh - 40px)'
-    },
-    formGroup: {
-      marginBottom: '15px'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '5px',
-      fontWeight: 'bold',
-      fontSize: '14px'
-    },
-    input: {
-      width: '100%',
-      padding: '8px',
-      border: '1px solid #ddd',
-      borderRadius: '4px',
-      fontSize: '14px'
-    },
-    button: {
-      backgroundColor: '#1976d2',
-      color: 'white',
-      border: 'none',
-      padding: '10px 15px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '14px',
-      width: '100%',
-      marginBottom: '10px'
-    },
-    buttonSecondary: {
-      backgroundColor: '#666',
-      color: 'white',
-      border: 'none',
-      padding: '8px 12px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    buttonDanger: {
-      backgroundColor: '#f44336',
-      color: 'white',
-      border: 'none',
-      padding: '5px 8px',
-      borderRadius: '3px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    // previewArea: {
-    //   width: '100%',
-    //   height: `${Math.min(backgroundDimensions.height, 600)}px`,
-    //   minHeight: '300px',
-    //   maxHeight: '600px',
-    //   border: '2px solid #ddd',
-    //   position: 'relative',
-    //   overflow: 'auto',
-    //   backgroundColor: '#f9f9f9'
-    // },
-    subImageItem: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '8px',
-      border: '1px solid #eee',
-      borderRadius: '4px',
-      marginBottom: '5px',
-      cursor: 'pointer'
-    },
-    selectedItem: {
-      backgroundColor: '#e3f2fd',
-      borderColor: '#1976d2'
-    },
-    slider: {
-      width: '100%',
-      marginBottom: '10px'
-    },
-    select: {
-      width: '100%',
-      padding: '8px',
-      border: '1px solid #ddd',
-      borderRadius: '4px',
-      fontSize: '14px',
-      marginBottom: '10px'
-    },
-    draggableImage: {
-      position: 'absolute',
-      cursor: 'grab',
-      border: '2px solid transparent',
-      borderRadius: '4px',
-      transition: 'border-color 0.2s'
-    },
-    selectedImage: {
-      borderColor: '#1976d2'
-    },
-    tag: {
-      position: 'absolute',
-      top: '-20px',
-      left: '0',
-      backgroundColor: 'rgba(25, 118, 210, 0.8)',
-      color: 'white',
-      padding: '2px 6px',
-      borderRadius: '3px',
-      fontSize: '10px'
-    },
-    emptyState: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      textAlign: 'center',
-      color: '#666'
-    },
-    speedIndicator: {
-      fontSize: '11px',
-      color: '#4caf50',
-      fontWeight: 'bold',
-      marginTop: '2px'
-    },
-    loadingBadge: {
-      position: 'absolute',
-      top: '10px',
-      right: '10px',
-      backgroundColor: '#4caf50',
-      color: 'white',
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '10px',
-      fontWeight: 'bold'
-    }
-  };
+  // === SLIDE ANIMATIONS ===
+  { value: "slideInLeft", label: "⬅️ Slide In Left" },
+  { value: "slideInRight", label: "➡️ Slide In Right" },
+  { value: "slideInUp", label: "⬆️ Slide In Up" },
+  { value: "slideInDown", label: "⬇️ Slide In Down" },
 
+  // === ZOOM ANIMATIONS ===
+  { value: "zoomIn", label: "🔍 Zoom In" },
+  { value: "zoomInUp", label: "🔍⬆️ Zoom In Up" },
+  { value: "zoomInDown", label: "🔍⬇️ Zoom In Down" },
+  { value: "zoomInLeft", label: "🔍⬅️ Zoom In Left" },
+  { value: "zoomInRight", label: "🔍➡️ Zoom In Right" },
+  { value: "zoomOut", label: "🔍 Zoom Out" },
 
-  export const stylesSubproject: { [key: string]: React.CSSProperties } = {
-      container: {
-        fontFamily: 'Arial, sans-serif',
-        display: 'flex',
-        height: '100vh',
-        backgroundColor: '#f5f5f5'
-      },
-      leftPanel: {
-        width: '380px',
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRight: '1px solid #ddd',
-        overflowY: 'auto',
-        position: 'relative'
-      },
-      rightPanel: {
-        flex: 1,
-        padding: '20px',
-        backgroundColor: 'white',
-        margin: '20px'
-      },
-      formGroup: {
-        marginBottom: '15px'
-      },
-      label: {
-        display: 'block',
-        marginBottom: '5px',
-        fontWeight: 'bold',
-        fontSize: '14px'
-      },
-      input: {
-        width: '100%',
-        padding: '8px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        fontSize: '14px'
-      },
-      button: {
-        backgroundColor: '#1976d2',
-        color: 'white',
-        border: 'none',
-        padding: '10px 15px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px',
-        width: '100%',
-        marginBottom: '10px'
-      },
-      buttonSecondary: {
-        backgroundColor: '#666',
-        color: 'white',
-        border: 'none',
-        padding: '8px 12px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '12px'
-      },
-      buttonDanger: {
-        backgroundColor: '#f44336',
-        color: 'white',
-        border: 'none',
-        padding: '5px 8px',
-        borderRadius: '3px',
-        cursor: 'pointer',
-        fontSize: '12px'
-      },
-    //   previewArea: {
-    //     width: '100%',
-    //     height: `${backgroundDimensions.height}px`,
-    //     minHeight: '300px',
-    //     border: '2px solid #ddd',
-    //     position: 'relative',
-    //     overflow: 'hidden',
-    //     backgroundSize: '100% auto', // FIXED: Full width like Homepage
-    //     backgroundPosition: 'center top',
-    //     backgroundColor: '#f9f9f9'
-    //   },
-      subImageItem: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '8px',
-        border: '1px solid #eee',
-        borderRadius: '4px',
-        marginBottom: '5px',
-        cursor: 'pointer'
-      },
-      selectedItem: {
-        backgroundColor: '#e3f2fd',
-        borderColor: '#1976d2'
-      },
-      slider: {
-        width: '100%',
-        marginBottom: '10px'
-      },
-      select: {
-        width: '100%',
-        padding: '8px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        fontSize: '14px',
-        marginBottom: '10px'
-      },
-      draggableImage: {
-        position: 'absolute',
-        cursor: 'grab',
-        border: '2px solid transparent',
-        borderRadius: '4px',
-        transition: 'border-color 0.2s'
-      },
-      selectedImage: {
-        borderColor: '#1976d2'
-      },
-      tag: {
-        position: 'absolute',
-        top: '-20px',
-        left: '0',
-        backgroundColor: 'rgba(25, 118, 210, 0.8)',
-        color: 'white',
-        padding: '2px 6px',
-        borderRadius: '3px',
-        fontSize: '10px'
-      },
-      emptyState: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        textAlign: 'center',
-        color: '#666'
-      },
-      speedIndicator: {
-        fontSize: '11px',
-        color: '#4caf50',
-        fontWeight: 'bold',
-        marginTop: '2px'
-      },
-      loadingBadge: {
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        backgroundColor: '#4caf50',
-        color: 'white',
-        padding: '4px 8px',
-        borderRadius: '12px',
-        fontSize: '10px',
-        fontWeight: 'bold'
-      },
-      labelRequired: {
-        display: 'block',
-        marginBottom: '5px',
-        fontWeight: 'bold',
-        fontSize: '14px'
-      },
-      inputError: {
-        width: '100%',
-        padding: '8px',
-        border: '2px solid #f44336',
-        borderRadius: '4px',
-        fontSize: '14px',
-        backgroundColor: '#fff5f5'
-      },
-      errorMessage: {
-        color: '#f44336',
-        fontSize: '12px',
-        marginTop: '4px',
-        fontWeight: '500'
-      },
-      checkboxContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '15px',
-        gap: '8px'
-      },
-      exteriorBadge: {
-        background: '#4caf50',
-        color: 'white',
-        fontSize: '9px',
-        padding: '1px 4px',
-        borderRadius: '3px',
-        marginLeft: '6px'
-      },
-      interiorBadge: {
-        background: '#ff9800',
-        color: 'white',
-        fontSize: '9px',
-        padding: '1px 4px',
-        borderRadius: '3px',
-        marginLeft: '6px'
-      }
-    };
+  // === BOUNCE ANIMATIONS ===
+  { value: "bounce", label: "⚽ Bounce" },
+  { value: "bounceIn", label: "⚽ Bounce In" },
+  { value: "bounceInUp", label: "⚽⬆️ Bounce In Up" },
+  { value: "bounceInDown", label: "⚽⬇️ Bounce In Down" },
+  { value: "bounceInLeft", label: "⚽⬅️ Bounce In Left" },
+  { value: "bounceInRight", label: "⚽➡️ Bounce In Right" },
+
+  // === ATTENTION SEEKERS ===
+  { value: "shake", label: "🫨 Shake X" },
+  { value: "shakeY", label: "🫨 Shake Y" },
+  { value: "pulse", label: "💓 Pulse" },
+  { value: "heartbeat", label: "💗 Heartbeat" },
+  { value: "flash", label: "⚡ Flash" },
+  { value: "headShake", label: "🙄 Head Shake" },
+
+  // === ELASTIC ANIMATIONS ===
+  { value: "elasticIn", label: "🪃 Elastic In" },
+  { value: "elasticInUp", label: "🪃⬆️ Elastic In Up" },
+  { value: "elasticInDown", label: "🪃⬇️ Elastic In Down" },
+  { value: "elasticInLeft", label: "🪃⬅️ Elastic In Left" },
+  { value: "elasticInRight", label: "🪃➡️ Elastic In Right" },
+
+  // === ROTATION & SWING ===
+  { value: "swing", label: "🎭 Swing" },
+  { value: "rotate", label: "🌀 Rotate" },
+  { value: "rotateIn", label: "🌀 Rotate In" },
+  { value: "rotateInUpLeft", label: "🌀↖️ Rotate In Up Left" },
+  { value: "rotateInUpRight", label: "🌀↗️ Rotate In Up Right" },
+  { value: "rotateInDownLeft", label: "🌀↙️ Rotate In Down Left" },
+  { value: "rotateInDownRight", label: "🌀↘️ Rotate In Down Right" },
+
+  // === FLIP ANIMATIONS ===
+  { value: "flip", label: "🔄 Flip Y" },
+  { value: "flipX", label: "🔃 Flip X" },
+  { value: "flipY", label: "🔄 Flip Y Continuous" },
+  { value: "flipInX", label: "🔃 Flip In X" },
+  { value: "flipInY", label: "🔄 Flip In Y" },
+
+  // === SPECIAL EFFECTS ===
+  { value: "rubberBand", label: "🪀 Rubber Band" },
+  { value: "wobble", label: "🌊 Wobble" },
+  { value: "jello", label: "🍮 Jello" },
+  { value: "tada", label: "🎉 Tada" },
+
+  // === LIGHTSPEED ===
+  { value: "lightSpeedInRight", label: "⚡➡️ Light Speed In Right" },
+  { value: "lightSpeedInLeft", label: "⚡⬅️ Light Speed In Left" },
+
+  // === ROLL ANIMATIONS ===
+  { value: "rollIn", label: "🎳 Roll In" },
+  { value: "rollOut", label: "🎳 Roll Out" },
+
+  // === SPECIAL GEOMETRIC ===
+  { value: "jackInTheBox", label: "📦 Jack In The Box" },
+  { value: "hinge", label: "🚪 Hinge" },
+
+  // === BACK ANIMATIONS ===
+  { value: "backInUp", label: "↩️⬆️ Back In Up" },
+  { value: "backInDown", label: "↩️⬇️ Back In Down" },
+  { value: "backInLeft", label: "↩️⬅️ Back In Left" },
+  { value: "backInRight", label: "↩️➡️ Back In Right" },
+];
+
+export const triggerOptions: TriggerOption[] = [
+  {
+    value: "continuous",
+    label: "Continuous",
+    description: "Animation plays all the time",
+  },
+  {
+    value: "hover",
+    label: "On Hover",
+    description: "Animation plays when mouse hovers",
+  },
+  {
+    value: "once",
+    label: "Play Once",
+    description: "Animation plays once on load",
+  },
+];
+
+export const speedOptions: SpeedOption[] = [
+  { value: "very-slow", label: "Very Slow", duration: 4 },
+  { value: "slow", label: "Slow", duration: 2.5 },
+  { value: "normal", label: "Normal", duration: 1.5 },
+  { value: "fast", label: "Fast", duration: 0.8 },
+  { value: "very-fast", label: "Very Fast", duration: 0.4 },
+];
+
+export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
+  container: {
+    fontFamily: "Arial, sans-serif",
+    display: "flex",
+    height: "100vh",
+    backgroundColor: "#f5f5f5",
+  },
+  leftPanel: {
+    width: "380px",
+    backgroundColor: "white",
+    padding: "20px 20px 150px 20px",
+    borderRight: "1px solid #ddd",
+    overflowY: "auto",
+    maxHeight: "100vh",
+    position: "relative",
+    boxSizing: "border-box",
+  },
+  rightPanel: {
+    flex: 1,
+    padding: "20px",
+    backgroundColor: "white",
+    margin: "20px",
+    overflowY: "auto",
+    maxHeight: "calc(100vh - 40px)",
+  },
+  formGroup: {
+    marginBottom: "15px",
+  },
+  label: {
+    display: "block",
+    marginBottom: "5px",
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+  input: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "14px",
+  },
+  button: {
+    backgroundColor: "#1976d2",
+    color: "white",
+    border: "none",
+    padding: "10px 15px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "14px",
+    width: "100%",
+    marginBottom: "10px",
+  },
+  buttonSecondary: {
+    backgroundColor: "#666",
+    color: "white",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "12px",
+  },
+  buttonDanger: {
+    backgroundColor: "#f44336",
+    color: "white",
+    border: "none",
+    padding: "5px 8px",
+    borderRadius: "3px",
+    cursor: "pointer",
+    fontSize: "12px",
+  },
+  // previewArea: {
+  //   width: '100%',
+  //   height: `${Math.min(backgroundDimensions.height, 600)}px`,
+  //   minHeight: '300px',
+  //   maxHeight: '600px',
+  //   border: '2px solid #ddd',
+  //   position: 'relative',
+  //   overflow: 'auto',
+  //   backgroundColor: '#f9f9f9'
+  // },
+  subImageItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px",
+    border: "1px solid #eee",
+    borderRadius: "4px",
+    marginBottom: "5px",
+    cursor: "pointer",
+  },
+  selectedItem: {
+    backgroundColor: "#e3f2fd",
+    borderColor: "#1976d2",
+  },
+  slider: {
+    width: "100%",
+    marginBottom: "10px",
+  },
+  select: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "14px",
+    marginBottom: "10px",
+  },
+  draggableImage: {
+    position: "absolute",
+    cursor: "grab",
+    border: "2px solid transparent",
+    borderRadius: "4px",
+    transition: "border-color 0.2s",
+  },
+  selectedImage: {
+    borderColor: "#1976d2",
+  },
+  tag: {
+    position: "absolute",
+    top: "-20px",
+    left: "0",
+    backgroundColor: "rgba(25, 118, 210, 0.8)",
+    color: "white",
+    padding: "2px 6px",
+    borderRadius: "3px",
+    fontSize: "10px",
+  },
+  emptyState: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    textAlign: "center",
+    color: "#666",
+  },
+  speedIndicator: {
+    fontSize: "11px",
+    color: "#4caf50",
+    fontWeight: "bold",
+    marginTop: "2px",
+  },
+  loadingBadge: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    backgroundColor: "#4caf50",
+    color: "white",
+    padding: "4px 8px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+  },
+};
+
+export const stylesSubproject: { [key: string]: React.CSSProperties } = {
+  container: {
+    fontFamily: "Arial, sans-serif",
+    display: "flex",
+    height: "100vh",
+    backgroundColor: "#f5f5f5",
+  },
+  leftPanel: {
+    width: "380px",
+    backgroundColor: "white",
+    padding: "20px",
+    borderRight: "1px solid #ddd",
+    overflowY: "auto",
+    position: "relative",
+  },
+  rightPanel: {
+    flex: 1,
+    padding: "20px",
+    backgroundColor: "white",
+    margin: "20px",
+  },
+  formGroup: {
+    marginBottom: "15px",
+  },
+  label: {
+    display: "block",
+    marginBottom: "5px",
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+  input: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "14px",
+  },
+  button: {
+    backgroundColor: "#1976d2",
+    color: "white",
+    border: "none",
+    padding: "10px 15px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "14px",
+    width: "100%",
+    marginBottom: "10px",
+  },
+  buttonSecondary: {
+    backgroundColor: "#666",
+    color: "white",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "12px",
+  },
+  buttonDanger: {
+    backgroundColor: "#f44336",
+    color: "white",
+    border: "none",
+    padding: "5px 8px",
+    borderRadius: "3px",
+    cursor: "pointer",
+    fontSize: "12px",
+  },
+  //   previewArea: {
+  //     width: '100%',
+  //     height: `${backgroundDimensions.height}px`,
+  //     minHeight: '300px',
+  //     border: '2px solid #ddd',
+  //     position: 'relative',
+  //     overflow: 'hidden',
+  //     backgroundSize: '100% auto', // FIXED: Full width like Homepage
+  //     backgroundPosition: 'center top',
+  //     backgroundColor: '#f9f9f9'
+  //   },
+  subImageItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px",
+    border: "1px solid #eee",
+    borderRadius: "4px",
+    marginBottom: "5px",
+    cursor: "pointer",
+  },
+  selectedItem: {
+    backgroundColor: "#e3f2fd",
+    borderColor: "#1976d2",
+  },
+  slider: {
+    width: "100%",
+    marginBottom: "10px",
+  },
+  select: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "14px",
+    marginBottom: "10px",
+  },
+  draggableImage: {
+    position: "absolute",
+    cursor: "grab",
+    border: "2px solid transparent",
+    borderRadius: "4px",
+    transition: "border-color 0.2s",
+  },
+  selectedImage: {
+    borderColor: "#1976d2",
+  },
+  tag: {
+    position: "absolute",
+    top: "-20px",
+    left: "0",
+    backgroundColor: "rgba(25, 118, 210, 0.8)",
+    color: "white",
+    padding: "2px 6px",
+    borderRadius: "3px",
+    fontSize: "10px",
+  },
+  emptyState: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    textAlign: "center",
+    color: "#666",
+  },
+  speedIndicator: {
+    fontSize: "11px",
+    color: "#4caf50",
+    fontWeight: "bold",
+    marginTop: "2px",
+  },
+  loadingBadge: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    backgroundColor: "#4caf50",
+    color: "white",
+    padding: "4px 8px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+  },
+  labelRequired: {
+    display: "block",
+    marginBottom: "5px",
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+  inputError: {
+    width: "100%",
+    padding: "8px",
+    border: "2px solid #f44336",
+    borderRadius: "4px",
+    fontSize: "14px",
+    backgroundColor: "#fff5f5",
+  },
+  errorMessage: {
+    color: "#f44336",
+    fontSize: "12px",
+    marginTop: "4px",
+    fontWeight: "500",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "15px",
+    gap: "8px",
+  },
+  exteriorBadge: {
+    background: "#4caf50",
+    color: "white",
+    fontSize: "9px",
+    padding: "1px 4px",
+    borderRadius: "3px",
+    marginLeft: "6px",
+  },
+  interiorBadge: {
+    background: "#ff9800",
+    color: "white",
+    fontSize: "9px",
+    padding: "1px 4px",
+    borderRadius: "3px",
+    marginLeft: "6px",
+  },
+};

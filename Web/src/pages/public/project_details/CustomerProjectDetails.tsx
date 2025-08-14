@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 import { useGetProjectDetailsList } from "../../../api/useGetProjectDetails";
 import Footer from "../../../components/Footer";
 import SideMenu from "../../../components/SideMenu";
 import NextProjects from "./NextProjects";
 import { useNextProjectDetails } from "../../../api/useGetNextProject";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
-import { getAnimationVariants, projectDetailsStyles } from "../../../components/Const";
+import {
+  getAnimationVariants,
+  projectDetailsStyles,
+} from "../../../components/Const";
 
 interface MenuItem {
   name: string;
@@ -61,11 +64,11 @@ const getDeviceType = () => {
 // Get animation duration based on speed - EXACT COPY FROM HOMEPAGE
 const getAnimationDuration = (speed: string): number => {
   const speedMap: { [key: string]: number } = {
-    'very-slow': 4,
-    'slow': 2.5,
-    'normal': 1.5,
-    'fast': 0.8,
-    'very-fast': 0.4
+    "very-slow": 4,
+    slow: 2.5,
+    normal: 1.5,
+    fast: 0.8,
+    "very-fast": 0.4,
   };
   return speedMap[speed] || 1.5;
 };
@@ -305,9 +308,9 @@ const ProjectDetailsPage: React.FC = () => {
       // Include NextProjects measured height (if present)
       height += nextProjectsHeight;
 
-      // Responsive footer height
+      // Responsive footer height - ensure it matches Footer component dimensions
       const footerHeight =
-        deviceType === "mobile" ? 300 : deviceType === "tablet" ? 250 : 200;
+        deviceType === "mobile" ? 340 : deviceType === "tablet" ? 280 : 240;
       height += footerHeight;
 
       setTotalHeight(height);
@@ -339,6 +342,19 @@ const ProjectDetailsPage: React.FC = () => {
       currentScrollY.current = targetScrollY.current;
       isScrolling.current = false;
       setScrollY(currentScrollY.current);
+
+      // Apply final position with smooth transition
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
+        containerRef.current.style.transition = "transform 0.1s ease-out";
+
+        // Remove transition after animation completes
+        setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.style.transition = "none";
+          }
+        }, 100);
+      }
       return;
     }
 
@@ -347,6 +363,7 @@ const ProjectDetailsPage: React.FC = () => {
 
     if (containerRef.current) {
       containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
+      containerRef.current.style.transition = "none"; // Ensure smooth custom animation
     }
 
     animationFrameId.current = requestAnimationFrame(smoothScrollStep);
@@ -697,13 +714,16 @@ const ProjectDetailsPage: React.FC = () => {
 
   return (
     <div
+      className="project-details-container"
       style={{
-        position: "fixed",
+        position: "relative", // CHANGED: From "fixed" to "relative" for proper content flow
         top: 0,
         left: 0,
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
+        width: "100%", // CHANGED: From "100vw" to "100%" for better content flow
+        minHeight: "100vh",
+        overflow: "auto", // CHANGED: From "hidden" to "auto" for proper scrolling
+        display: "flex", // ADDED: Use flexbox for better layout control
+        flexDirection: "column", // ADDED: Stack content vertically
       }}
     >
       <style>{projectDetailsStyles}</style>
@@ -819,11 +839,16 @@ const ProjectDetailsPage: React.FC = () => {
       {/* Main Content Container */}
       <div
         ref={containerRef}
+        className="project-details-content"
         style={{
-          position: "absolute",
+          position: "relative", // CHANGED: From "absolute" to "relative" for proper flow
           top: 0,
           left: 0,
           width: "100%",
+          minHeight: "100vh", // ADDED: Ensure minimum height for proper footer positioning
+          display: "flex", // ADDED: Use flexbox for better layout control
+          flexDirection: "column", // ADDED: Stack content vertically
+          flex: 1, // ADDED: Take up available space
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
@@ -889,7 +914,6 @@ const ProjectDetailsPage: React.FC = () => {
                   zIndex: 1,
                 }}
               />
-
               {/* Content Layer - Sub-projects and other content */}
               <div
                 style={{
@@ -917,7 +941,7 @@ const ProjectDetailsPage: React.FC = () => {
                     }}
                   >
                     {/* {sectionTypeInfo.label} */}
-                  {/* </div>
+                {/* </div>
                 )}  */}
 
                 {/* Responsive Centered Top Logo - Only show on first section */}
@@ -963,74 +987,155 @@ const ProjectDetailsPage: React.FC = () => {
                       section.backgroundImageAspectRatio
                     );
 
-                    const isHovered = hoveredImageId === subProject.subProjectId;
+                    const isHovered =
+                      hoveredImageId === subProject.subProjectId;
 
                     // Get animation variants for this sub-project
-                    const animationVariants = getAnimationVariants(subProject.animation, subProject.animationTrigger);
-                    const duration = getAnimationDuration(subProject.animationSpeed);
+                    const animationVariants = getAnimationVariants(
+                      subProject.animation,
+                      subProject.animationTrigger
+                    );
+                    const duration = getAnimationDuration(
+                      subProject.animationSpeed
+                    );
 
                     // Build proper transition with duration and repeat logic
                     const transition: any = { duration };
 
                     // Handle repeat logic based on trigger and animation type
-                    if (subProject.animationTrigger === 'continuous') {
+                    if (subProject.animationTrigger === "continuous") {
                       // Animations that should repeat infinitely on continuous
                       const continuousAnimations = [
-                        'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'rotate', 'flip', 'flipX', 'flipY',
-                        'flash', 'swing', 'rubberBand', 'wobble', 'jello', 'tada', 'rollOut', 'zoomOut', 'headShake',
-                        'fadeIn', 'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight', 'fadeInUpBig', 'fadeInDownBig', 
-                        'fadeInLeftBig', 'fadeInRightBig', 'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
-                        'zoomIn', 'zoomInUp', 'zoomInDown', 'zoomInLeft', 'zoomInRight', 'bounceIn', 'bounceInUp', 
-                        'bounceInDown', 'bounceInLeft', 'bounceInRight', 'elasticIn', 'elasticInUp', 'elasticInDown',
-                        'elasticInLeft', 'elasticInRight', 'rotateIn', 'rotateInUpLeft', 'rotateInUpRight', 
-                        'rotateInDownLeft', 'rotateInDownRight', 'flipInX', 'flipInY', 'lightSpeedInLeft', 
-                        'lightSpeedInRight', 'rollIn', 'jackInTheBox', 'hinge', 'backInUp', 'backInDown', 
-                        'backInLeft', 'backInRight'
+                        "bounce",
+                        "shake",
+                        "shakeY",
+                        "pulse",
+                        "heartbeat",
+                        "rotate",
+                        "flip",
+                        "flipX",
+                        "flipY",
+                        "flash",
+                        "swing",
+                        "rubberBand",
+                        "wobble",
+                        "jello",
+                        "tada",
+                        "rollOut",
+                        "zoomOut",
+                        "headShake",
+                        "fadeIn",
+                        "fadeInUp",
+                        "fadeInDown",
+                        "fadeInLeft",
+                        "fadeInRight",
+                        "fadeInUpBig",
+                        "fadeInDownBig",
+                        "fadeInLeftBig",
+                        "fadeInRightBig",
+                        "slideInLeft",
+                        "slideInRight",
+                        "slideInUp",
+                        "slideInDown",
+                        "zoomIn",
+                        "zoomInUp",
+                        "zoomInDown",
+                        "zoomInLeft",
+                        "zoomInRight",
+                        "bounceIn",
+                        "bounceInUp",
+                        "bounceInDown",
+                        "bounceInLeft",
+                        "bounceInRight",
+                        "elasticIn",
+                        "elasticInUp",
+                        "elasticInDown",
+                        "elasticInLeft",
+                        "elasticInRight",
+                        "rotateIn",
+                        "rotateInUpLeft",
+                        "rotateInUpRight",
+                        "rotateInDownLeft",
+                        "rotateInDownRight",
+                        "flipInX",
+                        "flipInY",
+                        "lightSpeedInLeft",
+                        "lightSpeedInRight",
+                        "rollIn",
+                        "jackInTheBox",
+                        "hinge",
+                        "backInUp",
+                        "backInDown",
+                        "backInLeft",
+                        "backInRight",
                       ];
-                      
+
                       if (continuousAnimations.includes(subProject.animation)) {
                         transition.repeat = Infinity;
                       }
 
                       // Linear easing for rotation animations
-                      if (['rotate', 'flip', 'flipX', 'flipY'].includes(subProject.animation)) {
-                        transition.ease = 'linear';
+                      if (
+                        ["rotate", "flip", "flipX", "flipY"].includes(
+                          subProject.animation
+                        )
+                      ) {
+                        transition.ease = "linear";
                       }
                     }
 
-                    if (subProject.animationTrigger === 'once') {
+                    if (subProject.animationTrigger === "once") {
                       // Attention seeking animations that should repeat a few times for "once" trigger
                       const attentionAnimations = [
-                        'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'flash', 'headShake', 'swing', 
-                        'rubberBand', 'wobble', 'jello', 'tada'
+                        "bounce",
+                        "shake",
+                        "shakeY",
+                        "pulse",
+                        "heartbeat",
+                        "flash",
+                        "headShake",
+                        "swing",
+                        "rubberBand",
+                        "wobble",
+                        "jello",
+                        "tada",
                       ];
-                      
+
                       if (attentionAnimations.includes(subProject.animation)) {
                         // Different repeat counts for different animation types
                         const repeatCounts: { [key: string]: number } = {
-                          'bounce': 3,
-                          'shake': 3,
-                          'shakeY': 3,
-                          'pulse': 2,
-                          'heartbeat': 2,
-                          'flash': 3,
-                          'headShake': 2,
-                          'swing': 1,
-                          'rubberBand': 1,
-                          'wobble': 1,
-                          'jello': 1,
-                          'tada': 1
+                          bounce: 3,
+                          shake: 3,
+                          shakeY: 3,
+                          pulse: 2,
+                          heartbeat: 2,
+                          flash: 3,
+                          headShake: 2,
+                          swing: 1,
+                          rubberBand: 1,
+                          wobble: 1,
+                          jello: 1,
+                          tada: 1,
                         };
-                        transition.repeat = repeatCounts[subProject.animation] || 1;
+                        transition.repeat =
+                          repeatCounts[subProject.animation] || 1;
                       }
                     }
 
                     // Special duration adjustments for specific animations
-                    if (subProject.animation === 'hinge') {
+                    if (subProject.animation === "hinge") {
                       transition.duration = duration * 1.5; // Hinge needs more time
                     }
 
-                    if (['elasticIn', 'elasticInUp', 'elasticInDown', 'elasticInLeft', 'elasticInRight'].includes(subProject.animation)) {
+                    if (
+                      [
+                        "elasticIn",
+                        "elasticInUp",
+                        "elasticInDown",
+                        "elasticInLeft",
+                        "elasticInRight",
+                      ].includes(subProject.animation)
+                    ) {
                       transition.duration = duration * 1.2; // Elastic animations need more time
                     }
 
@@ -1062,9 +1167,21 @@ const ProjectDetailsPage: React.FC = () => {
                           data-has-typed-sections={hasTypedSections}
                           className="clickable-sub-project"
                           variants={animationVariants}
-                          initial={subProject.animation !== 'none' ? 'initial' : {}}
-                          animate={subProject.animation !== 'none' && subProject.animationTrigger !== 'hover' ? 'animate' : 'initial'}
-                          whileHover={subProject.animation !== 'none' && subProject.animationTrigger === 'hover' ? 'animate' : {}}
+                          initial={
+                            subProject.animation !== "none" ? "initial" : {}
+                          }
+                          animate={
+                            subProject.animation !== "none" &&
+                            subProject.animationTrigger !== "hover"
+                              ? "animate"
+                              : "initial"
+                          }
+                          whileHover={
+                            subProject.animation !== "none" &&
+                            subProject.animationTrigger === "hover"
+                              ? "animate"
+                              : {}
+                          }
                           transition={transition}
                           onClick={() => {}}
                           onMouseEnter={() =>
@@ -1086,7 +1203,8 @@ const ProjectDetailsPage: React.FC = () => {
                             perspective: "1000px",
                             // Enhanced touch targets for mobile
                             minWidth: deviceType === "mobile" ? "44px" : "auto",
-                            minHeight: deviceType === "mobile" ? "44px" : "auto",
+                            minHeight:
+                              deviceType === "mobile" ? "44px" : "auto",
                           }}
                         />
                       </motion.div>
@@ -1105,8 +1223,8 @@ const ProjectDetailsPage: React.FC = () => {
                   {section.title}{" "}
                   {/* {sectionTypeInfo ? ` - ${sectionTypeInfo.label}` : ""} */}
                 </h1>
-              
-              </div> {/* End Content Layer */}
+              </div>{" "}
+              {/* End Content Layer */}
             </section>
           );
         })}
@@ -1124,20 +1242,10 @@ const ProjectDetailsPage: React.FC = () => {
         <Footer
           deviceType={deviceType as "mobile" | "tablet" | "desktop"}
           variant="project-details"
+          className="project-details-footer"
         />
 
-        {/* Bottom padding to prevent content from being hidden behind fixed footer */}
-        <div
-          style={{
-            height:
-              deviceType === "mobile"
-                ? "340px"
-                : deviceType === "tablet"
-                ? "280px"
-                : "240px",
-            width: "100%",
-          }}
-        />
+        {/* Footer is now properly positioned in the content flow, no additional padding needed */}
       </div>
 
       {/* Responsive Scroll to Top Button */}
@@ -1164,6 +1272,15 @@ const ProjectDetailsPage: React.FC = () => {
               cursor: "pointer",
               zIndex: 1000,
               boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+              transition: "all 0.3s ease", // ADDED: Smooth transitions
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.1)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
             }}
           >
             ↑
