@@ -19,9 +19,9 @@ import ImageElementListPage from "./pages/admin/projects/projectList";
 import ProjectDetailstList from "./pages/admin/projects/ProjectDetailstList";
 import AnimatedResume from "./pages/public/Resume";
 import ResumeEditor from "./pages/admin/resume/ResumeEditor";
-import ImageEditorTest from "./pages/admin/home/TestSubproject";
-import Homepage from "./pages/public/HomePageMobileView";
+import Homepage from "./pages/public/HomePage";
 import ProjectDetailsPage from "./pages/public/project_details/CustomerProjectDetails";
+import ImageEditor from "./pages/admin/home/SubProject";
 
 
 
@@ -117,7 +117,7 @@ export const App = () => {
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
               {/* <ImageEditor /> */}
-               <ImageEditorTest />
+               <ImageEditor/>
             </AdminLayout>
           </ProtectedRoute>
         }
@@ -129,7 +129,7 @@ export const App = () => {
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
               {/* <ImageEditor /> */}
-               <ImageEditorTest />
+               <ImageEditor/>
             </AdminLayout>
           </ProtectedRoute>
         }

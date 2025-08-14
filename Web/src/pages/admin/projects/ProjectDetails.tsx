@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useSaveSubProjectContainer } from '../../../api/useSaveSubProjectContainer';
 import { useSubProjectContainerDetails } from '../../../api/useSubProjectContainerDetails';
 import { useNotification } from '../../../components/Tostr';
 import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
 import { useDeleteProject } from '../../../api/useDeleteSubProjects';
+import { getAnimationVariants } from '../../../components/Const';
 
 interface SubImage {
   id: number;
@@ -45,7 +46,7 @@ interface AnimationOption {
 interface SpeedOption {
   value: string;
   label: string;
-  duration: string;
+  duration: number;
 }
 
 interface TriggerOption {
@@ -53,6 +54,20 @@ interface TriggerOption {
   label: string;
   description: string;
 }
+
+
+
+// Get animation duration based on speed
+const getAnimationDuration = (speed: string): number => {
+  const speedMap: { [key: string]: number } = {
+    'very-slow': 4,
+    'slow': 2.5,
+    'normal': 1.5,
+    'fast': 0.8,
+    'very-fast': 0.4
+  };
+  return speedMap[speed] || 1.5;
+};
 
 const ProjectDetails: React.FC<{ currentItemId: number, projectId:number,isOpen:boolean, mode:unknown, onClose:()=>void }> = ({ currentItemId,projectId ,isOpen,onClose,mode}) => {
   // Read isExIn from URL parameters
@@ -155,34 +170,95 @@ setSelectedSubImage(null);
   const { mutate: deleteProject,isPending:isPendingDelete} = useDeleteProject();
 
   const animationOptions: AnimationOption[] = [
-    { value: 'none', label: 'No Animation' },
-    { value: 'fadeIn', label: 'Fade In' },
-    { value: 'fadeInUp', label: 'Fade In Up' },
-    { value: 'fadeInDown', label: 'Fade In Down' },
-    { value: 'slideInLeft', label: 'Slide In Left' },
-    { value: 'slideInRight', label: 'Slide In Right' },
-    { value: 'slideInUp', label: 'Slide In Up' },
-    { value: 'slideInDown', label: 'Slide In Down' },
-    { value: 'zoomIn', label: 'Zoom In' },
-    { value: 'zoomInUp', label: 'Zoom In Up' },
-    { value: 'zoomInDown', label: 'Zoom In Down' },
-    { value: 'bounce', label: 'Bounce' },
-    { value: 'bounceIn', label: 'Bounce In' },
-    { value: 'bounceInUp', label: 'Bounce In Up' },
-    { value: 'bounceInDown', label: 'Bounce In Down' },
-    { value: 'shake', label: 'Shake' },
-    { value: 'pulse', label: 'Pulse' },
-    { value: 'heartbeat', label: 'Heartbeat' },
-    { value: 'swing', label: 'Swing' },
-    { value: 'rotate', label: 'Rotate' },
-    { value: 'rotateIn', label: 'Rotate In' },
-    { value: 'flip', label: 'Flip' },
-    { value: 'flipInX', label: 'Flip In X' },
-    { value: 'flipInY', label: 'Flip In Y' },
-    { value: 'rubberBand', label: 'Rubber Band' },
-    { value: 'wobble', label: 'Wobble' },
-    { value: 'jello', label: 'Jello' },
-    { value: 'tada', label: 'Tada' }
+    { value: 'none', label: '🚫 No Animation' },
+    
+    // === FADE ANIMATIONS ===
+    { value: 'fadeIn', label: '✨ Fade In' },
+    { value: 'fadeInUp', label: '⬆️ Fade In Up' },
+    { value: 'fadeInDown', label: '⬇️ Fade In Down' },
+    { value: 'fadeInLeft', label: '⬅️ Fade In Left' },
+    { value: 'fadeInRight', label: '➡️ Fade In Right' },
+    { value: 'fadeInUpBig', label: '⬆️ Fade In Up Big' },
+    { value: 'fadeInDownBig', label: '⬇️ Fade In Down Big' },
+    { value: 'fadeInLeftBig', label: '⬅️ Fade In Left Big' },
+    { value: 'fadeInRightBig', label: '➡️ Fade In Right Big' },
+    
+    // === SLIDE ANIMATIONS ===
+    { value: 'slideInLeft', label: '⬅️ Slide In Left' },
+    { value: 'slideInRight', label: '➡️ Slide In Right' },
+    { value: 'slideInUp', label: '⬆️ Slide In Up' },
+    { value: 'slideInDown', label: '⬇️ Slide In Down' },
+    
+    // === ZOOM ANIMATIONS ===
+    { value: 'zoomIn', label: '🔍 Zoom In' },
+    { value: 'zoomInUp', label: '🔍⬆️ Zoom In Up' },
+    { value: 'zoomInDown', label: '🔍⬇️ Zoom In Down' },
+    { value: 'zoomInLeft', label: '🔍⬅️ Zoom In Left' },
+    { value: 'zoomInRight', label: '🔍➡️ Zoom In Right' },
+    { value: 'zoomOut', label: '🔍 Zoom Out' },
+    
+    // === BOUNCE ANIMATIONS ===
+    { value: 'bounce', label: '⚽ Bounce' },
+    { value: 'bounceIn', label: '⚽ Bounce In' },
+    { value: 'bounceInUp', label: '⚽⬆️ Bounce In Up' },
+    { value: 'bounceInDown', label: '⚽⬇️ Bounce In Down' },
+    { value: 'bounceInLeft', label: '⚽⬅️ Bounce In Left' },
+    { value: 'bounceInRight', label: '⚽➡️ Bounce In Right' },
+    
+    // === ATTENTION SEEKERS ===
+    { value: 'shake', label: '🫨 Shake X' },
+    { value: 'shakeY', label: '🫨 Shake Y' },
+    { value: 'pulse', label: '💓 Pulse' },
+    { value: 'heartbeat', label: '💗 Heartbeat' },
+    { value: 'flash', label: '⚡ Flash' },
+    { value: 'headShake', label: '🙄 Head Shake' },
+    
+    // === ELASTIC ANIMATIONS ===
+    { value: 'elasticIn', label: '🪃 Elastic In' },
+    { value: 'elasticInUp', label: '🪃⬆️ Elastic In Up' },
+    { value: 'elasticInDown', label: '🪃⬇️ Elastic In Down' },
+    { value: 'elasticInLeft', label: '🪃⬅️ Elastic In Left' },
+    { value: 'elasticInRight', label: '🪃➡️ Elastic In Right' },
+    
+    // === ROTATION & SWING ===
+    { value: 'swing', label: '🎭 Swing' },
+    { value: 'rotate', label: '🌀 Rotate' },
+    { value: 'rotateIn', label: '🌀 Rotate In' },
+    { value: 'rotateInUpLeft', label: '🌀↖️ Rotate In Up Left' },
+    { value: 'rotateInUpRight', label: '🌀↗️ Rotate In Up Right' },
+    { value: 'rotateInDownLeft', label: '🌀↙️ Rotate In Down Left' },
+    { value: 'rotateInDownRight', label: '🌀↘️ Rotate In Down Right' },
+    
+    // === FLIP ANIMATIONS ===
+    { value: 'flip', label: '🔄 Flip Y' },
+    { value: 'flipX', label: '🔃 Flip X' },
+    { value: 'flipY', label: '🔄 Flip Y Continuous' },
+    { value: 'flipInX', label: '🔃 Flip In X' },
+    { value: 'flipInY', label: '🔄 Flip In Y' },
+    
+    // === SPECIAL EFFECTS ===
+    { value: 'rubberBand', label: '🪀 Rubber Band' },
+    { value: 'wobble', label: '🌊 Wobble' },
+    { value: 'jello', label: '🍮 Jello' },
+    { value: 'tada', label: '🎉 Tada' },
+    
+    // === LIGHTSPEED ===
+    { value: 'lightSpeedInRight', label: '⚡➡️ Light Speed In Right' },
+    { value: 'lightSpeedInLeft', label: '⚡⬅️ Light Speed In Left' },
+    
+    // === ROLL ANIMATIONS ===
+    { value: 'rollIn', label: '🎳 Roll In' },
+    { value: 'rollOut', label: '🎳 Roll Out' },
+    
+    // === SPECIAL GEOMETRIC ===
+    { value: 'jackInTheBox', label: '📦 Jack In The Box' },
+    { value: 'hinge', label: '🚪 Hinge' },
+    
+    // === BACK ANIMATIONS ===
+    { value: 'backInUp', label: '↩️⬆️ Back In Up' },
+    { value: 'backInDown', label: '↩️⬇️ Back In Down' },
+    { value: 'backInLeft', label: '↩️⬅️ Back In Left' },
+    { value: 'backInRight', label: '↩️➡️ Back In Right' }
   ];
 
   const triggerOptions: TriggerOption[] = [
@@ -192,303 +268,12 @@ setSelectedSubImage(null);
   ];
 
   const speedOptions: SpeedOption[] = [
-    { value: 'very-slow', label: 'Very Slow', duration: '4s' },
-    { value: 'slow', label: 'Slow', duration: '2.5s' },
-    { value: 'normal', label: 'Normal', duration: '1.5s' },
-    { value: 'fast', label: 'Fast', duration: '0.8s' },
-    { value: 'very-fast', label: 'Very Fast', duration: '0.4s' }
+    { value: 'very-slow', label: 'Very Slow', duration: 4 },
+    { value: 'slow', label: 'Slow', duration: 2.5 },
+    { value: 'normal', label: 'Normal', duration: 1.5 },
+    { value: 'fast', label: 'Fast', duration: 0.8 },
+    { value: 'very-fast', label: 'Very Fast', duration: 0.4 }
   ];
-
-  const animationStyles = `
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(30px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-30px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideInLeft {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(0); }
-    }
-    @keyframes slideInRight {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(0); }
-    }
-    @keyframes slideInUp {
-      0% { transform: translateY(100%); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes slideInDown {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes zoomIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; }
-      100% { transform: scale(1); }
-    }
-    @keyframes zoomInUp {
-      0% { opacity: 0; transform: scale(0.1) translateY(2000px); }
-      60% { opacity: 1; transform: scale(0.475) translateY(-60px); }
-      100% { transform: scale(1) translateY(0); }
-    }
-    @keyframes zoomInDown {
-      0% { opacity: 0; transform: scale(0.1) translateY(-2000px); }
-      60% { opacity: 1; transform: scale(0.475) translateY(60px); }
-      100% { transform: scale(1) translateY(0); }
-    }
-    @keyframes bounce {
-      0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-      40%, 43% { transform: translateY(-30px); }
-      70% { transform: translateY(-15px); }
-      90% { transform: translateY(-4px); }
-    }
-    @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.05); }
-      70% { transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes bounceInUp {
-      0% { opacity: 0; transform: translateY(2000px); }
-      60% { opacity: 1; transform: translateY(-30px); }
-      80% { transform: translateY(10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes bounceInDown {
-      0% { opacity: 0; transform: translateY(-2000px); }
-      60% { opacity: 1; transform: translateY(30px); }
-      80% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-      20%, 40%, 60%, 80% { transform: translateX(10px); }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    @keyframes heartbeat {
-      0% { transform: scale(1); }
-      14% { transform: scale(1.3); }
-      28% { transform: scale(1); }
-      42% { transform: scale(1.3); }
-      70% { transform: scale(1); }
-      100% { transform: scale(1); }
-    }
-    @keyframes swing {
-      20% { transform: rotate(15deg); }
-      40% { transform: rotate(-10deg); }
-      60% { transform: rotate(5deg); }
-      80% { transform: rotate(-5deg); }
-      100% { transform: rotate(0deg); }
-    }
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes rotateIn {
-      0% { transform: rotate(-200deg); opacity: 0; }
-      100% { transform: rotate(0deg); opacity: 1; }
-    }
-    @keyframes flip {
-      0% { transform: perspective(400px) rotateY(0); }
-      100% { transform: perspective(400px) rotateY(360deg); }
-    }
-    @keyframes flipInX {
-      0% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
-      40% { transform: perspective(400px) rotateX(-10deg); }
-      70% { transform: perspective(400px) rotateX(10deg); }
-      100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
-    }
-    @keyframes flipInY {
-      0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
-      40% { transform: perspective(400px) rotateY(-10deg); }
-      70% { transform: perspective(400px) rotateY(10deg); }
-      100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
-    }
-    @keyframes rubberBand {
-      0% { transform: scale(1); }
-      30% { transform: scale(1.25, 0.75); }
-      40% { transform: scale(0.75, 1.25); }
-      60% { transform: scale(1.15, 0.85); }
-      100% { transform: scale(1); }
-    }
-    @keyframes wobble {
-      0% { transform: translateX(0%); }
-      15% { transform: translateX(-25%) rotate(-5deg); }
-      30% { transform: translateX(20%) rotate(3deg); }
-      45% { transform: translateX(-15%) rotate(-3deg); }
-      60% { transform: translateX(10%) rotate(2deg); }
-      75% { transform: translateX(-5%) rotate(-1deg); }
-      100% { transform: translateX(0%); }
-    }
-    @keyframes jello {
-      0%, 11.1%, 100% { transform: translateX(0); }
-      22.2% { transform: skewX(-12.5deg) skewY(-12.5deg); }
-      33.3% { transform: skewX(6.25deg) skewY(6.25deg); }
-      44.4% { transform: skewX(-3.125deg) skewY(-3.125deg); }
-      55.5% { transform: skewX(1.5625deg) skewY(1.5625deg); }
-      66.6% { transform: skewX(-0.78125deg) skewY(-0.78125deg); }
-      77.7% { transform: skewX(0.390625deg) skewY(0.390625deg); }
-      88.8% { transform: skewX(-0.1953125deg) skewY(-0.1953125deg); }
-    }
-    @keyframes tada {
-      0% { transform: scale(1) rotate(0deg); }
-      10%, 20% { transform: scale(0.9) rotate(-3deg); }
-      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
-      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
-      100% { transform: scale(1) rotate(0deg); }
-    }
-
-    .animated-image {
-      animation-fill-mode: both;
-    }
-
-    .speed-very-slow { animation-duration: 4s !important; }
-    .speed-slow { animation-duration: 2.5s !important; }
-    .speed-normal { animation-duration: 1.5s !important; }
-    .speed-fast { animation-duration: 0.8s !important; }
-    .speed-very-fast { animation-duration: 0.4s !important; }
-
-    .trigger-continuous { animation-iteration-count: infinite; }
-    .trigger-once { animation-iteration-count: 1; }
-    .trigger-hover { animation-play-state: paused; }
-    .trigger-hover:hover { animation-play-state: running; }
-
-    .animated-image.bounce.trigger-continuous,
-    .animated-image.shake.trigger-continuous,
-    .animated-image.pulse.trigger-continuous,
-    .animated-image.heartbeat.trigger-continuous,
-    .animated-image.rotate.trigger-continuous,
-    .animated-image.flip.trigger-continuous { 
-      animation-iteration-count: infinite; 
-    }
-
-    .animated-image.bounce.trigger-once,
-    .animated-image.shake.trigger-once,
-    .animated-image.pulse.trigger-once,
-    .animated-image.heartbeat.trigger-once,
-    .animated-image.rotate.trigger-once,
-    .animated-image.flip.trigger-once { 
-      animation-iteration-count: 3; 
-    }
-
-    .animated-image.bounce.trigger-hover,
-    .animated-image.shake.trigger-hover,
-    .animated-image.pulse.trigger-hover,
-    .animated-image.heartbeat.trigger-hover,
-    .animated-image.rotate.trigger-hover,
-    .animated-image.flip.trigger-hover { 
-      animation-iteration-count: infinite;
-      animation-play-state: paused;
-    }
-
-    .animated-image.bounce.trigger-hover:hover,
-    .animated-image.shake.trigger-hover:hover,
-    .animated-image.pulse.trigger-hover:hover,
-    .animated-image.heartbeat.trigger-hover:hover,
-    .animated-image.rotate.trigger-hover:hover,
-    .animated-image.flip.trigger-hover:hover { 
-      animation-play-state: running;
-    }
-
-    .animated-image.fadeIn { animation-name: fadeIn; animation-duration: 1s; }
-    .animated-image.fadeInUp { animation-name: fadeInUp; animation-duration: 1s; }
-    .animated-image.fadeInDown { animation-name: fadeInDown; animation-duration: 1s; }
-    .animated-image.slideInLeft { animation-name: slideInLeft; animation-duration: 1s; }
-    .animated-image.slideInRight { animation-name: slideInRight; animation-duration: 1s; }
-    .animated-image.slideInUp { animation-name: slideInUp; animation-duration: 1s; }
-    .animated-image.slideInDown { animation-name: slideInDown; animation-duration: 1s; }
-    .animated-image.zoomIn { animation-name: zoomIn; animation-duration: 1s; }
-    .animated-image.zoomInUp { animation-name: zoomInUp; animation-duration: 1s; }
-    .animated-image.zoomInDown { animation-name: zoomInDown; animation-duration: 1s; }
-    .animated-image.bounce { animation-name: bounce; animation-duration: 2s; animation-iteration-count: infinite; }
-    .animated-image.bounceIn { animation-name: bounceIn; animation-duration: 1s; }
-    .animated-image.bounceInUp { animation-name: bounceInUp; animation-duration: 1s; }
-    .animated-image.bounceInDown { animation-name: bounceInDown; animation-duration: 1s; }
-    .animated-image.shake { animation-name: shake; animation-duration: 1s; animation-iteration-count: infinite; }
-    .animated-image.pulse { animation-name: pulse; animation-duration: 2s; animation-iteration-count: infinite; }
-    .animated-image.heartbeat { animation-name: heartbeat; animation-duration: 1.3s; animation-iteration-count: infinite; }
-    .animated-image.swing { animation-name: swing; animation-duration: 1s; transform-origin: top center; }
-    .animated-image.rotate { animation-name: rotate; animation-duration: 2s; animation-iteration-count: infinite; animation-timing-function: linear; }
-    .animated-image.rotateIn { animation-name: rotateIn; animation-duration: 1s; }
-    .animated-image.flip { animation-name: flip; animation-duration: 1s; animation-iteration-count: infinite; }
-    .animated-image.flipInX { animation-name: flipInX; animation-duration: 1s; }
-    .animated-image.flipInY { animation-name: flipInY; animation-duration: 1s; }
-    .animated-image.rubberBand { animation-name: rubberBand; animation-duration: 1s; }
-    .animated-image.wobble { animation-name: wobble; animation-duration: 1s; }
-    .animated-image.jello { animation-name: jello; animation-duration: 1s; }
-    .animated-image.tada { animation-name: tada; animation-duration: 1s; }
-
-    .loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .exterior-badge {
-      background: #4caf50;
-      color: white;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      margin-left: 6px;
-    }
-
-    .interior-badge {
-      background: #ff9800;
-      color: white;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      margin-left: 6px;
-    }
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-      gap: 8px;
-    }
-
-    .checkbox-container input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-    }
-
-    .checkbox-container label {
-      font-size: 14px;
-      margin-bottom: 0;
-      cursor: pointer;
-    }
-
-    .isexin-badge {
-      background: #2196f3;
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 8px;
-      font-weight: bold;
-    }
-  `;
 
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
@@ -592,23 +377,6 @@ setSelectedSubImage(null);
     setBackgroundImage(prev => prev ? { ...prev, [property]: value } : null);
   };
 
-  // const deleteSubImage = (imageId: number): void => {
-  //   deleteProject(
-  //     { 
-  //       containerId: id ? parseInt(id, 10) : 0,
-  //       projectId: typeof imageId === 'number' ? imageId : 0
-  //     },
-  //     {
-  //       onSuccess: () => {
-       
-  //         setSubImages(prev => prev.filter(img => img.id !== imageId));
-  //         if (selectedSubImage === imageId) {
-  //           setSelectedSubImage(null);
-  //         }
-  //       }
-  //     }
-  //   );
-  // };
 
   function getProjectId(id: number) {
     if (id > 1_000_000_000_000) {
@@ -1042,7 +810,6 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
         {/* Drawer Content - with proper overflow handling */}
         <div className="flex-1 h-full overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
     <div style={styles.container}>
-      <style>{animationStyles}</style>
       
       <div style={styles.leftPanel}>
         {isLoadingApiData && (
@@ -1197,20 +964,6 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
             <hr style={{ margin: '20px 0' }} />
             <h3 style={{ fontSize: '16px', marginBottom: '15px' }}>Edit Selected Image</h3>
             
-            {/* <div className="checkbox-container">
-              <input
-                type="checkbox"
-                id={`exterior-${selectedImageData.id}`}
-                checked={selectedImageData.isExterior}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                  updateSubImageProperty(selectedImageData.id, 'isExterior', e.target.checked)
-                }
-              />
-              <label htmlFor={`exterior-${selectedImageData.id}`}>
-                Have Exterior / Interior
-              </label>
-            </div> */}
-            
             <label style={styles.label}>Size: {selectedImageData.heightPercent}% of background width</label>
             <input
               type="range"
@@ -1250,7 +1003,7 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
                 >
                   {speedOptions.map((option) => (
                     <option key={option.value} value={option.value}>
-                      {option.label} ({option.duration})
+                      {option.label} ({option.duration}s)
                     </option>
                   ))}
                 </select>
@@ -1274,7 +1027,7 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
                 </div>
 
                 <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>
-                  Speed: {speedOptions.find(s => s.value === selectedImageData.animationSpeed)?.duration || '1.5s'}
+                  Speed: {speedOptions.find(s => s.value === selectedImageData.animationSpeed)?.duration || 1.5}s
                 </div>
               </>
             )}
@@ -1319,12 +1072,34 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
             }}
           >
             {isLoadingApiData && (
-              <div className="loading-overlay">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1000
+                }}
+              >
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', marginBottom: '10px' }}>⏳</div>
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    style={{ fontSize: '18px', marginBottom: '10px' }}
+                  >
+                    ⏳
+                  </motion.div>
                   <div>Loading API Data...</div>
                 </div>
-              </div>
+              </motion.div>
             )}
             
             {!backgroundImage && !isLoadingApiData && (
@@ -1334,54 +1109,76 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
               </div>
             )}
             
-            {/* FIXED: Render images using percentage-based positioning */}
-            {subImages.map((img, index) => {
-              const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
-              return (
-                <div
-                  key={img.id}
-                  onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
-                  style={{
-                    ...styles.draggableImage,
-                    left: pixelPos.x,
-                    top: pixelPos.y,
-                    cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
-                    ...(selectedSubImage === img.id ? styles.selectedImage : {}),
-                  }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                    if (!dragState.isDragging) {
-                      (e.target as HTMLDivElement).style.borderColor = '#1976d2';
+            {/* FIXED: Render images using Framer Motion and percentage-based positioning */}
+            <AnimatePresence>
+              {subImages.map((img, index) => {
+                const pixelPos = getPixelPosition(img.xPercent, img.yPercent);
+                const duration = getAnimationDuration(img.animationSpeed);
+                const animationVariants = getAnimationVariants(img.animation, img.animationTrigger, duration);
+
+                return (
+                  <motion.div
+                    key={`${img.id}-${img.animation}-${img.animationSpeed}-${img.animationTrigger}`}
+                    variants={animationVariants}
+                    initial={img.animation !== 'none' ? 'initial' : undefined}
+                    animate={
+                      img.animation !== 'none' && img.animationTrigger !== 'hover' 
+                        ? 'animate' 
+                        : img.animation !== 'none' && img.animationTrigger === 'hover'
+                        ? 'initial'
+                        : undefined
                     }
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                    if (selectedSubImage !== img.id && !dragState.isDragging) {
-                      (e.target as HTMLDivElement).style.borderColor = 'transparent';
+                    whileHover={
+                      img.animation !== 'none' && img.animationTrigger === 'hover' 
+                        ? 'animate' 
+                        : undefined
                     }
-                  }}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.name}
-                    className={`animated-image ${img.animation !== 'none' ? img.animation : ''} ${img.animation !== 'none' ? `speed-${img.animationSpeed}` : ''} ${img.animation !== 'none' ? `trigger-${img.animationTrigger}` : ''}`}
+                    onMouseDown={(e: React.MouseEvent) => handleMouseDown(e, index)}
                     style={{
-                      height: `${getActualHeight(img.heightPercent)}px`,
-                      width: 'auto',
-                      display: 'block',
-                      userSelect: 'none',
-                      pointerEvents: img.animationTrigger === 'hover' && img.animation !== 'none' ? 'auto' : 'none'
+                      ...styles.draggableImage,
+                      left: pixelPos.x,
+                      top: pixelPos.y,
+                      cursor: dragState.isDragging && dragState.dragIndex === index ? 'grabbing' : 'grab',
+                      ...(selectedSubImage === img.id ? styles.selectedImage : {}),
                     }}
-                  />
-                  {selectedSubImage === img.id && (
-                    <div style={styles.tag}>
-                      {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
-                      {img.animation !== 'none' ? 
-                        ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
-                        : ' draggable'}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                      if (!dragState.isDragging) {
+                        (e.target as HTMLDivElement).style.borderColor = '#1976d2';
+                      }
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                      if (selectedSubImage !== img.id && !dragState.isDragging) {
+                        (e.target as HTMLDivElement).style.borderColor = 'transparent';
+                      }
+                    }}
+                  >
+                    <motion.img
+                      src={img.url}
+                      alt={img.name}
+                      style={{
+                        height: `${getActualHeight(img.heightPercent)}px`,
+                        width: 'auto',
+                        display: 'block',
+                        userSelect: 'none',
+                        pointerEvents: 'none'
+                      }}
+                    />
+                    {selectedSubImage === img.id && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={styles.tag}
+                      >
+                        {img.isExterior ? '🏠 EXT' : '🏠 INT'} | 
+                        {img.animation !== 'none' ? 
+                          ` ${img.animation} (${speedOptions.find(s => s.value === img.animationSpeed)?.label} - ${triggerOptions.find(t => t.value === img.animationTrigger)?.label})` 
+                          : ' draggable'}
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
 

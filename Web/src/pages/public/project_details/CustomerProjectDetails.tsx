@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGetProjectDetailsList } from "../../../api/useGetProjectDetails";
 import Footer from "../../../components/Footer";
 import SideMenu from "../../../components/SideMenu";
@@ -54,6 +55,462 @@ const getDeviceType = () => {
   if (width <= BREAKPOINTS.mobile) return "mobile";
   if (width <= BREAKPOINTS.tablet) return "tablet";
   return "desktop";
+};
+
+// Framer Motion animation variants - EXACT COPY FROM HOMEPAGE
+const getAnimationVariants = (animationType: string, trigger: string) => {
+  const baseVariants: any = {
+    none: {
+      initial: {},
+      animate: {},
+      exit: {}
+    },
+    // === FADE ANIMATIONS ===
+    fadeIn: {
+      initial: { opacity: trigger === 'continuous' ? 1 : 0 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.3, 1] }
+        : { opacity: 1 },
+      exit: { opacity: 0 }
+    },
+    fadeInUp: {
+      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.3, 1], y: [0, 15, 0] }
+        : { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: 30 }
+    },
+    fadeInDown: {
+      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.3, 1], y: [0, -15, 0] }
+        : { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: -30 }
+    },
+    fadeInLeft: {
+      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.3, 1], x: [0, -15, 0] }
+        : { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -30 }
+    },
+    fadeInRight: {
+      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.3, 1], x: [0, 15, 0] }
+        : { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: 30 }
+    },
+    fadeInUpBig: {
+      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.2, 1], y: [0, 30, 0] }
+        : { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: 100 }
+    },
+    fadeInDownBig: {
+      initial: trigger === 'continuous' ? { opacity: 1, y: 0 } : { opacity: 0, y: -100 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.2, 1], y: [0, -30, 0] }
+        : { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: -100 }
+    },
+    fadeInLeftBig: {
+      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.2, 1], x: [0, -30, 0] }
+        : { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -100 }
+    },
+    fadeInRightBig: {
+      initial: trigger === 'continuous' ? { opacity: 1, x: 0 } : { opacity: 0, x: 100 },
+      animate: trigger === 'continuous' 
+        ? { opacity: [1, 0.2, 1], x: [0, 30, 0] }
+        : { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: 100 }
+    },
+    
+    // === SLIDE ANIMATIONS ===
+    slideInLeft: {
+      initial: trigger === 'continuous' ? { x: 0 } : { x: '-100%' },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -20, 0] }
+        : { x: 0 },
+      exit: { x: '-100%' }
+    },
+    slideInRight: {
+      initial: trigger === 'continuous' ? { x: 0 } : { x: '100%' },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 20, 0] }
+        : { x: 0 },
+      exit: { x: '100%' }
+    },
+    slideInUp: {
+      initial: trigger === 'continuous' ? { y: 0 } : { y: '100%' },
+      animate: trigger === 'continuous' 
+        ? { y: [0, 20, 0] }
+        : { y: 0 },
+      exit: { y: '100%' }
+    },
+    slideInDown: {
+      initial: trigger === 'continuous' ? { y: 0 } : { y: '-100%' },
+      animate: trigger === 'continuous' 
+        ? { y: [0, -20, 0] }
+        : { y: 0 },
+      exit: { y: '-100%' }
+    },
+    
+    // === ZOOM ANIMATIONS ===
+    zoomIn: {
+      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0.3 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.1, 1] }
+        : { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 0.3 }
+    },
+    zoomInUp: {
+      initial: trigger === 'continuous' ? { scale: 1, y: 0 } : { opacity: 0, scale: 0.1, y: 100 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.1, 1], y: [0, -10, 0] }
+        : { opacity: 1, scale: 1, y: 0 },
+      exit: { opacity: 0, scale: 0.1, y: 100 }
+    },
+    zoomInDown: {
+      initial: trigger === 'continuous' ? { scale: 1, y: 0 } : { opacity: 0, scale: 0.1, y: -100 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.1, 1], y: [0, 10, 0] }
+        : { opacity: 1, scale: 1, y: 0 },
+      exit: { opacity: 0, scale: 0.1, y: -100 }
+    },
+    zoomInLeft: {
+      initial: trigger === 'continuous' ? { scale: 1, x: 0 } : { opacity: 0, scale: 0.1, x: -100 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.1, 1], x: [0, 10, 0] }
+        : { opacity: 1, scale: 1, x: 0 },
+      exit: { opacity: 0, scale: 0.1, x: -100 }
+    },
+    zoomInRight: {
+      initial: trigger === 'continuous' ? { scale: 1, x: 0 } : { opacity: 0, scale: 0.1, x: 100 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.1, 1], x: [0, -10, 0] }
+        : { opacity: 1, scale: 1, x: 0 },
+      exit: { opacity: 0, scale: 0.1, x: 100 }
+    },
+    zoomOut: {
+      initial: { scale: 1 },
+      animate: { scale: [1, 1.3, 1] },
+      exit: { scale: 1 }
+    },
+    
+    // === BOUNCE ANIMATIONS ===
+    bounce: {
+      initial: { y: 0 },
+      animate: { y: [0, -30, 0, -15, 0, -4, 0] },
+      exit: { y: 0 }
+    },
+    bounceIn: {
+      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0.3 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 0.8, 1.1, 0.95, 1.05, 1] }
+        : { opacity: [0, 1, 1, 1], scale: [0.3, 1.05, 0.9, 1] },
+      exit: { opacity: 0, scale: 0.3 }
+    },
+    bounceInUp: {
+      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: 100 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, 20, -10, 5, 0] }
+        : { opacity: [0, 1, 1, 1], y: [100, -30, 10, 0] },
+      exit: { opacity: 0, y: 100 }
+    },
+    bounceInDown: {
+      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: -100 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, -20, 10, -5, 0] }
+        : { opacity: [0, 1, 1, 1], y: [-100, 30, -10, 0] },
+      exit: { opacity: 0, y: -100 }
+    },
+    bounceInLeft: {
+      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: -100 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -20, 10, -5, 0] }
+        : { opacity: [0, 1, 1, 1], x: [-100, 30, -10, 0] },
+      exit: { opacity: 0, x: -100 }
+    },
+    bounceInRight: {
+      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: 100 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 20, -10, 5, 0] }
+        : { opacity: [0, 1, 1, 1], x: [100, -30, 10, 0] },
+      exit: { opacity: 0, x: 100 }
+    },
+    
+    // === ATTENTION SEEKERS ===
+    shake: {
+      initial: { x: 0 },
+      animate: { x: [0, -10, 10, -10, 10, 0] },
+      exit: { x: 0 }
+    },
+    shakeY: {
+      initial: { y: 0 },
+      animate: { y: [0, -10, 10, -10, 10, 0] },
+      exit: { y: 0 }
+    },
+    pulse: {
+      initial: { scale: 1 },
+      animate: { scale: [1, 1.1, 1] },
+      exit: { scale: 1 }
+    },
+    heartbeat: {
+      initial: { scale: 1 },
+      animate: { scale: [1, 1.3, 1, 1.3, 1] },
+      exit: { scale: 1 }
+    },
+    flash: {
+      initial: { opacity: 1 },
+      animate: { opacity: [1, 0, 1, 0, 1] },
+      exit: { opacity: 1 }
+    },
+    headShake: {
+      initial: { x: 0, rotate: 0 },
+      animate: { x: [0, -6, 6, -3, 3, 0], rotate: [0, -9, 7, -5, 3, 0] },
+      exit: { x: 0, rotate: 0 }
+    },
+    
+    // === ELASTIC ANIMATIONS ===
+    elasticIn: {
+      initial: trigger === 'continuous' ? { scale: 1 } : { opacity: 0, scale: 0 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 1.2, 0.8, 1.1, 0.95, 1.03, 1] }
+        : { opacity: 1, scale: [0, 1.25, 0.75, 1.15, 0.95, 1.05, 1] },
+      exit: { opacity: 0, scale: 0 }
+    },
+    elasticInUp: {
+      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: 100 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, -20, 8, -4, 2, 0] }
+        : { opacity: 1, y: [100, -25, 10, -5, 2, 0] },
+      exit: { opacity: 0, y: 100 }
+    },
+    elasticInDown: {
+      initial: trigger === 'continuous' ? { y: 0 } : { opacity: 0, y: -100 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, 20, -8, 4, -2, 0] }
+        : { opacity: 1, y: [-100, 25, -10, 5, -2, 0] },
+      exit: { opacity: 0, y: -100 }
+    },
+    elasticInLeft: {
+      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: -100 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 20, -8, 4, -2, 0] }
+        : { opacity: 1, x: [-100, 25, -10, 5, -2, 0] },
+      exit: { opacity: 0, x: -100 }
+    },
+    elasticInRight: {
+      initial: trigger === 'continuous' ? { x: 0 } : { opacity: 0, x: 100 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -20, 8, -4, 2, 0] }
+        : { opacity: 1, x: [100, -25, 10, -5, 2, 0] },
+      exit: { opacity: 0, x: 100 }
+    },
+    
+    // === SWING & ROTATION ===
+    swing: {
+      initial: { rotate: 0 },
+      animate: { rotate: [0, 15, -10, 5, -5, 0] },
+      exit: { rotate: 0 }
+    },
+    rotate: {
+      initial: { rotate: 0 },
+      animate: { rotate: 360 },
+      exit: { rotate: 0 }
+    },
+    rotateIn: {
+      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -200, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, -30, 30, -15, 15, 0] }
+        : { rotate: 0, opacity: 1 },
+      exit: { rotate: -200, opacity: 0 }
+    },
+    rotateInUpLeft: {
+      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -45, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, -20, 20, -10, 10, 0] }
+        : { rotate: 0, opacity: 1 },
+      exit: { rotate: -45, opacity: 0 }
+    },
+    rotateInUpRight: {
+      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: 45, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, 20, -20, 10, -10, 0] }
+        : { rotate: 0, opacity: 1 },
+      exit: { rotate: 45, opacity: 0 }
+    },
+    rotateInDownLeft: {
+      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: 45, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, 20, -20, 10, -10, 0] }
+        : { rotate: 0, opacity: 1 },
+      exit: { rotate: 45, opacity: 0 }
+    },
+    rotateInDownRight: {
+      initial: trigger === 'continuous' ? { rotate: 0 } : { rotate: -45, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, -20, 20, -10, 10, 0] }
+        : { rotate: 0, opacity: 1 },
+      exit: { rotate: -45, opacity: 0 }
+    },
+    
+    // === FLIP ANIMATIONS ===
+    flip: {
+      initial: { rotateY: 0 },
+      animate: { rotateY: 360 },
+      exit: { rotateY: 0 }
+    },
+    flipInX: {
+      initial: trigger === 'continuous' ? { rotateX: 0 } : { rotateX: 90, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotateX: [0, 45, -15, 5, 0] }
+        : { rotateX: [90, -10, 10, 0], opacity: [0, 1, 1, 1] },
+      exit: { rotateX: 90, opacity: 0 }
+    },
+    flipInY: {
+      initial: trigger === 'continuous' ? { rotateY: 0 } : { rotateY: 90, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { rotateY: [0, 45, -15, 5, 0] }
+        : { rotateY: [90, -10, 10, 0], opacity: [0, 1, 1, 1] },
+      exit: { rotateY: 90, opacity: 0 }
+    },
+    flipX: {
+      initial: { rotateX: 0 },
+      animate: { rotateX: 360 },
+      exit: { rotateX: 0 }
+    },
+    flipY: {
+      initial: { rotateY: 0 },
+      animate: { rotateY: 360 },
+      exit: { rotateY: 0 }
+    },
+    
+    // === SPECIAL EFFECTS ===
+    rubberBand: {
+      initial: { scale: 1 },
+      animate: { scale: [1, 1.25, 0.75, 1.15, 1], scaleX: [1, 0.75, 1.25, 0.85, 1] },
+      exit: { scale: 1 }
+    },
+    wobble: {
+      initial: { x: 0, rotate: 0 },
+      animate: { x: [0, -25, 20, -15, 10, -5, 0], rotate: [0, -5, 3, -3, 2, -1, 0] },
+      exit: { x: 0, rotate: 0 }
+    },
+    jello: {
+      initial: { skewX: 0, skewY: 0 },
+      animate: { 
+        skewX: [0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0],
+        skewY: [0, -12.5, 6.25, -3.125, 1.5625, -0.78125, 0.390625, -0.1953125, 0]
+      },
+      exit: { skewX: 0, skewY: 0 }
+    },
+    tada: {
+      initial: { scale: 1, rotate: 0 },
+      animate: { 
+        scale: [1, 0.9, 1.1, 1.1, 1.1, 1.1, 1.1, 1],
+        rotate: [0, -3, 3, -3, 3, -3, 3, 0]
+      },
+      exit: { scale: 1, rotate: 0 }
+    },
+    
+    // === LIGHTSPEED ===
+    lightSpeedInRight: {
+      initial: trigger === 'continuous' ? { x: 0, skewX: 0 } : { x: '100%', skewX: -30, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 50, -10, 0], skewX: [0, -15, 10, 0] }
+        : { x: [100, -20, 0], skewX: [-30, 20, -5, 0], opacity: [0, 1, 1, 1] },
+      exit: { x: '100%', skewX: -30, opacity: 0 }
+    },
+    lightSpeedInLeft: {
+      initial: trigger === 'continuous' ? { x: 0, skewX: 0 } : { x: '-100%', skewX: 30, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -50, 10, 0], skewX: [0, 15, -10, 0] }
+        : { x: [-100, 20, 0], skewX: [30, -20, 5, 0], opacity: [0, 1, 1, 1] },
+      exit: { x: '-100%', skewX: 30, opacity: 0 }
+    },
+    
+    // === ROLL ANIMATIONS ===
+    rollIn: {
+      initial: trigger === 'continuous' ? { x: 0, rotate: 0 } : { x: '-100%', rotate: -120, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -30, 30, 0], rotate: [0, -30, 30, 0] }
+        : { x: 0, rotate: 0, opacity: 1 },
+      exit: { x: '-100%', rotate: -120, opacity: 0 }
+    },
+    rollOut: {
+      initial: { x: 0, rotate: 0, opacity: 1 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 50, 0], rotate: [0, 60, 0], opacity: [1, 0.5, 1] }
+        : { x: ['0%', '100%'], rotate: [0, 120], opacity: [1, 0] },
+      exit: { x: 0, rotate: 0, opacity: 1 }
+    },
+    
+    // === GEOMETRIC ===
+    jackInTheBox: {
+      initial: trigger === 'continuous' ? { scale: 1, rotate: 0 } : { opacity: 0, scale: 0.1, rotate: 30 },
+      animate: trigger === 'continuous' 
+        ? { scale: [1, 0.8, 1.2, 1], rotate: [0, 15, -15, 0] }
+        : { opacity: 1, scale: [0.1, 0.5, 0.8, 1], rotate: [30, -10, 3, 0] },
+      exit: { opacity: 0, scale: 0.1, rotate: 30 }
+    },
+    hinge: {
+      initial: { rotate: 0, transformOrigin: "top left" },
+      animate: trigger === 'continuous' 
+        ? { rotate: [0, 40, 20, 40, 20, 0] }
+        : { rotate: [0, 80, 60, 80, 60, 60], opacity: [1, 1, 1, 1, 1, 0], y: [0, 0, 0, 0, 0, 200] },
+      exit: { rotate: 0, opacity: 1, y: 0 }
+    },
+    
+    // === BACK ANIMATIONS ===
+    backInUp: {
+      initial: trigger === 'continuous' ? { y: 0, scale: 1 } : { y: 50, scale: 0.7, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, 20, 0], scale: [1, 0.9, 1] }
+        : { y: 0, scale: 1, opacity: 1 },
+      exit: { y: 50, scale: 0.7, opacity: 0 }
+    },
+    backInDown: {
+      initial: trigger === 'continuous' ? { y: 0, scale: 1 } : { y: -50, scale: 0.7, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { y: [0, -20, 0], scale: [1, 0.9, 1] }
+        : { y: 0, scale: 1, opacity: 1 },
+      exit: { y: -50, scale: 0.7, opacity: 0 }
+    },
+    backInLeft: {
+      initial: trigger === 'continuous' ? { x: 0, scale: 1 } : { x: -50, scale: 0.7, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, -20, 0], scale: [1, 0.9, 1] }
+        : { x: 0, scale: 1, opacity: 1 },
+      exit: { x: -50, scale: 0.7, opacity: 0 }
+    },
+    backInRight: {
+      initial: trigger === 'continuous' ? { x: 0, scale: 1 } : { x: 50, scale: 0.7, opacity: 0 },
+      animate: trigger === 'continuous' 
+        ? { x: [0, 20, 0], scale: [1, 0.9, 1] }
+        : { x: 0, scale: 1, opacity: 1 },
+      exit: { x: 50, scale: 0.7, opacity: 0 }
+    }
+  };
+
+  return baseVariants[animationType] || baseVariants.none;
+};
+
+// Get animation duration based on speed - EXACT COPY FROM HOMEPAGE
+const getAnimationDuration = (speed: string): number => {
+  const speedMap: { [key: string]: number } = {
+    'very-slow': 4,
+    'slow': 2.5,
+    'normal': 1.5,
+    'fast': 0.8,
+    'very-fast': 0.4
+  };
+  return speedMap[speed] || 1.5;
 };
 
 // ENHANCED: Mobile-first unified coordinate system
@@ -178,40 +635,6 @@ const ProjectDetailsPage: React.FC = () => {
   const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
   const SAMPLE_SUB_IMAGE =
     "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
-
-  // ALL ANIMATION OPTIONS FROM IMAGEEDITOR - Exact Copy
-  const animationOptions = [
-    { value: "none", label: "No Animation" },
-    { value: "fadeIn", label: "Fade In" },
-    { value: "fadeInUp", label: "Fade In Up" },
-    { value: "fadeInDown", label: "Fade In Down" },
-    { value: "slideInLeft", label: "Slide In Left" },
-    { value: "slideInRight", label: "Slide In Right" },
-    { value: "slideInUp", label: "Slide In Up" },
-    { value: "slideInDown", label: "Slide In Down" },
-    { value: "zoomIn", label: "Zoom In" },
-    { value: "zoomInUp", label: "Zoom In Up" },
-    { value: "zoomInDown", label: "Zoom In Down" },
-    { value: "bounce", label: "Bounce" },
-    { value: "bounceIn", label: "Bounce In" },
-    { value: "bounceInUp", label: "Bounce In Up" },
-    { value: "bounceInDown", label: "Bounce In Down" },
-    { value: "shake", label: "Shake" },
-    { value: "pulse", label: "Pulse" },
-    { value: "heartbeat", label: "Heartbeat" },
-    { value: "swing", label: "Swing" },
-    { value: "rotate", label: "Rotate" },
-    { value: "rotateIn", label: "Rotate In" },
-    { value: "flip", label: "Flip" },
-    { value: "flipInX", label: "Flip In X" },
-    { value: "flipInY", label: "Flip In Y" },
-    { value: "rubberBand", label: "Rubber Band" },
-    { value: "wobble", label: "Wobble" },
-    { value: "jello", label: "Jello" },
-    { value: "tada", label: "Tada" },
-  ];
-
-  // Navigation handler for sub-projects
 
   // Handle centered logo click - navigate to /resume
   const handleCenteredLogoClick = () => {
@@ -573,8 +996,6 @@ const ProjectDetailsPage: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  // Handle connect form submission
-
   // Handle section navigation (only if we have typed sections)
   const handleSectionNavigation = (sectionType: "exterior" | "interior") => {
     if (!hasTypedSections) return;
@@ -617,34 +1038,6 @@ const ProjectDetailsPage: React.FC = () => {
       }
     };
   }, [sections]);
-
-  // FIXED: Updated getAnimationClasses function with validation
-  const getAnimationClasses = (subProject: any): string => {
-    if (subProject.animation === "none" || !subProject.animation)
-      return "clickable-sub-project";
-
-    // Validate animation exists in our list
-    const validAnimation = animationOptions.find(
-      (a) => a.value === subProject.animation
-    );
-
-    if (!validAnimation) {
-      console.warn(`Unknown animation: ${subProject.animation}`);
-      return "clickable-sub-project";
-    }
-
-    // Use both class names for compatibility
-    const classes = [
-      "animated-element", // Keep existing class
-      "animated-image", // Add ImageEditor class for compatibility
-      "clickable-sub-project",
-      subProject.animation,
-      `speed-${subProject.animationSpeed || "normal"}`,
-      `trigger-${subProject.animationTrigger || "once"}`,
-    ];
-
-    return classes.join(" ");
-  };
 
   // ENHANCED: Responsive image dimensions calculation
   const calculateResponsiveImageDimensions = (
@@ -742,273 +1135,9 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
 
-  // COMPLETE ANIMATION STYLES - EXACT COPY FROM HOMEPAGE with responsive enhancements
-  const responsiveAnimationStyles = `
-    /* ALL ANIMATION KEYFRAMES FROM IMAGEEDITOR - EXACT COPY */
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(30px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-30px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideInLeft {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(0); }
-    }
-    @keyframes slideInRight {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(0); }
-    }
-    @keyframes slideInUp {
-      0% { transform: translateY(100%); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes slideInDown {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes zoomIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; }
-      100% { transform: scale(1); }
-    }
-    @keyframes zoomInUp {
-      0% { opacity: 0; transform: scale(0.1) translateY(2000px); }
-      60% { opacity: 1; transform: scale(0.475) translateY(-60px); }
-      100% { transform: scale(1) translateY(0); }
-    }
-    @keyframes zoomInDown {
-      0% { opacity: 0; transform: scale(0.1) translateY(-2000px); }
-      60% { opacity: 1; transform: scale(0.475) translateY(60px); }
-      100% { transform: scale(1) translateY(0); }
-    }
-    @keyframes bounce {
-      0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-      40%, 43% { transform: translateY(-30px); }
-      70% { transform: translateY(-15px); }
-      90% { transform: translateY(-4px); }
-    }
-    @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.05); }
-      70% { transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes bounceInUp {
-      0% { opacity: 0; transform: translateY(2000px); }
-      60% { opacity: 1; transform: translateY(-30px); }
-      80% { transform: translateY(10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes bounceInDown {
-      0% { opacity: 0; transform: translateY(-2000px); }
-      60% { opacity: 1; transform: translateY(30px); }
-      80% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-      20%, 40%, 60%, 80% { transform: translateX(10px); }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    @keyframes heartbeat {
-      0% { transform: scale(1); }
-      14% { transform: scale(1.3); }
-      28% { transform: scale(1); }
-      42% { transform: scale(1.3); }
-      70% { transform: scale(1); }
-      100% { transform: scale(1); }
-    }
-    @keyframes swing {
-      20% { transform: rotate(15deg); }
-      40% { transform: rotate(-10deg); }
-      60% { transform: rotate(5deg); }
-      80% { transform: rotate(-5deg); }
-      100% { transform: rotate(0deg); }
-    }
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes rotateIn {
-      0% { transform: rotate(-200deg); opacity: 0; }
-      100% { transform: rotate(0deg); opacity: 1; }
-    }
-    @keyframes flip {
-      0% { transform: perspective(400px) rotateY(0); }
-      100% { transform: perspective(400px) rotateY(360deg); }
-    }
-    @keyframes flipInX {
-      0% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
-      40% { transform: perspective(400px) rotateX(-10deg); }
-      70% { transform: perspective(400px) rotateX(10deg); }
-      100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
-    }
-    @keyframes flipInY {
-      0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
-      40% { transform: perspective(400px) rotateY(-10deg); }
-      70% { transform: perspective(400px) rotateY(10deg); }
-      100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
-    }
-    @keyframes rubberBand {
-      0% { transform: scale(1); }
-      30% { transform: scale(1.25, 0.75); }
-      40% { transform: scale(0.75, 1.25); }
-      60% { transform: scale(1.15, 0.85); }
-      100% { transform: scale(1); }
-    }
-    @keyframes wobble {
-      0% { transform: translateX(0%); }
-      15% { transform: translateX(-25%) rotate(-5deg); }
-      30% { transform: translateX(20%) rotate(3deg); }
-      45% { transform: translateX(-15%) rotate(-3deg); }
-      60% { transform: translateX(10%) rotate(2deg); }
-      75% { transform: translateX(-5%) rotate(-1deg); }
-      100% { transform: translateX(0%); }
-    }
-    @keyframes jello {
-      0%, 11.1%, 100% { transform: translateX(0); }
-      22.2% { transform: skewX(-12.5deg) skewY(-12.5deg); }
-      33.3% { transform: skewX(6.25deg) skewY(6.25deg); }
-      44.4% { transform: skewX(-3.125deg) skewY(-3.125deg); }
-      55.5% { transform: skewX(1.5625deg) skewY(1.5625deg); }
-      66.6% { transform: skewX(-0.78125deg) skewY(-0.78125deg); }
-      77.7% { transform: skewX(0.390625deg) skewY(0.390625deg); }
-      88.8% { transform: skewX(-0.1953125deg) skewY(-0.1953125deg); }
-    }
-    @keyframes tada {
-      0% { transform: scale(1) rotate(0deg); }
-      10%, 20% { transform: scale(0.9) rotate(-3deg); }
-      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
-      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
-      100% { transform: scale(1) rotate(0deg); }
-    }
-
-    /* ANIMATION BASE CLASSES - EXACT COPY FROM IMAGEEDITOR */
-    .animated-image {
-      animation-fill-mode: both;
-    }
-
-    .animated-element {
-      animation-fill-mode: both;
-    }
-
-    /* SPEED CLASSES - EXACT COPY FROM IMAGEEDITOR */
-    .speed-very-slow { animation-duration: 4s !important; }
-    .speed-slow { animation-duration: 2.5s !important; }
-    .speed-normal { animation-duration: 1.5s !important; }
-    .speed-fast { animation-duration: 0.8s !important; }
-    .speed-very-fast { animation-duration: 0.4s !important; }
-
-    /* TRIGGER CLASSES - EXACT COPY FROM IMAGEEDITOR */
-    .trigger-continuous { animation-iteration-count: infinite; }
-    .trigger-once { animation-iteration-count: 1; }
-    .trigger-hover { animation-play-state: paused; }
-    .trigger-hover:hover { animation-play-state: running; }
-
-    /* ANIMATION-SPECIFIC TRIGGER BEHAVIORS - EXACT COPY FROM IMAGEEDITOR */
-    .animated-image.bounce.trigger-continuous,
-    .animated-image.shake.trigger-continuous,
-    .animated-image.pulse.trigger-continuous,
-    .animated-image.heartbeat.trigger-continuous,
-    .animated-image.rotate.trigger-continuous,
-    .animated-image.flip.trigger-continuous,
-    .animated-element.bounce.trigger-continuous,
-    .animated-element.shake.trigger-continuous,
-    .animated-element.pulse.trigger-continuous,
-    .animated-element.heartbeat.trigger-continuous,
-    .animated-element.rotate.trigger-continuous,
-    .animated-element.flip.trigger-continuous { 
-      animation-iteration-count: infinite; 
-    }
-
-    .animated-image.bounce.trigger-once,
-    .animated-image.shake.trigger-once,
-    .animated-image.pulse.trigger-once,
-    .animated-image.heartbeat.trigger-once,
-    .animated-image.rotate.trigger-once,
-    .animated-image.flip.trigger-once,
-    .animated-element.bounce.trigger-once,
-    .animated-element.shake.trigger-once,
-    .animated-element.pulse.trigger-once,
-    .animated-element.heartbeat.trigger-once,
-    .animated-element.rotate.trigger-once,
-    .animated-element.flip.trigger-once { 
-      animation-iteration-count: 3; 
-    }
-
-    .animated-image.bounce.trigger-hover,
-    .animated-image.shake.trigger-hover,
-    .animated-image.pulse.trigger-hover,
-    .animated-image.heartbeat.trigger-hover,
-    .animated-image.rotate.trigger-hover,
-    .animated-image.flip.trigger-hover,
-    .animated-element.bounce.trigger-hover,
-    .animated-element.shake.trigger-hover,
-    .animated-element.pulse.trigger-hover,
-    .animated-element.heartbeat.trigger-hover,
-    .animated-element.rotate.trigger-hover,
-    .animated-element.flip.trigger-hover { 
-      animation-iteration-count: infinite;
-      animation-play-state: paused;
-    }
-
-    .animated-image.bounce.trigger-hover:hover,
-    .animated-image.shake.trigger-hover:hover,
-    .animated-image.pulse.trigger-hover:hover,
-    .animated-image.heartbeat.trigger-hover:hover,
-    .animated-image.rotate.trigger-hover:hover,
-    .animated-image.flip.trigger-hover:hover,
-    .animated-element.bounce.trigger-hover:hover,
-    .animated-element.shake.trigger-hover:hover,
-    .animated-element.pulse.trigger-hover:hover,
-    .animated-element.heartbeat.trigger-hover:hover,
-    .animated-element.rotate.trigger-hover:hover,
-    .animated-element.flip.trigger-hover:hover { 
-      animation-play-state: running;
-    }
-
-    /* ALL INDIVIDUAL ANIMATION RULES - EXACT COPY FROM IMAGEEDITOR */
-    .animated-image.fadeIn, .animated-element.fadeIn { animation-name: fadeIn; animation-duration: 1s; }
-    .animated-image.fadeInUp, .animated-element.fadeInUp { animation-name: fadeInUp; animation-duration: 1s; }
-    .animated-image.fadeInDown, .animated-element.fadeInDown { animation-name: fadeInDown; animation-duration: 1s; }
-    .animated-image.slideInLeft, .animated-element.slideInLeft { animation-name: slideInLeft; animation-duration: 1s; }
-    .animated-image.slideInRight, .animated-element.slideInRight { animation-name: slideInRight; animation-duration: 1s; }
-    .animated-image.slideInUp, .animated-element.slideInUp { animation-name: slideInUp; animation-duration: 1s; }
-    .animated-image.slideInDown, .animated-element.slideInDown { animation-name: slideInDown; animation-duration: 1s; }
-    .animated-image.zoomIn, .animated-element.zoomIn { animation-name: zoomIn; animation-duration: 1s; }
-    .animated-image.zoomInUp, .animated-element.zoomInUp { animation-name: zoomInUp; animation-duration: 1s; }
-    .animated-image.zoomInDown, .animated-element.zoomInDown { animation-name: zoomInDown; animation-duration: 1s; }
-    .animated-image.bounce, .animated-element.bounce { animation-name: bounce; animation-duration: 2s; animation-iteration-count: infinite; }
-    .animated-image.bounceIn, .animated-element.bounceIn { animation-name: bounceIn; animation-duration: 1s; }
-    .animated-image.bounceInUp, .animated-element.bounceInUp { animation-name: bounceInUp; animation-duration: 1s; }
-    .animated-image.bounceInDown, .animated-element.bounceInDown { animation-name: bounceInDown; animation-duration: 1s; }
-    .animated-image.shake, .animated-element.shake { animation-name: shake; animation-duration: 1s; animation-iteration-count: infinite; }
-    .animated-image.pulse, .animated-element.pulse { animation-name: pulse; animation-duration: 2s; animation-iteration-count: infinite; }
-    .animated-image.heartbeat, .animated-element.heartbeat { animation-name: heartbeat; animation-duration: 1.3s; animation-iteration-count: infinite; }
-    .animated-image.swing, .animated-element.swing { animation-name: swing; animation-duration: 1s; transform-origin: top center; }
-    .animated-image.rotate, .animated-element.rotate { animation-name: rotate; animation-duration: 2s; animation-iteration-count: infinite; animation-timing-function: linear; }
-    .animated-image.rotateIn, .animated-element.rotateIn { animation-name: rotateIn; animation-duration: 1s; }
-    .animated-image.flip, .animated-element.flip { animation-name: flip; animation-duration: 1s; animation-iteration-count: infinite; }
-    .animated-image.flipInX, .animated-element.flipInX { animation-name: flipInX; animation-duration: 1s; }
-    .animated-image.flipInY, .animated-element.flipInY { animation-name: flipInY; animation-duration: 1s; }
-    .animated-image.rubberBand, .animated-element.rubberBand { animation-name: rubberBand; animation-duration: 1s; }
-    .animated-image.wobble, .animated-element.wobble { animation-name: wobble; animation-duration: 1s; }
-    .animated-image.jello, .animated-element.jello { animation-name: jello; animation-duration: 1s; }
-    .animated-image.tada, .animated-element.tada { animation-name: tada; animation-duration: 1s; }
-
-    /* PROJECT DETAILS SPECIFIC STYLES WITH RESPONSIVE ENHANCEMENTS */
+  // Project Details specific styles (keep the responsive UI styles, remove CSS animations)
+  const projectDetailsStyles = `
+    /* Project Details specific Framer Motion styles */
     @keyframes menuSlideIn {
       0% { 
         opacity: 0; 
@@ -1225,10 +1354,6 @@ const ProjectDetailsPage: React.FC = () => {
       transform: scale(0.95);
     }
 
-
-      margin-top: 10px;
-    }
-
     .connect-button {
       background: linear-gradient(135deg, #ffffff, #f7fafc);
       color: #2d3748;
@@ -1401,8 +1526,6 @@ const ProjectDetailsPage: React.FC = () => {
         height: 100px !important;
       }
       
-
-      
       /* Mobile menu adjustments */
       .menu-item-modern {
         padding: 4px 8px !important;
@@ -1425,20 +1548,6 @@ const ProjectDetailsPage: React.FC = () => {
         padding: 6px 12px !important;
         font-size: 10px !important;
         border-radius: 15px !important;
-      }
-      
-      /* Mobile animations - reduce intensity */
-      @keyframes bounce {
-        0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-        40%, 43% { transform: translateY(-15px); }
-        70% { transform: translateY(-8px); }
-        90% { transform: translateY(-2px); }
-      }
-      
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
       }
     }
     
@@ -1466,10 +1575,6 @@ const ProjectDetailsPage: React.FC = () => {
       .logo-container img {
         height: 120px !important;
       }
-      
-
-      
-
       
       .menu-item-modern {
         padding: 5px 10px !important;
@@ -1568,7 +1673,7 @@ const ProjectDetailsPage: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      <style>{responsiveAnimationStyles}</style>
+      <style>{projectDetailsStyles}</style>
 
       {/* Section Navigation Buttons - Only show if we have typed sections */}
       {hasTypedSections && (
@@ -1778,8 +1883,6 @@ const ProjectDetailsPage: React.FC = () => {
                 </div>
               )}
 
-              {/* ENHANCED: Debug info for responsive coordinate system */}
-
               {/* Responsive Centered Top Logo - Only show on first section */}
               {sectionIndex === 0 && (
                 <div
@@ -1805,89 +1908,159 @@ const ProjectDetailsPage: React.FC = () => {
                 </div>
               )}
 
-              {/* ENHANCED: Responsive sub-projects positioned using coordinate system */}
-              {section.subProjects?.map((subProject) => {
-                // ENHANCED: Use responsive coordinate system for positioning
-                const containerWidth = window.innerWidth;
-                const { x: pixelX, y: pixelY } =
-                  coordinateSystem.getPixelFromPercent(
-                    subProject.xPosition,
-                    subProject.yPosition,
-                    containerWidth
+              {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
+              <AnimatePresence>
+                {section.subProjects?.map((subProject) => {
+                  // ENHANCED: Use responsive coordinate system for positioning
+                  const containerWidth = window.innerWidth;
+                  const { x: pixelX, y: pixelY } =
+                    coordinateSystem.getPixelFromPercent(
+                      subProject.xPosition,
+                      subProject.yPosition,
+                      containerWidth
+                    );
+
+                  const imageDimensions = calculateResponsiveImageDimensions(
+                    containerWidth,
+                    subProject.heightPercent,
+                    section.backgroundImageAspectRatio
                   );
 
-                const imageDimensions = calculateResponsiveImageDimensions(
-                  containerWidth,
-                  subProject.heightPercent,
-                  section.backgroundImageAspectRatio
-                );
+                  const isHovered = hoveredImageId === subProject.subProjectId;
+                  const isDimmed =
+                    hoveredImageId !== null &&
+                    hoveredImageId !== subProject.subProjectId;
 
-                const isHovered = hoveredImageId === subProject.subProjectId;
-                const isDimmed =
-                  hoveredImageId !== null &&
-                  hoveredImageId !== subProject.subProjectId;
+                  // Get animation variants for this sub-project
+                  const animationVariants = getAnimationVariants(subProject.animation, subProject.animationTrigger);
+                  const duration = getAnimationDuration(subProject.animationSpeed);
 
-                return (
-                  <div
-                    key={subProject.subProjectId}
-                    className={`sub-project-visible sub-project-container ${
-                      isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
-                    }`}
-                    style={{
-                      position: "absolute",
-                      left: `${pixelX}px`,
-                      top: `${pixelY}px`,
-                      zIndex: isHovered ? 50 : 10,
-                    }}
-                  >
-                    <img
-                      src={
-                        subProject.projectImageUrl &&
-                        subProject.projectImageUrl.trim() !== ""
-                          ? subProject.projectImageUrl
-                          : SAMPLE_SUB_IMAGE
-                      }
-                      alt={subProject.name || subProject.imageFileName}
-                      data-sub-project-id={subProject.subProjectId}
-                      data-animation={subProject.animation}
-                      data-animation-speed={subProject.animationSpeed}
-                      data-animation-trigger={subProject.animationTrigger}
-                      data-device-type={deviceType}
-                      data-is-exterior={subProject.isExterior}
-                      data-has-typed-sections={hasTypedSections}
-                      className={getAnimationClasses(subProject)}
-                      onClick={() => {}}
-                      onMouseEnter={() =>
-                        setHoveredImageId(subProject.subProjectId)
-                      }
-                      onMouseLeave={() => setHoveredImageId(null)}
-                      onError={(e) => {
-                        // Fallback to sample image if the original fails to load
-                        if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
-                          e.currentTarget.src = SAMPLE_SUB_IMAGE;
-                        }
-                      }}
+                  // Build proper transition with duration and repeat logic
+                  const transition: any = { duration };
+
+                  // Handle repeat logic based on trigger and animation type
+                  if (subProject.animationTrigger === 'continuous') {
+                    // Animations that should repeat infinitely on continuous
+                    const continuousAnimations = [
+                      'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'rotate', 'flip', 'flipX', 'flipY',
+                      'flash', 'swing', 'rubberBand', 'wobble', 'jello', 'tada', 'rollOut', 'zoomOut', 'headShake',
+                      'fadeIn', 'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight', 'fadeInUpBig', 'fadeInDownBig', 
+                      'fadeInLeftBig', 'fadeInRightBig', 'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
+                      'zoomIn', 'zoomInUp', 'zoomInDown', 'zoomInLeft', 'zoomInRight', 'bounceIn', 'bounceInUp', 
+                      'bounceInDown', 'bounceInLeft', 'bounceInRight', 'elasticIn', 'elasticInUp', 'elasticInDown',
+                      'elasticInLeft', 'elasticInRight', 'rotateIn', 'rotateInUpLeft', 'rotateInUpRight', 
+                      'rotateInDownLeft', 'rotateInDownRight', 'flipInX', 'flipInY', 'lightSpeedInLeft', 
+                      'lightSpeedInRight', 'rollIn', 'jackInTheBox', 'hinge', 'backInUp', 'backInDown', 
+                      'backInLeft', 'backInRight'
+                    ];
+                    
+                    if (continuousAnimations.includes(subProject.animation)) {
+                      transition.repeat = Infinity;
+                    }
+
+                    // Linear easing for rotation animations
+                    if (['rotate', 'flip', 'flipX', 'flipY'].includes(subProject.animation)) {
+                      transition.ease = 'linear';
+                    }
+                  }
+
+                  if (subProject.animationTrigger === 'once') {
+                    // Attention seeking animations that should repeat a few times for "once" trigger
+                    const attentionAnimations = [
+                      'bounce', 'shake', 'shakeY', 'pulse', 'heartbeat', 'flash', 'headShake', 'swing', 
+                      'rubberBand', 'wobble', 'jello', 'tada'
+                    ];
+                    
+                    if (attentionAnimations.includes(subProject.animation)) {
+                      // Different repeat counts for different animation types
+                      const repeatCounts: { [key: string]: number } = {
+                        'bounce': 3,
+                        'shake': 3,
+                        'shakeY': 3,
+                        'pulse': 2,
+                        'heartbeat': 2,
+                        'flash': 3,
+                        'headShake': 2,
+                        'swing': 1,
+                        'rubberBand': 1,
+                        'wobble': 1,
+                        'jello': 1,
+                        'tada': 1
+                      };
+                      transition.repeat = repeatCounts[subProject.animation] || 1;
+                    }
+                  }
+
+                  // Special duration adjustments for specific animations
+                  if (subProject.animation === 'hinge') {
+                    transition.duration = duration * 1.5; // Hinge needs more time
+                  }
+
+                  if (['elasticIn', 'elasticInUp', 'elasticInDown', 'elasticInLeft', 'elasticInRight'].includes(subProject.animation)) {
+                    transition.duration = duration * 1.2; // Elastic animations need more time
+                  }
+
+                  return (
+                    <motion.div
+                      key={subProject.subProjectId}
+                      className={`sub-project-visible sub-project-container ${
+                        isHovered ? "highlighted" : isDimmed ? "dimmed" : ""
+                      }`}
                       style={{
-                        ...imageDimensions,
-                        display: "block",
-                        borderRadius: "8px",
-                        // boxShadow: isHovered
-                        //   ? "0 0 15px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.3)"
-                        //   : "0 4px 20px rgba(0,0,0,0.3)",
-                        cursor: "pointer",
-                        animationFillMode: "both",
-                        backfaceVisibility: "hidden",
-                        perspective: "1000px",
-                        // Enhanced touch targets for mobile
-                        minWidth: deviceType === "mobile" ? "44px" : "auto",
-                        minHeight: deviceType === "mobile" ? "44px" : "auto",
+                        position: "absolute",
+                        left: `${pixelX}px`,
+                        top: `${pixelY}px`,
+                        zIndex: isHovered ? 50 : 10,
                       }}
-                    />
-
-                    {/* Enhanced responsive debug info overlay */}
-                  </div>
-                );
-              })}
+                    >
+                      <motion.img
+                        src={
+                          subProject.projectImageUrl &&
+                          subProject.projectImageUrl.trim() !== ""
+                            ? subProject.projectImageUrl
+                            : SAMPLE_SUB_IMAGE
+                        }
+                        alt={subProject.name || subProject.imageFileName}
+                        data-sub-project-id={subProject.subProjectId}
+                        data-animation={subProject.animation}
+                        data-animation-speed={subProject.animationSpeed}
+                        data-animation-trigger={subProject.animationTrigger}
+                        data-device-type={deviceType}
+                        data-is-exterior={subProject.isExterior}
+                        data-has-typed-sections={hasTypedSections}
+                        className="clickable-sub-project"
+                        variants={animationVariants}
+                        initial={subProject.animation !== 'none' ? 'initial' : {}}
+                        animate={subProject.animation !== 'none' && subProject.animationTrigger !== 'hover' ? 'animate' : 'initial'}
+                        whileHover={subProject.animation !== 'none' && subProject.animationTrigger === 'hover' ? 'animate' : {}}
+                        transition={transition}
+                        onClick={() => {}}
+                        onMouseEnter={() =>
+                          setHoveredImageId(subProject.subProjectId)
+                        }
+                        onMouseLeave={() => setHoveredImageId(null)}
+                        onError={(e) => {
+                          // Fallback to sample image if the original fails to load
+                          if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
+                            e.currentTarget.src = SAMPLE_SUB_IMAGE;
+                          }
+                        }}
+                        style={{
+                          ...imageDimensions,
+                          display: "block",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          backfaceVisibility: "hidden",
+                          perspective: "1000px",
+                          // Enhanced touch targets for mobile
+                          minWidth: deviceType === "mobile" ? "44px" : "auto",
+                          minHeight: deviceType === "mobile" ? "44px" : "auto",
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
 
               {/* Section Title (Hidden but can be used for SEO) */}
               <h1
@@ -1934,47 +2107,35 @@ const ProjectDetailsPage: React.FC = () => {
       </div>
 
       {/* Responsive Scroll to Top Button */}
-      {scrollY > 500 && (
-        <button
-          onClick={() =>
-            //  {
-            // targetScrollY.current = 0;
-            // if (!isScrolling.current) {
-            //   isScrolling.current = true;
-            //   smoothScrollStep();
-            // }
-            handleButtomScrollButtonClick()
-          }
-          style={{
-            position: "fixed",
-            bottom: deviceType === "mobile" ? "20px" : "30px",
-            right: deviceType === "mobile" ? "20px" : "30px",
-            width: deviceType === "mobile" ? "45px" : "50px",
-            height: deviceType === "mobile" ? "45px" : "50px",
-            borderRadius: "50%",
-            background: "linear-gradient(45deg, #667eea, #764ba2)",
-            border: "none",
-            color: "white",
-            fontSize: deviceType === "mobile" ? "16px" : "20px",
-            cursor: "pointer",
-            zIndex: 1000,
-            boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-            transition: "transform 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            if (deviceType !== "mobile") {
-              e.currentTarget.style.transform = "scale(1.1)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (deviceType !== "mobile") {
-              e.currentTarget.style.transform = "scale(1)";
-            }
-          }}
-        >
-          ↑
-        </button>
-      )}
+      <AnimatePresence>
+        {scrollY > 500 && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleButtomScrollButtonClick}
+            style={{
+              position: "fixed",
+              bottom: deviceType === "mobile" ? "20px" : "30px",
+              right: deviceType === "mobile" ? "20px" : "30px",
+              width: deviceType === "mobile" ? "45px" : "50px",
+              height: deviceType === "mobile" ? "45px" : "50px",
+              borderRadius: "50%",
+              background: "linear-gradient(45deg, #667eea, #764ba2)",
+              border: "none",
+              color: "white",
+              fontSize: deviceType === "mobile" ? "16px" : "20px",
+              cursor: "pointer",
+              zIndex: 1000,
+              boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+            }}
+          >
+            ↑
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
