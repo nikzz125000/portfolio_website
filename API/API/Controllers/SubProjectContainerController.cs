@@ -111,7 +111,7 @@ namespace API.Controllers
         }
 
         [Route("Delete/{SubProjectContainerId}")]
-        [HttpDelete]
+        [HttpPost]
         [ProducesResponseType(typeof(ModelEntityResponse<CommonEntityResponse>), 200)]
         public async Task<CommonEntityResponse> deleteProjectContainers(int SubProjectContainerId)
         {
@@ -136,15 +136,15 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("SubProject/Delete/{SubProjectContainerId}")]
-        [HttpDelete]
+        [Route("SubProject/Delete/{SubProjectId}")]
+        [HttpPost]
         [ProducesResponseType(typeof(CommonEntityResponse), 200)]
-        public async Task<CommonEntityResponse> deleteProject(int SubProjectContainerId)
+        public async Task<CommonEntityResponse> deleteProject(int SubProjectId)
         {
             CommonEntityResponse response = new CommonEntityResponse();
             try
             {
-                response = await _service.DeleteSubProject(SubProjectContainerId);
+                response = await _service.DeleteSubProject(SubProjectId);
             }
             catch (Exception e)
             {

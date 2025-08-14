@@ -41,16 +41,66 @@ IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 // Configure CORS Policy
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("CorsPolicy", builder =>
+//    {
+//        builder.AllowAnyOrigin()
+//               .AllowAnyHeader()
+//               .AllowAnyMethod()
+//               .WithExposedHeaders("*");  // Allow all origins, headers, and methods
+//    });
+//});
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", builder =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .WithExposedHeaders("*");  // Allow all origins, headers, and methods
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .WithExposedHeaders("*");
+        }
+        else
+        {
+            // ✅ USE YOUR ACTUAL DOMAINS
+            policy.WithOrigins(
+                    "https://portfolioweb.clubactive.in",    // Your frontend domain
+                    "https://portfolioapi.clubactive.in",    // Your API domain
+                    "http://localhost:5173"                 // For local development
+                  )
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials()
+                  .WithExposedHeaders("*");
+        }
     });
 });
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("WebCors", policy =>
+//    {
+//        if (builder.Environment.IsDevelopment())
+//        {
+//            policy
+//                .WithOrigins("https://portfolioweb.clubactive.in", "http://localhost:5173", "http://localhost:3000")
+//                .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                .WithHeaders("Authorization", "Content-Type")
+//                .AllowCredentials();
+//        }
+//        else
+//        {
+//            // Production configuration
+//            policy
+//                .WithOrigins("https://portfolioweb.clubactive.in", "http://localhost:3000")
+//                .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                .WithHeaders("Authorization", "Content-Type");
+//        }
+//    });
+//});
 builder.Services.AddHttpContextAccessor();
 
 //CommonData.Initialize(builder.Environment);

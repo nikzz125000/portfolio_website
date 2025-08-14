@@ -56,7 +56,7 @@ namespace API.Controllers
             ModelEntityResponse<ViewModels.ResumeViewModel> response = new ModelEntityResponse<ViewModels.ResumeViewModel>();
             try
             {
-                getCurrentUser();
+                //getCurrentUser();
                 response = await _resumeService.GetById();
             }
             catch (Exception e)
