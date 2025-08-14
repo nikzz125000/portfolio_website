@@ -7,7 +7,7 @@ import { useSubProjectContainerDetails } from '../../../api/useSubProjectContain
 import { useNotification } from '../../../components/Tostr';
 import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
 import { useDeleteProject } from '../../../api/useDeleteSubProjects';
-import { getAnimationVariants } from '../../../components/Const';
+import { animationOptions, getAnimationVariants, speedOptions, stylesProjectDetails as styles, triggerOptions } from '../../../components/Const';
 
 interface SubImage {
   id: number;
@@ -38,22 +38,7 @@ interface DragState {
   dragIndex: number;
 }
 
-interface AnimationOption {
-  value: string;
-  label: string;
-}
 
-interface SpeedOption {
-  value: string;
-  label: string;
-  duration: number;
-}
-
-interface TriggerOption {
-  value: string;
-  label: string;
-  description: string;
-}
 
 
 
@@ -169,111 +154,7 @@ setSelectedSubImage(null);
   const { mutate: addOrUpdateContainer,isPending} = useSaveSubProjectContainer();
   const { mutate: deleteProject,isPending:isPendingDelete} = useDeleteProject();
 
-  const animationOptions: AnimationOption[] = [
-    { value: 'none', label: '🚫 No Animation' },
-    
-    // === FADE ANIMATIONS ===
-    { value: 'fadeIn', label: '✨ Fade In' },
-    { value: 'fadeInUp', label: '⬆️ Fade In Up' },
-    { value: 'fadeInDown', label: '⬇️ Fade In Down' },
-    { value: 'fadeInLeft', label: '⬅️ Fade In Left' },
-    { value: 'fadeInRight', label: '➡️ Fade In Right' },
-    { value: 'fadeInUpBig', label: '⬆️ Fade In Up Big' },
-    { value: 'fadeInDownBig', label: '⬇️ Fade In Down Big' },
-    { value: 'fadeInLeftBig', label: '⬅️ Fade In Left Big' },
-    { value: 'fadeInRightBig', label: '➡️ Fade In Right Big' },
-    
-    // === SLIDE ANIMATIONS ===
-    { value: 'slideInLeft', label: '⬅️ Slide In Left' },
-    { value: 'slideInRight', label: '➡️ Slide In Right' },
-    { value: 'slideInUp', label: '⬆️ Slide In Up' },
-    { value: 'slideInDown', label: '⬇️ Slide In Down' },
-    
-    // === ZOOM ANIMATIONS ===
-    { value: 'zoomIn', label: '🔍 Zoom In' },
-    { value: 'zoomInUp', label: '🔍⬆️ Zoom In Up' },
-    { value: 'zoomInDown', label: '🔍⬇️ Zoom In Down' },
-    { value: 'zoomInLeft', label: '🔍⬅️ Zoom In Left' },
-    { value: 'zoomInRight', label: '🔍➡️ Zoom In Right' },
-    { value: 'zoomOut', label: '🔍 Zoom Out' },
-    
-    // === BOUNCE ANIMATIONS ===
-    { value: 'bounce', label: '⚽ Bounce' },
-    { value: 'bounceIn', label: '⚽ Bounce In' },
-    { value: 'bounceInUp', label: '⚽⬆️ Bounce In Up' },
-    { value: 'bounceInDown', label: '⚽⬇️ Bounce In Down' },
-    { value: 'bounceInLeft', label: '⚽⬅️ Bounce In Left' },
-    { value: 'bounceInRight', label: '⚽➡️ Bounce In Right' },
-    
-    // === ATTENTION SEEKERS ===
-    { value: 'shake', label: '🫨 Shake X' },
-    { value: 'shakeY', label: '🫨 Shake Y' },
-    { value: 'pulse', label: '💓 Pulse' },
-    { value: 'heartbeat', label: '💗 Heartbeat' },
-    { value: 'flash', label: '⚡ Flash' },
-    { value: 'headShake', label: '🙄 Head Shake' },
-    
-    // === ELASTIC ANIMATIONS ===
-    { value: 'elasticIn', label: '🪃 Elastic In' },
-    { value: 'elasticInUp', label: '🪃⬆️ Elastic In Up' },
-    { value: 'elasticInDown', label: '🪃⬇️ Elastic In Down' },
-    { value: 'elasticInLeft', label: '🪃⬅️ Elastic In Left' },
-    { value: 'elasticInRight', label: '🪃➡️ Elastic In Right' },
-    
-    // === ROTATION & SWING ===
-    { value: 'swing', label: '🎭 Swing' },
-    { value: 'rotate', label: '🌀 Rotate' },
-    { value: 'rotateIn', label: '🌀 Rotate In' },
-    { value: 'rotateInUpLeft', label: '🌀↖️ Rotate In Up Left' },
-    { value: 'rotateInUpRight', label: '🌀↗️ Rotate In Up Right' },
-    { value: 'rotateInDownLeft', label: '🌀↙️ Rotate In Down Left' },
-    { value: 'rotateInDownRight', label: '🌀↘️ Rotate In Down Right' },
-    
-    // === FLIP ANIMATIONS ===
-    { value: 'flip', label: '🔄 Flip Y' },
-    { value: 'flipX', label: '🔃 Flip X' },
-    { value: 'flipY', label: '🔄 Flip Y Continuous' },
-    { value: 'flipInX', label: '🔃 Flip In X' },
-    { value: 'flipInY', label: '🔄 Flip In Y' },
-    
-    // === SPECIAL EFFECTS ===
-    { value: 'rubberBand', label: '🪀 Rubber Band' },
-    { value: 'wobble', label: '🌊 Wobble' },
-    { value: 'jello', label: '🍮 Jello' },
-    { value: 'tada', label: '🎉 Tada' },
-    
-    // === LIGHTSPEED ===
-    { value: 'lightSpeedInRight', label: '⚡➡️ Light Speed In Right' },
-    { value: 'lightSpeedInLeft', label: '⚡⬅️ Light Speed In Left' },
-    
-    // === ROLL ANIMATIONS ===
-    { value: 'rollIn', label: '🎳 Roll In' },
-    { value: 'rollOut', label: '🎳 Roll Out' },
-    
-    // === SPECIAL GEOMETRIC ===
-    { value: 'jackInTheBox', label: '📦 Jack In The Box' },
-    { value: 'hinge', label: '🚪 Hinge' },
-    
-    // === BACK ANIMATIONS ===
-    { value: 'backInUp', label: '↩️⬆️ Back In Up' },
-    { value: 'backInDown', label: '↩️⬇️ Back In Down' },
-    { value: 'backInLeft', label: '↩️⬅️ Back In Left' },
-    { value: 'backInRight', label: '↩️➡️ Back In Right' }
-  ];
 
-  const triggerOptions: TriggerOption[] = [
-    { value: 'continuous', label: 'Continuous', description: 'Animation plays all the time' },
-    { value: 'hover', label: 'On Hover', description: 'Animation plays when mouse hovers' },
-    { value: 'once', label: 'Play Once', description: 'Animation plays once on load' }
-  ];
-
-  const speedOptions: SpeedOption[] = [
-    { value: 'very-slow', label: 'Very Slow', duration: 4 },
-    { value: 'slow', label: 'Slow', duration: 2.5 },
-    { value: 'normal', label: 'Normal', duration: 1.5 },
-    { value: 'fast', label: 'Fast', duration: 0.8 },
-    { value: 'very-fast', label: 'Very Fast', duration: 0.4 }
-  ];
 
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
@@ -579,159 +460,7 @@ const safeName = getSafeFileName(img.name, 50);
 
   const selectedImageData = subImages.find(img => img.id === selectedSubImage);
 
-  const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-      fontFamily: 'Arial, sans-serif',
-      display: 'flex',
-      height: '100vh',
-      backgroundColor: '#f5f5f5'
-    },
-    leftPanel: {
-      width: '380px',
-      backgroundColor: 'white',
-      padding: '20px 20px 150px 20px',
-      borderRight: '1px solid #ddd',
-      overflowY: 'auto',
-      maxHeight: '100vh',
-      position: 'relative',
-      boxSizing: 'border-box'
-    },
-    rightPanel: {
-      flex: 1,
-      padding: '20px',
-      backgroundColor: 'white',
-      margin: '20px',
-      overflowY: 'auto',
-      maxHeight: 'calc(100vh - 40px)'
-    },
-    formGroup: {
-      marginBottom: '15px'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '5px',
-      fontWeight: 'bold',
-      fontSize: '14px'
-    },
-    input: {
-      width: '100%',
-      padding: '8px',
-      border: '1px solid #ddd',
-      borderRadius: '4px',
-      fontSize: '14px'
-    },
-    button: {
-      backgroundColor: '#1976d2',
-      color: 'white',
-      border: 'none',
-      padding: '10px 15px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '14px',
-      width: '100%',
-      marginBottom: '10px'
-    },
-    buttonSecondary: {
-      backgroundColor: '#666',
-      color: 'white',
-      border: 'none',
-      padding: '8px 12px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    buttonDanger: {
-      backgroundColor: '#f44336',
-      color: 'white',
-      border: 'none',
-      padding: '5px 8px',
-      borderRadius: '3px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    previewArea: {
-      width: '100%',
-      height: `${Math.min(backgroundDimensions.height, 600)}px`,
-      minHeight: '300px',
-      maxHeight: '600px',
-      border: '2px solid #ddd',
-      position: 'relative',
-      overflow: 'auto',
-      backgroundColor: '#f9f9f9'
-    },
-    subImageItem: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '8px',
-      border: '1px solid #eee',
-      borderRadius: '4px',
-      marginBottom: '5px',
-      cursor: 'pointer'
-    },
-    selectedItem: {
-      backgroundColor: '#e3f2fd',
-      borderColor: '#1976d2'
-    },
-    slider: {
-      width: '100%',
-      marginBottom: '10px'
-    },
-    select: {
-      width: '100%',
-      padding: '8px',
-      border: '1px solid #ddd',
-      borderRadius: '4px',
-      fontSize: '14px',
-      marginBottom: '10px'
-    },
-    draggableImage: {
-      position: 'absolute',
-      cursor: 'grab',
-      border: '2px solid transparent',
-      borderRadius: '4px',
-      transition: 'border-color 0.2s'
-    },
-    selectedImage: {
-      borderColor: '#1976d2'
-    },
-    tag: {
-      position: 'absolute',
-      top: '-20px',
-      left: '0',
-      backgroundColor: 'rgba(25, 118, 210, 0.8)',
-      color: 'white',
-      padding: '2px 6px',
-      borderRadius: '3px',
-      fontSize: '10px'
-    },
-    emptyState: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      textAlign: 'center',
-      color: '#666'
-    },
-    speedIndicator: {
-      fontSize: '11px',
-      color: '#4caf50',
-      fontWeight: 'bold',
-      marginTop: '2px'
-    },
-    loadingBadge: {
-      position: 'absolute',
-      top: '10px',
-      right: '10px',
-      backgroundColor: '#4caf50',
-      color: 'white',
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '10px',
-      fontWeight: 'bold'
-    }
-  };
-
+ 
   const deleteSubImage = (imageId: number): void => {
     console.log("Deleting image with ID:", imageId);
     setPendingDeleteId(imageId);
@@ -771,6 +500,20 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
              setConfirmOpen(false);
   }
   };
+
+
+  const style: { [key: string]: React.CSSProperties } = {
+         previewArea: {
+   width: '100%',
+      height: `${Math.min(backgroundDimensions.height, 600)}px`,
+      minHeight: '300px',
+      maxHeight: '600px',
+      border: '2px solid #ddd',
+      position: 'relative',
+      overflow: 'auto',
+      backgroundColor: '#f9f9f9'
+    },
+    }
 
   return (
       <div className={`fixed top-0 bottom-0 right-0 z-50 w-full max-w-7xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
@@ -1054,7 +797,7 @@ console.log(56,isDateNowId(pendingDeleteId), pendingDeleteId);
         <div
           ref={backgroundRef}
           style={{
-            ...styles.previewArea,
+            ...style.previewArea,
             cursor: dragState.isDragging ? 'grabbing' : 'default'
           }}
         >
