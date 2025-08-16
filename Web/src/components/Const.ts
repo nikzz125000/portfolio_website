@@ -2086,12 +2086,55 @@ export const homepageStyles = `
       z-index: 5;
     }
 
-    /* Ensure no gaps between sections */
-    section {
+    /* CRITICAL: Eliminate ALL gaps between sections */
+    
+    /* Reset all default spacing for the main container and sections */
+    .homepage-container * {
+      box-sizing: border-box;
+    }
+    
+    .homepage-content {
+      /* CRITICAL: Remove any spacing that could cause gaps */
       margin: 0 !important;
       padding: 0 !important;
       border: none !important;
+      outline: none !important;
+      /* CRITICAL: Remove font-size/line-height to prevent whitespace gaps */
+      font-size: 0 !important;
+      line-height: 0 !important;
+      /* CRITICAL: Ensure block layout */
       display: block !important;
+      /* Performance optimizations */
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+
+    /* CRITICAL: Section styling to prevent gaps */
+    section {
+      /* CRITICAL: Remove ALL spacing */
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      outline: none !important;
+      /* CRITICAL: Use block display to prevent inline gaps */
+      display: block !important;
+      /* CRITICAL: Align to top to prevent baseline gaps */
+      vertical-align: top !important;
+      /* CRITICAL: Remove floating and clear */
+      float: none !important;
+      clear: none !important;
+      /* CRITICAL: Remove any text-related spacing */
+      text-decoration: none !important;
+      /* Performance */
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Reset font properties inside sections for content */
+    section > div {
+      font-size: 16px;
+      line-height: normal;
     }
 
     /* ENHANCED MOBILE & TABLET RESPONSIVENESS */
@@ -2100,7 +2143,7 @@ export const homepageStyles = `
     @media (max-width: 768px) {
       section {
         width: 100vw !important;
-        min-height: 80vh !important; /* Reduced from 100vh to prevent gaps */
+        min-height: 0 !important; /* CRITICAL: Remove min-height constraints */
       }
       
       .centered-logo {
@@ -2167,7 +2210,7 @@ export const homepageStyles = `
     @media (min-width: 769px) and (max-width: 1024px) {
       section {
         width: 100vw !important;
-        min-height: 90vh !important;
+        min-height: 0 !important; /* CRITICAL: Remove min-height constraints */
       }
       
       .centered-logo {
@@ -2222,7 +2265,7 @@ export const homepageStyles = `
       }
     }
 
-    /* Ensure smooth scrolling container */
+    /* CRITICAL: Ensure smooth scrolling container has no gaps */
     body, html {
       margin: 0;
       padding: 0;
@@ -2483,6 +2526,51 @@ export const homepageStyles = `
         radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%) !important;
       z-index: -1 !important;
+    }
+
+    /* CRITICAL: Additional background gap prevention */
+    section > div:first-child {
+      /* Force background divs to have no gaps */
+      transform: translateZ(0) !important; /* Force hardware acceleration */
+      backface-visibility: hidden !important;
+      /* Ensure crisp rendering */
+      image-rendering: -webkit-optimize-contrast !important;
+      image-rendering: crisp-edges !important;
+      /* Prevent sub-pixel rendering issues */
+      will-change: auto !important;
+    }
+    
+    /* Ensure background images render without gaps */
+    section > div:first-child,
+    section > div:nth-child(2) {
+      /* CRITICAL: Force exact pixel alignment */
+      box-sizing: content-box !important;
+      /* Prevent any border-box calculations that might cause gaps */
+      border-radius: 0 !important;
+      /* Remove any border radius that might cause visual gaps */
+      overflow: hidden !important;
+      /* Ensure no overflow that could cause gaps */
+    }
+    
+    /* Remove any potential spacing from pseudo-elements */
+    .homepage-content::before,
+    .homepage-content::after,
+    section::before,
+    section::after {
+      display: none !important;
+    }
+    
+    /* Ensure containers don't create spacing */
+    .homepage-container {
+      line-height: 0 !important;
+      font-size: 0 !important;
+    }
+    
+    /* Reset for any child elements that might have default spacing */
+    .homepage-content > *,
+    section > * {
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     /* Responsive gradient adjustments */

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -193,7 +195,7 @@ const Homepage: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // ENHANCED: Responsive background strategy
+  // ENHANCED: Responsive background strategy - FIXED for seamless images
   const getResponsiveBackgroundStyle = (section: SectionData) => {
     if (!section.backgroundImageUrl) return {};
 
@@ -205,14 +207,18 @@ const Homepage: React.FC = () => {
 
     return {
       backgroundImage: `url(${backgroundUrl})`,
-      backgroundSize: "100% 100%",
-      backgroundPosition: "center top",
+      backgroundSize: "cover", // FIXED: Use cover instead of 100% 100% for better seamless connection
+      backgroundPosition: "center center", // FIXED: Center the background for better alignment
       backgroundRepeat: "no-repeat",
       backgroundAttachment: "scroll",
+      // ADDED: Additional properties to ensure seamless connection
+      imageRendering: "auto",
+      WebkitBackgroundSize: "cover", // Safari compatibility
+      MozBackgroundSize: "cover", // Firefox compatibility
     } as React.CSSProperties;
   };
 
-  // ENHANCED: Responsive section dimension calculation
+  // ENHANCED: Responsive section dimension calculation - Fixed for seamless sections
   const getResponsiveSectionDimensions = (section: SectionData) => {
     const containerWidth = window.innerWidth;
     const device = getDeviceType();
@@ -222,34 +228,27 @@ const Homepage: React.FC = () => {
     const { height, adjustedAspectRatio } =
       coordinateSystem.getImageDimensions(containerWidth);
 
-    // Device-specific height calculation to reduce gaps
-    let sectionHeight;
+    // FIXED: Use Math.ceil to prevent fractional heights that cause gaps
+    let sectionHeight = Math.ceil(height);
 
+    // Device-specific height calculation - ensuring integer values
     if (device === "mobile") {
-      // Mobile: Use responsive height, avoid huge gaps
-      const maxMobileHeight = window.innerHeight * 1.2; // Max 120% of viewport
-      const minMobileHeight = window.innerHeight * 0.8; // Min 80% of viewport
-      sectionHeight = Math.min(
-        Math.max(height, minMobileHeight),
-        maxMobileHeight
-      );
+      const maxMobileHeight = Math.ceil(window.innerHeight * 1.2);
+      const minMobileHeight = Math.ceil(window.innerHeight * 0.8);
+      sectionHeight = Math.max(Math.min(sectionHeight, maxMobileHeight), minMobileHeight);
     } else if (device === "tablet") {
-      // Tablet: Balanced approach
-      const maxTabletHeight = window.innerHeight * 1.5;
-      const minTabletHeight = window.innerHeight * 0.9;
-      sectionHeight = Math.min(
-        Math.max(height, minTabletHeight),
-        maxTabletHeight
-      );
+      const maxTabletHeight = Math.ceil(window.innerHeight * 1.5);
+      const minTabletHeight = Math.ceil(window.innerHeight * 0.9);
+      sectionHeight = Math.max(Math.min(sectionHeight, maxTabletHeight), minTabletHeight);
     } else {
-      // Desktop: Original behavior
-      sectionHeight = Math.max(height, window.innerHeight);
+      // Desktop: Original behavior with ceiling
+      sectionHeight = Math.max(Math.ceil(height), window.innerHeight);
     }
 
     return {
       width: containerWidth,
       height: sectionHeight,
-      imageHeight: height,
+      imageHeight: Math.ceil(height),
       adjustedAspectRatio,
       device,
     };
@@ -276,13 +275,13 @@ const Homepage: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [deviceType, isMenuOpen]);
 
-  // ENHANCED: Calculate total height using responsive system
+  // ENHANCED: Calculate total height using responsive system - Fixed rounding
   useEffect(() => {
     if (sections.length > 0) {
       let height = 0;
       sections.forEach((section) => {
         const dimensions = getResponsiveSectionDimensions(section);
-        height += dimensions.height;
+        height += dimensions.height; // Already using Math.ceil in getResponsiveSectionDimensions
       });
 
       // Responsive footer height - ensure it matches Footer component dimensions
@@ -364,7 +363,7 @@ const Homepage: React.FC = () => {
       lastWheelTime = currentTime;
 
       // Enhanced scroll sensitivity with device-specific adjustments
-      let scrollMultiplier = 0.4; // Base sensitivity
+      let scrollMultiplier = 0.2; // Base sensitivity
 
       // Adjust sensitivity based on device type
       if (deviceType === "mobile") {
@@ -711,58 +710,8 @@ const Homepage: React.FC = () => {
     }
   };
 
-  // ENHANCED: Smooth scroll to bottom with easing
-  const smoothScrollToBottom = () => {
-    const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-    targetScrollY.current = maxScroll;
-    if (!isScrolling.current) {
-      isScrolling.current = true;
-      smoothScrollStep();
-    }
-  };
 
-  // ENHANCED: Smooth scroll to specific position
-  const smoothScrollToPosition = (position: number) => {
-    const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-    targetScrollY.current = Math.max(0, Math.min(maxScroll, position));
-    if (!isScrolling.current) {
-      isScrolling.current = true;
-      smoothScrollStep();
-    }
-  };
 
-  // ENHANCED: Smooth scroll to specific section
-  const smoothScrollToSection = (sectionIndex: number) => {
-    if (sections && sections[sectionIndex]) {
-      let targetPosition = 0;
-
-      // Calculate position by summing up previous section heights
-      for (let i = 0; i < sectionIndex; i++) {
-        const dimensions = getResponsiveSectionDimensions(sections[i]);
-        targetPosition += dimensions.height;
-      }
-
-      smoothScrollToPosition(targetPosition);
-    }
-  };
-
-  // ENHANCED: Get current section based on scroll position
-  const getCurrentSection = () => {
-    if (!sections || sections.length === 0) return 0;
-
-    let accumulatedHeight = 0;
-    for (let i = 0; i < sections.length; i++) {
-      const dimensions = getResponsiveSectionDimensions(sections[i]);
-      if (
-        scrollY >= accumulatedHeight &&
-        scrollY < accumulatedHeight + dimensions.height
-      ) {
-        return i;
-      }
-      accumulatedHeight += dimensions.height;
-    }
-    return sections.length - 1;
-  };
 
   // ENHANCED: Add smooth scroll behavior for better user experience
   useEffect(() => {
@@ -828,12 +777,10 @@ const Homepage: React.FC = () => {
         top: 0,
         left: 0,
         width: "100%",
-        minHeight: "100vh",
-        overflow: "auto",
+        height: "100vh", // FIXED: Use viewport height to prevent content overflow
+        overflow: "hidden", // FIXED: Ensure no scrolling on main container
         display: "flex",
         flexDirection: "column",
-        paddingBottom: "0px", // Footer spacing is now handled by the footer itself
-        justifyContent: "space-between", // ADDED: Distribute space properly
       }}
     >
       {/* Show loading spinner while data is being fetched */}
@@ -861,6 +808,45 @@ const Homepage: React.FC = () => {
         </div>
       )}
       <style>{homepageStyles}</style>
+
+      {/* Additional CSS to eliminate background gaps */}
+      <style>
+        {`
+          /* CRITICAL: Force seamless background connection */
+          section > div:first-child {
+            margin-top: -1px !important;
+            height: calc(100% + 2px) !important;
+            transform: translateZ(0) !important;
+            backface-visibility: hidden !important;
+            image-rendering: -webkit-optimize-contrast !important;
+            image-rendering: crisp-edges !important;
+            will-change: auto !important;
+            box-sizing: content-box !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+          }
+          
+          section:not(:first-child) > div:first-child {
+            margin-top: -2px !important;
+            height: calc(100% + 3px) !important;
+          }
+          
+          section > div:nth-child(2) {
+            margin-top: -1px !important;
+            height: calc(100% + 2px) !important;
+            transform: translateZ(0) !important;
+            backface-visibility: hidden !important;
+            box-sizing: content-box !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+          }
+          
+          section:not(:first-child) > div:nth-child(2) {
+            margin-top: -2px !important;
+            height: calc(100% + 3px) !important;
+          }
+        `}
+      </style>
 
       {/* Gradient Pattern Overlay */}
       <div className="gradient-background-pattern" />
@@ -919,7 +905,20 @@ const Homepage: React.FC = () => {
             transition: "all 0.3s ease",
           }}
         >
-          <img
+            {isMenuOpen
+            &&  <img
+            src="/logo/font.png"
+            alt="Fixed Logo"
+            style={{
+              height: logoSizes.fixedLogo,
+              width: "auto",
+               filter: "brightness(0) invert(1)",
+              transition: "transform 0.2s ease, filter 0.2s ease",
+            }}
+            
+          />}
+        {!isMenuOpen
+            &&    <img
             src="/logo/font 2_.png"
             alt="Fixed Logo"
             style={{
@@ -928,7 +927,8 @@ const Homepage: React.FC = () => {
               filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
               transition: "transform 0.2s ease, filter 0.2s ease",
             }}
-          />
+          />}
+          
         </div>
 
         {/* Side Menu Component */}
@@ -940,7 +940,7 @@ const Homepage: React.FC = () => {
         />
       </div>
 
-      {/* Main Content Container */}
+      {/* Main Content Container - FIXED: Prevent gaps with proper styling */}
       <div
         ref={containerRef}
         className="homepage-content"
@@ -949,14 +949,15 @@ const Homepage: React.FC = () => {
           top: 0,
           left: 0,
           width: "100%",
-          minHeight: "100vh", // ADDED: Ensure minimum height for proper footer positioning
-          display: "flex", // ADDED: Use flexbox for better layout control
-          flexDirection: "column", // ADDED: Stack content vertically
+          height: "100%", // FIXED: Use 100% height
+          display: "block", // FIXED: Use block instead of flex to prevent gaps
+          fontSize: 0, // FIXED: Remove font-size to eliminate whitespace gaps
+          lineHeight: 0, // FIXED: Remove line-height to eliminate whitespace gaps
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
       >
-        {/* ENHANCED: Responsive sections with background blur effect */}
+        {/* ENHANCED: Responsive sections with NO gaps - Critical styling fixes */}
         {sections?.map((section, sectionIndex) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
@@ -969,42 +970,63 @@ const Homepage: React.FC = () => {
             <section
               key={section.projectContainerId}
               style={{
+                // CRITICAL: Properties to eliminate gaps
+                display: "block", // FIXED: Use block display
+                margin: 0, // FIXED: Remove all margins
+                padding: 0, // FIXED: Remove all padding
+                border: "none", // FIXED: Remove borders
+                outline: "none", // FIXED: Remove outline
+                verticalAlign: "top", // FIXED: Align to top
+                fontSize: "16px", // FIXED: Reset font-size for content
+                lineHeight: "normal", // FIXED: Reset line-height for content
+                
+                // Layout properties
                 position: "relative",
                 width: "100vw",
-                height: `${dimensions.height}px`,
-                minHeight:
-                  deviceType === "mobile"
-                    ? "80vh"
-                    : deviceType === "tablet"
-                    ? "90vh"
-                    : "100vh",
+                height: `${dimensions.height}px`, // Using exact calculated height
+                minHeight: "0", // FIXED: Remove minimum height constraints that might cause gaps
+                maxHeight: "none", // FIXED: Remove maximum height constraints
                 overflow: "hidden",
-                backdropFilter: "blur(1px)", // ADDED: Subtle backdrop blur for better contrast
-                boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.1)", // ADDED: Subtle inner shadow
+                
+                // Visual effects (keep these as they don't affect layout)
+                backdropFilter: "blur(1px)",
+                boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.1)",
               }}
             >
-              {/* Separate Background Layer with Blur Effect */}
+              {/* Separate Background Layer with Blur Effect - FIXED: Eliminate gaps */}
               <div
                 style={{
                   position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
+                  top: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  left: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  right: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  bottom: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  width: "calc(100% + 4px)", // FIXED: Explicit width to ensure full coverage
+                  height: "calc(100% + 4px)", // FIXED: Explicit height to ensure full coverage
+                  margin: 0,
+                  padding: 0,
+                  border: "none",
+                  outline: "none",
                   ...bgStyle,
                   filter: hoveredImageId !== null ? "blur(3px)" : "none",
                   transition: "filter 0.3s ease",
                   zIndex: 1,
                 }}
               />
-              {/* Gradient Overlay for Better Integration */}
+              {/* Gradient Overlay for Better Integration - FIXED: Eliminate gaps */}
               <div
                 style={{
                   position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
+                  top: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  left: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  right: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  bottom: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
+                  width: "calc(100% + 4px)", // FIXED: Explicit width to ensure full coverage
+                  height: "calc(100% + 4px)", // FIXED: Explicit height to ensure full coverage
+                  margin: 0,
+                  padding: 0,
+                  border: "none",
+                  outline: "none",
                   background:
                     "linear-gradient(135deg, rgba(110, 34, 110, 0.1) 0%, rgba(165, 32, 106, 0.1) 14%, rgba(211, 22, 99, 0.1) 28%, rgba(237, 49, 118, 0.1) 42%, rgba(253, 51, 107, 0.1) 56%, rgba(242, 61, 100, 0.1) 70%, rgba(246, 93, 85, 0.1) 84%, rgba(245, 101, 93, 0.1) 100%)",
                   zIndex: 2,
@@ -1018,6 +1040,8 @@ const Homepage: React.FC = () => {
                   width: "100%",
                   height: "100%",
                   zIndex: 10,
+                  fontSize: "16px", // FIXED: Reset font-size for content
+                  lineHeight: "normal", // FIXED: Reset line-height for content
                 }}
               >
                 {/* Responsive Centered Top Logo - Only show on first section */}
@@ -1333,13 +1357,23 @@ const Homepage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Footer Section */}
-        <Footer
-          deviceType={deviceType as "mobile" | "tablet" | "desktop"}
-          className="homepage-footer"
-        />
-
-        {/* Footer is now properly positioned in the content flow, no additional padding needed */}
+        {/* Footer Section - FIXED: Proper layout integration */}
+        <div
+          style={{
+            // CRITICAL: Ensure footer doesn't create gaps
+            display: "block",
+            margin: 0,
+            padding: 0,
+            border: "none",
+            fontSize: "16px", // FIXED: Reset font-size for footer
+            lineHeight: "normal", // FIXED: Reset line-height for footer
+          }}
+        >
+          <Footer
+            deviceType={deviceType as "mobile" | "tablet" | "desktop"}
+            className="homepage-footer"
+          />
+        </div>
       </div>
 
       {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}

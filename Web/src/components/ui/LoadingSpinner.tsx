@@ -18,7 +18,41 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   className = "",
   fullHeight = false,
 }) => {
+
+     const BREAKPOINTS = {
+  mobile: 768,
+  tablet: 1024,
+  desktop: 1200,
+}; 
+  const getDeviceType = () => {
+  const width = window.innerWidth;
+  if (width <= BREAKPOINTS.mobile) return "mobile";
+  if (width <= BREAKPOINTS.tablet) return "tablet";
+  return "desktop";
+};
+    const getResponsiveLogoSizes = () => {
+  
+    const device = getDeviceType();
+    return {
+      fixedLogo:
+        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
+      centeredLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
+      menuItemSize:
+        device === "mobile" ? "8px" : device === "tablet" ? "10px" : "11px",
+      menuPadding:
+        device === "mobile"
+          ? "4px 8px"
+          : device === "tablet"
+          ? "5px 10px"
+          : "6px 12px",
+    };
+  };
+
+  const logoSizes = getResponsiveLogoSizes();
   return (
+    <>
+    
     <div
       style={{
         display: "flex",
@@ -31,7 +65,18 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       }}
       className={className}
     >
-      <ModernLoader size={size} variant={variant} />
+      {/* <ModernLoader size={size} variant={variant} /> */}
+      <img
+            src="/logo/font.png"
+            alt="Fixed Logo"
+            style={{
+              height: logoSizes.fixedLogo,
+              width: "auto",
+               filter: "brightness(0) invert(1)",
+              transition: "transform 0.2s ease, filter 0.2s ease",
+            }}
+            
+          />
       {showText && (
         <div
           style={{
@@ -45,6 +90,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         </div>
       )}
     </div>
+    </>
   );
 };
 
