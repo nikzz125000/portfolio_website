@@ -310,7 +310,7 @@ setSelectedSubImage(null);
     // Sub-project images
     subImages.forEach((img, index) => {
       formData.append(
-        `SubProjects[${index}][ProjectId]`,
+        `SubProjects[${index}][SubProjectId]`,
         getProjectId(img.id)
       );
 

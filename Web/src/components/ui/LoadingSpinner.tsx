@@ -1,5 +1,5 @@
 import React from "react";
-import ModernLoader from "./ModernLoader";
+
 
 interface LoadingSpinnerProps {
   size?: "small" | "medium" | "large";
@@ -11,8 +11,7 @@ interface LoadingSpinnerProps {
 }
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = "medium",
-  variant = "default",
+ 
   showText = true,
   text = "Loading...",
   className = "",

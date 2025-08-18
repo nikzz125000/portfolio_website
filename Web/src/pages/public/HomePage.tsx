@@ -352,15 +352,15 @@ const Homepage: React.FC = () => {
 
     // Momentum scrolling variables
     let momentumVelocity = 0;
-    let lastWheelTime = 0;
+    
     let isMomentumActive = false;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
 
-      const currentTime = Date.now();
-      const timeDelta = currentTime - lastWheelTime;
-      lastWheelTime = currentTime;
+  
+    
+     
 
       // Enhanced scroll sensitivity with device-specific adjustments
       let scrollMultiplier = 0.2; // Base sensitivity
