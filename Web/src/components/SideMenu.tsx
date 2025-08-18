@@ -220,7 +220,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 fontFamily: "system-ui, -apple-system, sans-serif",
                 color: "#2D3748",
                 whiteSpace: "nowrap",
-                textShadow: "0 2px 4px rgba(255, 255, 255, 0.8)",
+                textShadow: "0 2px 4px rgba(255, 255, 255, 1.8)",
                 letterSpacing: "0.5px",
                 "--ray-angle": `${currentAngle}deg`,
               } as React.CSSProperties & { "--ray-angle": string }}

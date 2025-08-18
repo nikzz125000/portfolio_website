@@ -686,6 +686,8 @@ const Homepage: React.FC = () => {
     return {
       fixedLogo:
         device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
+            SecondLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
       centeredLogo:
         device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
       menuItemSize:
@@ -907,13 +909,14 @@ const Homepage: React.FC = () => {
         >
             {isMenuOpen
             &&  <img
-            src="/logo/font.png"
+            src="/logo/po.png"
             alt="Fixed Logo"
             style={{
-              height: logoSizes.fixedLogo,
+              height: logoSizes.SecondLogo,
               width: "auto",
-               filter: "brightness(0) invert(1)",
-              transition: "transform 0.2s ease, filter 0.2s ease",
+              //  filter: "brightness(0) invert(1)",
+              // transition: "transform 0.2s ease, filter 0.2s ease",
+              marginLeft:12
             }}
             
           />}
@@ -1027,8 +1030,8 @@ const Homepage: React.FC = () => {
                   padding: 0,
                   border: "none",
                   outline: "none",
-                  background:
-                    "linear-gradient(135deg, rgba(110, 34, 110, 0.1) 0%, rgba(165, 32, 106, 0.1) 14%, rgba(211, 22, 99, 0.1) 28%, rgba(237, 49, 118, 0.1) 42%, rgba(253, 51, 107, 0.1) 56%, rgba(242, 61, 100, 0.1) 70%, rgba(246, 93, 85, 0.1) 84%, rgba(245, 101, 93, 0.1) 100%)",
+                  // background:
+                  //   "linear-gradient(135deg, rgba(110, 34, 110, 0.1) 0%, rgba(165, 32, 106, 0.1) 14%, rgba(211, 22, 99, 0.1) 28%, rgba(237, 49, 118, 0.1) 42%, rgba(253, 51, 107, 0.1) 56%, rgba(242, 61, 100, 0.1) 70%, rgba(246, 93, 85, 0.1) 84%, rgba(245, 101, 93, 0.1) 100%)",
                   zIndex: 2,
                   pointerEvents: "none",
                 }}
