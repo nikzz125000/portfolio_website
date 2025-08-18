@@ -729,145 +729,149 @@ const ProjectDetailsPage: React.FC = () => {
       <div className="gradient-background-pattern" />
 
       {/* Section Navigation Buttons - Only show if we have typed sections */}
-      {hasTypedSections && (
-        <div
-          className="section-nav-buttons"
-          style={{
-            top: deviceType === "mobile" ? "15px" : "20px",
-            right: deviceType === "mobile" ? "40px" : "45px",
-          }}
-        >
-          <motion.button
-            className={`section-nav-btn ${
-              currentActiveSection === "exterior" ? "active" : ""
-            }`}
-            onClick={() => handleSectionNavigation("exterior")}
-            onMouseEnter={() => setHoveredButton("exterior")}
-            onMouseLeave={() => setHoveredButton(null)}
-            style={{
-              position: "relative",
-              overflow: "hidden",
-              padding:
-                deviceType === "mobile"
-                  ? "6px 12px"
-                  : deviceType === "tablet"
-                  ? "7px 14px"
-                  : "8px 16px",
-              fontSize:
-                deviceType === "mobile"
-                  ? "10px"
-                  : deviceType === "tablet"
-                  ? "11px"
-                  : "12px",
+     {/* Section Navigation Buttons - Only show if we have typed sections */}
+{/* Section Navigation Buttons - Only show if we have typed sections */}
+{hasTypedSections && (
+  <div
+    className="section-nav-buttons"
+    style={{
+      top: deviceType === "mobile" ? "15px" : "20px",
+      right: deviceType === "mobile" ? "40px" : "45px",
+    }}
+  >
+    <motion.button
+      className={`section-nav-btn ${
+        currentActiveSection === "exterior" ? "active" : ""
+      }`}
+      onClick={() => handleSectionNavigation("exterior")}
+      onMouseEnter={() => setHoveredButton("exterior")}
+      onMouseLeave={() => setHoveredButton(null)}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        border: "none",       // 🔹 removed border
+        background: "none",   // 🔹 transparent background
+        padding:
+          deviceType === "mobile"
+            ? "6px 12px"
+            : deviceType === "tablet"
+            ? "7px 14px"
+            : "8px 16px",
+        fontSize:
+          deviceType === "mobile"
+            ? "10px"
+            : deviceType === "tablet"
+            ? "11px"
+            : "12px",
+      }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {/* Ink Drop Animation for Exterior */}
+      <AnimatePresence>
+        {hoveredButton === "exterior" && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: [0, 1.5, 2.5], opacity: [0.8, 0.6, 0] }}
+            exit={{ scale: 3, opacity: 0 }}
+            transition={{
+              duration: 1.2,
+              ease: [0.25, 0.46, 0.45, 0.94],
+              times: [0, 0.4, 1],
             }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {/* Ink Drop Animation for Exterior */}
-            <AnimatePresence>
-              {hoveredButton === "exterior" && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0.8 }}
-                  animate={{ 
-                    scale: [0, 1.5, 2.5], 
-                    opacity: [0.8, 0.6, 0] 
-                  }}
-                  exit={{ scale: 3, opacity: 0 }}
-                  transition={{ 
-                    duration: 1.2, 
-                    ease: [0.25, 0.46, 0.45, 0.94],
-                    times: [0, 0.4, 1]
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    width: "100%",
-                    height: "100%",
-                    background: "radial-gradient(circle, rgba(76, 175, 80, 0.3) 0%, rgba(76, 175, 80, 0.1) 40%, transparent 70%)",
-                    borderRadius: "50%",
-                    transform: "translate(-50%, -50%)",
-                    pointerEvents: "none",
-                    zIndex: -1,
-                  }}
-                />
-              )}
-            </AnimatePresence>
-            
-            <span style={{ position: "relative", zIndex: 1 }}>
-              EXTERIOR
-              {exteriorSections.length > 0 && (
-                <span className="exterior-badge">{exteriorSections.length}</span>
-              )}
-            </span>
-          </motion.button>
-          
-          <motion.button
-            className={`section-nav-btn ${
-              currentActiveSection === "interior" ? "active" : ""
-            }`}
-            onClick={() => handleSectionNavigation("interior")}
-            onMouseEnter={() => setHoveredButton("interior")}
-            onMouseLeave={() => setHoveredButton(null)}
             style={{
-              position: "relative",
-              overflow: "hidden",
-              padding:
-                deviceType === "mobile"
-                  ? "6px 12px"
-                  : deviceType === "tablet"
-                  ? "7px 14px"
-                  : "8px 16px",
-              fontSize:
-                deviceType === "mobile"
-                  ? "10px"
-                  : deviceType === "tablet"
-                  ? "11px"
-                  : "12px",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "100%",
+              height: "100%",
+              background:
+                "radial-gradient(circle, rgba(76, 175, 80, 0.3) 0%, rgba(76, 175, 80, 0.1) 40%, transparent 70%)",
+              borderRadius: "50%",
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
+              zIndex: -1,
             }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {/* Ink Drop Animation for Interior */}
-            <AnimatePresence>
-              {hoveredButton === "interior" && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0.8 }}
-                  animate={{ 
-                    scale: [0, 1.5, 2.5], 
-                    opacity: [0.8, 0.6, 0] 
-                  }}
-                  exit={{ scale: 3, opacity: 0 }}
-                  transition={{ 
-                    duration: 1.2, 
-                    ease: [0.25, 0.46, 0.45, 0.94],
-                    times: [0, 0.4, 1]
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    width: "100%",
-                    height: "100%",
-                    background: "radial-gradient(circle, rgba(255, 152, 0, 0.3) 0%, rgba(255, 152, 0, 0.1) 40%, transparent 70%)",
-                    borderRadius: "50%",
-                    transform: "translate(-50%, -50%)",
-                    pointerEvents: "none",
-                    zIndex: -1,
-                  }}
-                />
-              )}
-            </AnimatePresence>
-            
-            <span style={{ position: "relative", zIndex: 1 }}>
-              INTERIOR
-              {interiorSections.length > 0 && (
-                <span className="interior-badge">{interiorSections.length}</span>
-              )}
-            </span>
-          </motion.button>
-        </div>
-      )}
+          />
+        )}
+      </AnimatePresence>
+
+      <span style={{ position: "relative", zIndex: 1 }}>
+        EXTERIOR
+        {exteriorSections.length > 0 && (
+          <span className="exterior-badge">{exteriorSections.length}</span>
+        )}
+      </span>
+    </motion.button>
+
+    <motion.button
+      className={`section-nav-btn ${
+        currentActiveSection === "interior" ? "active" : ""
+      }`}
+      onClick={() => handleSectionNavigation("interior")}
+      onMouseEnter={() => setHoveredButton("interior")}
+      onMouseLeave={() => setHoveredButton(null)}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        border: "none",       // 🔹 removed border
+        background: "none",   // 🔹 transparent background
+        padding:
+          deviceType === "mobile"
+            ? "6px 12px"
+            : deviceType === "tablet"
+            ? "7px 14px"
+            : "8px 16px",
+        fontSize:
+          deviceType === "mobile"
+            ? "10px"
+            : deviceType === "tablet"
+            ? "11px"
+            : "12px",
+      }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {/* Ink Drop Animation for Interior */}
+      <AnimatePresence>
+        {hoveredButton === "interior" && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: [0, 1.5, 2.5], opacity: [0.8, 0.6, 0] }}
+            exit={{ scale: 3, opacity: 0 }}
+            transition={{
+              duration: 1.2,
+              ease: [0.25, 0.46, 0.45, 0.94],
+              times: [0, 0.4, 1],
+            }}
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "100%",
+              height: "100%",
+              background:
+                "radial-gradient(circle, rgba(255, 152, 0, 0.3) 0%, rgba(255, 152, 0, 0.1) 40%, transparent 70%)",
+              borderRadius: "50%",
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
+              zIndex: -1,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <span style={{ position: "relative", zIndex: 1 }}>
+        INTERIOR
+        {interiorSections.length > 0 && (
+          <span className="interior-badge">{interiorSections.length}</span>
+        )}
+      </span>
+    </motion.button>
+  </div>
+)}
+
+
 
       {/* Fixed Logo with Menu - Responsive positioning */}
       <div
