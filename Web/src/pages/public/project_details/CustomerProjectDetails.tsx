@@ -160,6 +160,7 @@ const ProjectDetailsPage: React.FC = () => {
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [exteriorStartY, setExteriorStartY] = useState<number>(0);
   const [interiorStartY, setInteriorStartY] = useState<number>(0);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const nextProjectsRef = useRef<HTMLDivElement>(null);
@@ -198,13 +199,12 @@ const ProjectDetailsPage: React.FC = () => {
     "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
 
   // Handle centered logo click - navigate to /resume
-  const handleCenteredLogoClick = () => {
-    navigate("/resume");
-  };
+  
 
   // Handle logo click
   const handleLogoClick = () => {
-    setIsMenuOpen(!isMenuOpen);
+    // setIsMenuOpen(!isMenuOpen);
+    navigate('/')
   };
 
   // ENHANCED: Responsive background strategy
@@ -689,19 +689,14 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
 
-  // Get section type info for display
-  // const getSectionTypeInfo = (backgroundType: number) => {
-  //   if (!hasTypedSections) return null;
-
-  //   switch (backgroundType) {
-  //     case 1:
-  //       return { label: "INTERIOR", color: "#ff9800" };
-  //     case 2:
-  //       return { label: "EXTERIOR", color: "#4caf50" };
-  //     default:
-  //       return null;
-  //   }
-  // };
+   // ENHANCED: Smooth scroll to top with easing
+  const smoothScrollToTop = () => {
+    targetScrollY.current = 0;
+    if (!isScrolling.current) {
+      isScrolling.current = true;
+      smoothScrollStep();
+    }
+  };
 
   // Handle scroll to top
   const handleButtomScrollButtonClick = () => {
@@ -742,12 +737,16 @@ const ProjectDetailsPage: React.FC = () => {
             right: deviceType === "mobile" ? "40px" : "45px",
           }}
         >
-          <button
+          <motion.button
             className={`section-nav-btn ${
               currentActiveSection === "exterior" ? "active" : ""
             }`}
             onClick={() => handleSectionNavigation("exterior")}
+            onMouseEnter={() => setHoveredButton("exterior")}
+            onMouseLeave={() => setHoveredButton(null)}
             style={{
+              position: "relative",
+              overflow: "hidden",
               padding:
                 deviceType === "mobile"
                   ? "6px 12px"
@@ -761,18 +760,58 @@ const ProjectDetailsPage: React.FC = () => {
                   ? "11px"
                   : "12px",
             }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            EXTERIOR
-            {exteriorSections.length > 0 && (
-              <span className="exterior-badge">{exteriorSections.length}</span>
-            )}
-          </button>
-          <button
+            {/* Ink Drop Animation for Exterior */}
+            <AnimatePresence>
+              {hoveredButton === "exterior" && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0.8 }}
+                  animate={{ 
+                    scale: [0, 1.5, 2.5], 
+                    opacity: [0.8, 0.6, 0] 
+                  }}
+                  exit={{ scale: 3, opacity: 0 }}
+                  transition={{ 
+                    duration: 1.2, 
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    times: [0, 0.4, 1]
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    width: "100%",
+                    height: "100%",
+                    background: "radial-gradient(circle, rgba(76, 175, 80, 0.3) 0%, rgba(76, 175, 80, 0.1) 40%, transparent 70%)",
+                    borderRadius: "50%",
+                    transform: "translate(-50%, -50%)",
+                    pointerEvents: "none",
+                    zIndex: -1,
+                  }}
+                />
+              )}
+            </AnimatePresence>
+            
+            <span style={{ position: "relative", zIndex: 1 }}>
+              EXTERIOR
+              {exteriorSections.length > 0 && (
+                <span className="exterior-badge">{exteriorSections.length}</span>
+              )}
+            </span>
+          </motion.button>
+          
+          <motion.button
             className={`section-nav-btn ${
               currentActiveSection === "interior" ? "active" : ""
             }`}
             onClick={() => handleSectionNavigation("interior")}
+            onMouseEnter={() => setHoveredButton("interior")}
+            onMouseLeave={() => setHoveredButton(null)}
             style={{
+              position: "relative",
+              overflow: "hidden",
               padding:
                 deviceType === "mobile"
                   ? "6px 12px"
@@ -786,12 +825,47 @@ const ProjectDetailsPage: React.FC = () => {
                   ? "11px"
                   : "12px",
             }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            INTERIOR
-            {interiorSections.length > 0 && (
-              <span className="interior-badge">{interiorSections.length}</span>
-            )}
-          </button>
+            {/* Ink Drop Animation for Interior */}
+            <AnimatePresence>
+              {hoveredButton === "interior" && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0.8 }}
+                  animate={{ 
+                    scale: [0, 1.5, 2.5], 
+                    opacity: [0.8, 0.6, 0] 
+                  }}
+                  exit={{ scale: 3, opacity: 0 }}
+                  transition={{ 
+                    duration: 1.2, 
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    times: [0, 0.4, 1]
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    width: "100%",
+                    height: "100%",
+                    background: "radial-gradient(circle, rgba(255, 152, 0, 0.3) 0%, rgba(255, 152, 0, 0.1) 40%, transparent 70%)",
+                    borderRadius: "50%",
+                    transform: "translate(-50%, -50%)",
+                    pointerEvents: "none",
+                    zIndex: -1,
+                  }}
+                />
+              )}
+            </AnimatePresence>
+            
+            <span style={{ position: "relative", zIndex: 1 }}>
+              INTERIOR
+              {interiorSections.length > 0 && (
+                <span className="interior-badge">{interiorSections.length}</span>
+              )}
+            </span>
+          </motion.button>
         </div>
       )}
 
@@ -898,7 +972,7 @@ const ProjectDetailsPage: React.FC = () => {
         )}
 
         {/* ENHANCED: Responsive sections with background blur effect */}
-        {sections?.map((section, sectionIndex) => {
+        {sections?.map((section) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
           const bgStyle = getResponsiveBackgroundStyle(section);
@@ -964,7 +1038,7 @@ const ProjectDetailsPage: React.FC = () => {
                 )}  */}
 
                 {/* Responsive Centered Top Logo - Only show on first section */}
-                {sectionIndex === 0 && (
+                {/* {sectionIndex === 0 && (
                   <div
                     className="centered-logo"
                     onClick={handleCenteredLogoClick}
@@ -986,7 +1060,7 @@ const ProjectDetailsPage: React.FC = () => {
                       }}
                     />
                   </div>
-                )}
+                )} */}
 
                 {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
                 <AnimatePresence>
@@ -1267,45 +1341,87 @@ const ProjectDetailsPage: React.FC = () => {
         {/* Footer is now properly positioned in the content flow, no additional padding needed */}
       </div>
 
-      {/* Responsive Scroll to Top Button */}
-      <AnimatePresence>
-        {scrollY > 500 && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleButtomScrollButtonClick}
-            style={{
-              position: "fixed",
-              bottom: deviceType === "mobile" ? "20px" : "30px",
-              right: deviceType === "mobile" ? "20px" : "30px",
-              width: deviceType === "mobile" ? "45px" : "50px",
-              height: deviceType === "mobile" ? "45px" : "50px",
-              borderRadius: "50%",
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              border: "none",
-              color: "white",
-              fontSize: deviceType === "mobile" ? "16px" : "20px",
-              cursor: "pointer",
-              zIndex: 1000,
-              boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-              transition: "all 0.3s ease", // ADDED: Smooth transitions
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.1)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
-            }}
-          >
-            ↑
-          </motion.button>
-        )}
-      </AnimatePresence>
+        {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
+        <style>
+    {`
+      .scroll-to-top-btn {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .scroll-to-top-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%);
+        border-radius: 50%;
+        transform: scale(0);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: -1;
+      }
+      
+      .scroll-to-top-btn:hover::before {
+        transform: scale(1);
+      }
+      
+      .scroll-to-top-btn:hover {
+        border-color: rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+      }
+    `}
+  </style>
+  
+  {/* ENHANCED: Responsive Scroll to Top Button with transparent background and smooth fill animation */}
+  <AnimatePresence>
+    {scrollY > 500 && (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.8, y: 20 }}
+        whileHover={{
+          scale: 1.1,
+          y: -2,
+          transition: { duration: 0.2, ease: "easeOut" },
+        }}
+        whileTap={{
+          scale: 0.95,
+          y: 0,
+          transition: { duration: 0.1, ease: "easeIn" },
+        }}
+        onClick={smoothScrollToTop}
+        className="scroll-to-top-btn"
+        style={{
+          position: "fixed",
+          bottom: deviceType === "mobile" ? "20px" : "30px",
+          right: deviceType === "mobile" ? "20px" : "30px",
+          width: deviceType === "mobile" ? "50px" : "55px",
+          height: deviceType === "mobile" ? "50px" : "55px",
+          borderRadius: "50%",
+          // Transparent background by default
+          background: "transparent",
+          // Border to make it visible when transparent
+          border: "2px solid rgba(255, 255, 255, 0.4)",
+          color: "white",
+          fontSize: deviceType === "mobile" ? "18px" : "22px",
+          cursor: "pointer",
+          zIndex: 1000,
+          boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          // Smooth transition for other properties
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          // Position relative for pseudo-element
+    
+          overflow: "hidden",
+        }}
+      >
+        ↑
+      </motion.button>
+    )}
+  </AnimatePresence>
     </div>
   );
 };
