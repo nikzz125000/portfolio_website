@@ -992,8 +992,8 @@ const Homepage: React.FC = () => {
                 overflow: "hidden",
                 
                 // Visual effects (keep these as they don't affect layout)
-                backdropFilter: "blur(1px)",
-                boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.1)",
+                // backdropFilter: "blur(1px)",
+                // boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.1)",
               }}
             >
               {/* Separate Background Layer with Blur Effect - FIXED: Eliminate gaps */}
@@ -1014,6 +1014,7 @@ const Homepage: React.FC = () => {
                   filter: hoveredImageId !== null ? "blur(3px)" : "none",
                   transition: "filter 0.3s ease",
                   zIndex: 1,
+inset: 0, // FIXED: Use inset to cover entire section
                 }}
               />
               {/* Gradient Overlay for Better Integration - FIXED: Eliminate gaps */}
@@ -1380,55 +1381,86 @@ const Homepage: React.FC = () => {
       </div>
 
       {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
-      <AnimatePresence>
-        {scrollY > 500 && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            whileHover={{
-              scale: 1.1,
-              y: -2,
-              transition: { duration: 0.2, ease: "easeOut" },
-            }}
-            whileTap={{
-              scale: 0.95,
-              y: 0,
-              transition: { duration: 0.1, ease: "easeIn" },
-            }}
-            onClick={smoothScrollToTop}
-            style={{
-              position: "fixed",
-              bottom: deviceType === "mobile" ? "20px" : "30px",
-              right: deviceType === "mobile" ? "20px" : "30px",
-              width: deviceType === "mobile" ? "50px" : "55px",
-              height: deviceType === "mobile" ? "50px" : "55px",
-              borderRadius: "50%",
-              background:
-                "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
-              border: "none",
-              color: "white",
-              fontSize: deviceType === "mobile" ? "18px" : "22px",
-              cursor: "pointer",
-              zIndex: 1000,
-              boxShadow: "0 8px 25px rgba(102, 126, 234, 0.4)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 12px 35px rgba(102, 126, 234, 0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 8px 25px rgba(102, 126, 234, 0.4)";
-            }}
-          >
-            ↑
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <style>
+  {`
+    .scroll-to-top-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .scroll-to-top-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%);
+      border-radius: 50%;
+      transform: scale(0);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: -1;
+    }
+    
+    .scroll-to-top-btn:hover::before {
+      transform: scale(1);
+    }
+    
+    .scroll-to-top-btn:hover {
+      border-color: rgba(255, 255, 255, 0.8) !important;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+    }
+  `}
+</style>
+
+{/* ENHANCED: Responsive Scroll to Top Button with transparent background and smooth fill animation */}
+<AnimatePresence>
+  {scrollY > 500 && (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: 20 }}
+      whileHover={{
+        scale: 1.1,
+        y: -2,
+        transition: { duration: 0.2, ease: "easeOut" },
+      }}
+      whileTap={{
+        scale: 0.95,
+        y: 0,
+        transition: { duration: 0.1, ease: "easeIn" },
+      }}
+      onClick={smoothScrollToTop}
+      className="scroll-to-top-btn"
+      style={{
+        position: "fixed",
+        bottom: deviceType === "mobile" ? "20px" : "30px",
+        right: deviceType === "mobile" ? "20px" : "30px",
+        width: deviceType === "mobile" ? "50px" : "55px",
+        height: deviceType === "mobile" ? "50px" : "55px",
+        borderRadius: "50%",
+        // Transparent background by default
+        background: "transparent",
+        // Border to make it visible when transparent
+        border: "2px solid rgba(255, 255, 255, 0.4)",
+        color: "white",
+        fontSize: deviceType === "mobile" ? "18px" : "22px",
+        cursor: "pointer",
+        zIndex: 1000,
+        boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        // Smooth transition for other properties
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        // Position relative for pseudo-element
+  
+        overflow: "hidden",
+      }}
+    >
+      ↑
+    </motion.button>
+  )}
+</AnimatePresence>
 
       {/* ENHANCED: Scroll Progress Indicator */}
       <motion.div

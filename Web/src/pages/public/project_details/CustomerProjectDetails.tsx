@@ -663,6 +663,8 @@ const ProjectDetailsPage: React.FC = () => {
     return {
       fixedLogo:
         device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
+               SecondLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
       centeredLogo:
         device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
       menuItemSize:
@@ -806,7 +808,7 @@ const ProjectDetailsPage: React.FC = () => {
         }}
       >
         {/* Logo */}
-        <div
+         <div
           id="main-logo"
           onClick={handleLogoClick}
           className="logo-container"
@@ -818,7 +820,21 @@ const ProjectDetailsPage: React.FC = () => {
             transition: "all 0.3s ease",
           }}
         >
-          <img
+            {isMenuOpen
+            &&  <img
+            src="/logo/po.png"
+            alt="Fixed Logo"
+            style={{
+              height: logoSizes.SecondLogo,
+              width: "auto",
+              //  filter: "brightness(0) invert(1)",
+              // transition: "transform 0.2s ease, filter 0.2s ease",
+              marginLeft:12
+            }}
+            
+          />}
+        {!isMenuOpen
+            &&    <img
             src="/logo/font 2_.png"
             alt="Fixed Logo"
             style={{
@@ -827,7 +843,7 @@ const ProjectDetailsPage: React.FC = () => {
               filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
               transition: "transform 0.2s ease, filter 0.2s ease",
             }}
-          />
+          />}
         </div>
 
         {/* Side Menu Component */}
