@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import Footer from "./Footer";
+
 
 interface MainLayoutProps {
   children: React.ReactNode;

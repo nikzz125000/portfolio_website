@@ -8,7 +8,6 @@ import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
 
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import ModernLoader from "../../components/ui/ModernLoader";
 import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
 import { getAnimationVariants, homepageStyles } from "../../components/Const";
@@ -182,7 +181,8 @@ const Homepage: React.FC = () => {
     setTimeout(() => {
       setIsNavigating(false);
       navigate(`/project_details/${subImageId}`);
-    }, 500);
+    }, 1500);
+    
   };
 
   // Handle centered logo click - navigate to /resume
@@ -352,15 +352,15 @@ const Homepage: React.FC = () => {
 
     // Momentum scrolling variables
     let momentumVelocity = 0;
-    let lastWheelTime = 0;
+    
     let isMomentumActive = false;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
 
-      const currentTime = Date.now();
-      const timeDelta = currentTime - lastWheelTime;
-      lastWheelTime = currentTime;
+  
+    
+     
 
       // Enhanced scroll sensitivity with device-specific adjustments
       let scrollMultiplier = 0.2; // Base sensitivity
@@ -1327,39 +1327,37 @@ inset: 0, // FIXED: Use inset to cover entire section
         })}
 
         {/* Navigation Loading Overlay */}
-        <AnimatePresence>
-          {isNavigating && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "rgba(0, 0, 0, 0.8)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 9999,
-              }}
-            >
-              <div style={{ textAlign: "center", color: "white" }}>
-                <ModernLoader variant="gradient" size="large" />
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  style={{ marginTop: "20px", fontSize: "18px" }}
-                >
-                  Loading project details...
-                </motion.p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <AnimatePresence>
+  {isNavigating && (
+    <motion.div
+      initial={{ opacity: 0, y: "100%" }}   // start off-screen bottom
+      animate={{ opacity: 1, y: 0 }}        // slide into view
+      exit={{ opacity: 0, y: "-100%" }}     // slide out upwards
+      transition={{ duration: 0.8, ease: "easeInOut" }} // smooth & slower
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: "rgba(0, 0, 0, 0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+      }}
+    >
+      <div style={{ textAlign: "center", color: "white" }}>
+        <LoadingSpinner
+          variant="gradient"
+          size="medium"
+          text="Loading next projects..."
+          fullHeight={false}
+        />
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
         {/* Footer Section - FIXED: Proper layout integration */}
         <div

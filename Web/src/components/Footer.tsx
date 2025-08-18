@@ -1067,36 +1067,6 @@ import { useResumeDetails } from "../api/useResumeDetails";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 
-// const Icon = {
-//   LinkedIn: (props: React.SVGProps<SVGSVGElement>) => (
-//     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-//       <path d="M4.983 3.5C4.983 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.483 1.12 2.483 2.5zM.3 8.1h4.4V24H.3V8.1zm7.2 0h4.215v2.17h.06c.587-1.113 2.022-2.29 4.163-2.29 4.452 0 5.273 2.93 5.273 6.737V24H16.5v-6.94c0-1.656-.03-3.784-2.307-3.784-2.31 0-2.664 1.805-2.664 3.668V24H7.5V8.1z" />
-//     </svg>
-//   ),
-//   Instagram: (props: React.SVGProps<SVGSVGElement>) => (
-//     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-//       {/* Modern Instagram Icon - Updated 2024 */}
-//       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.645.07 4.849 0 3.205-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 3.266-.058 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-//     </svg>
-//   ),
-//   Behance: (props: React.SVGProps<SVGSVGElement>) => (
-//     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-//       {/* Modern Behance Icon - Updated 2024 */}
-//       <path d="M22 7h-6V5h6v2zm-6 10h6v-2h-6v2zm-6-7c.9-.4 1.4-1.1 1.4-2.2C11 6.9 9.9 6 8 6H3v12h5.2c2.3 0 3.8-1.1 3.8-3.2 0-1.4-.6-2.3-1.4-2.6zM6 8.5h2c.9 0 1.4.4 1.4 1.1S8.9 10.8 8 10.8H6V8.5zm2.2 7H6v-2.6h2.2c1 0 1.6.5 1.6 1.3s-.6 1.3-1.6 1.3zM21.9 13.5c-.2-1.9-1.6-3.3-3.9-3.3-2.6 0-4.2 1.8-4.2 4.3 0 2.6 1.7 4.3 4.4 4.3 2 0 3.4-1 3.8-2.7h-2.1c-.2.6-.8 1-1.7 1-1.1 0-1.9-.8-2-2h5.7c0-.2 0-.4 0-.6zm-5.7-1.1c.2-1 1-1.6 1.9-1.6 1 0 1.7.6 1.9 1.6h-3.8z" />
-//     </svg>
-//   ),
-//   Globe: (props: React.SVGProps<SVGSVGElement>) => (
-//     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-//       <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.18a15.9 15.9 0 00-1.2-5.01A8.02 8.02 0 0119.93 11zM12 4c.9 0 2.2 1.8 2.8 5H9.2c.6-3.2 1.9-5 2.8-5zM6.45 14a13.7 13.7 0 010-4h11.1a13.7 13.7 0 010 4H6.45zM8.45 18a15.9 15.9 0 01-1.2-5h9.5a15.9 15.9 0 01-1.2 5A8.02 8.02 0 0112 20a8.02 8.02 0 01-3.55-2zM8.45 5.99A15.9 15.9 0 007.25 11H4.07A8.02 8.02 0 018.45 6zM4.07 13h3.18a15.9 15.9 0 001.2 5.01A8.02 8.02 0 014.07 13z" />
-//     </svg>
-//   ),
-//   ResumeDoc: (props: React.SVGProps<SVGSVGElement>) => (
-//     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-//       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm0 0v6h6" />
-//     </svg>
-//   ),
-// };
-
 interface FooterProps {
   deviceType?: "mobile" | "tablet" | "desktop";
   variant?: "homepage" | "project-details";
@@ -1209,6 +1179,11 @@ const Footer: React.FC<FooterProps> = ({
          type: "tween" as const,
       },
     },
+  };
+
+  // Handle email click - opens email client with prefilled address
+  const handleEmailClick = (emailAddress: string) => {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}`, "_blank");
   };
 
   // Handle connect form submission
@@ -1567,18 +1542,48 @@ const Footer: React.FC<FooterProps> = ({
                 >
                   {resumeData.data.name || "Name not available"}
                 </div>
-                <div
-                  style={{
-                    fontSize: deviceType === "mobile" ? "12px" : "14px",
-                  }}
-                >
-                  {resumeData.data.email || "Email not available"}
-                </div>
+                
+                {/* Email - Clickable to open email client */}
+                {resumeData.data.email ? (
+                  <div
+                    onClick={() => handleEmailClick(resumeData.data.email)}
+                    style={{
+                      fontSize: deviceType === "mobile" ? "12px" : "14px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      transition: "all 0.2s ease",
+                      opacity: 0.95,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = "1";
+                      e.currentTarget.style.textShadow = "0 0 8px rgba(255,255,255,0.5)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = "0.95";
+                      e.currentTarget.style.textShadow = "none";
+                    }}
+                    title={`Send email to ${resumeData.data.email}`}
+                  >
+                    {resumeData.data.email}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      fontSize: deviceType === "mobile" ? "12px" : "14px",
+                    }}
+                  >
+                    Email not available
+                  </div>
+                )}
+                
                 <div
                   style={{
                     marginBottom: "12px",
                     fontSize: deviceType === "mobile" ? "12px" : "14px",
+                    cursor: "pointer",
                   }}
+                  onClick={() => {  window.open("tel:+16265550134", "_self");
+      }}
                 >
                   {resumeData.data.phone || "Phone not available"}
                 </div>
