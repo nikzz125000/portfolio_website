@@ -847,10 +847,17 @@ const ResumeEditor: React.FC = () => {
                 </Typography>
               )}
             </Stack>
-            {/* Mirror public resume visual system */}
+            {/* Mirror public resume visual system exactly */}
             <Box
-              className="homepage-gradient-bg ff-brand"
-              sx={{ color: "#e5e7eb", borderRadius: 1, overflow: "hidden" }}
+              className="min-h-screen ff-brand"
+              sx={{
+                color: "#fff",
+                overflowY: "auto",
+                background:
+                  "linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff0080 50%, #8e44ad 75%, #3742fa 100%)",
+                borderRadius: 1,
+                overflow: "hidden",
+              }}
             >
               <style>{homepageStyles}</style>
               {/* Force-enable scrolling in admin preview; do not adopt homepage scroll lock */}
@@ -861,204 +868,248 @@ const ResumeEditor: React.FC = () => {
                   overflow: visible !important;
                   transform: none !important;
                 }
+
+                @keyframes fadeInUp {
+                  from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+
+                .animate-up {
+                  opacity: 0;
+                  transform: translateY(30px);
+                  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                }
+
+                .visible {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+
+                .photo-container {
+                  overflow: hidden;
+                  border-radius: 20px;
+                }
               `}</style>
-              <div className="gradient-background-pattern" />
-              <div ref={previewRef} className="max-w-3xl mx-auto px-6 py-4">
-                <div
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
-                  style={cardStyle}
-                >
-                  <div className="flex flex-col">
-                    <div className="w-64 h-72 mb-6 overflow-hidden rounded-md">
-                      <img
-                        src={data.personalInfo.photo || DEFAULT_AVATAR}
-                        alt={data.personalInfo.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          if (e.currentTarget.src !== DEFAULT_AVATAR) {
-                            e.currentTarget.src = DEFAULT_AVATAR;
-                          }
+
+              <div ref={previewRef} className="max-w-7xl mx-auto p-8">
+                <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+                    {/* Left Side - Profile Image */}
+                    <div className="lg:col-span-1 flex items-center justify-center">
+                      <div className="photo-container w-full max-w-sm aspect-square">
+                        <img
+                          src={data.personalInfo.photo || DEFAULT_AVATAR}
+                          alt={data.personalInfo.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            if (e.currentTarget.src !== DEFAULT_AVATAR) {
+                              e.currentTarget.src = DEFAULT_AVATAR;
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right Side - Content */}
+                    <div className="lg:col-span-2 flex flex-col">
+                      {/* Name */}
+                      <h1
+                        className="text-6xl font-bold mb-6"
+                        style={{
+                          color: "#fff",
+                          textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
                         }}
-                      />
-                    </div>
-                    <h1
-                      className="text-6xl font-bold mb-2"
-                      style={sectionTitleStyle}
-                    >
-                      {data.personalInfo.name}
-                    </h1>
-                    <div className="text-gray-300">
-                      {data.personalInfo.location}
-                    </div>
-                  </div>
-                  <div className="flex flex-col justify-center text-right">
-                    <div className="text-lg font-semibold mb-1">
-                      {data.personalInfo.phone}
-                    </div>
-                    <div className="text-base">{data.personalInfo.email}</div>
-                    <div className="flex justify-end gap-3 mt-3 text-white/90">
-                      {data.personalInfo.socials?.website && (
-                        <a
-                          href={data.personalInfo.socials.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="Website"
-                          className="inline-flex items-center justify-center w-6 h-6"
-                        >
-                          <Icon.Globe width={20} height={20} />
-                        </a>
-                      )}
-                      {data.personalInfo.socials?.linkedin && (
-                        <a
-                          href={data.personalInfo.socials.linkedin}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="LinkedIn"
-                          className="inline-flex items-center justify-center w-6 h-6"
-                        >
-                          <Icon.LinkedIn width={20} height={20} />
-                        </a>
-                      )}
-                      {data.personalInfo.socials?.instagram && (
-                        <a
-                          href={data.personalInfo.socials.instagram}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="Instagram"
-                          className="inline-flex items-center justify-center w-6 h-6"
-                        >
-                          <Icon.Instagram width={20} height={20} />
-                        </a>
-                      )}
-                      {data.personalInfo.socials?.behance && (
-                        <a
-                          href={data.personalInfo.socials.behance}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="Behance"
-                          className="inline-flex items-center justify-center w-6 h-6"
-                        >
-                          <Icon.Behance width={20} height={20} />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-8" style={cardStyle}>
-                  <p
-                    className="text-base leading-relaxed"
-                    style={{ color: "#e5e7eb" }}
-                  >
-                    {data.personalInfo.bio}
-                  </p>
-                </div>
-
-                <div className="mb-8" style={cardStyle}>
-                  <h2
-                    className="text-5xl font-bold mb-12"
-                    style={sectionTitleStyle}
-                  >
-                    education
-                  </h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                    {data.education.map((ed, i) => (
-                      <React.Fragment key={i}>
-                        <div>
-                          <div className="text-base font-semibold mb-1 text-white">
-                            {ed.period}
-                          </div>
-                          <div className="text-base text-white/90">
-                            {ed.institution}
-                          </div>
-                          <div className="text-base text-gray-300">
-                            {ed.location}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-base text-white/90">
-                            {ed.degree}
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={cardStyle}>
-                  <h2
-                    className="text-5xl font-bold mb-12"
-                    style={sectionTitleStyle}
-                  >
-                    experience
-                  </h2>
-                  <div className="space-y-5">
-                    {data.experience.map((exp, i) => (
-                      <div
-                        key={i}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
                       >
-                        <div>
-                          <div className="text-base font-semibold mb-1 text-white">
-                            {exp.period}
-                          </div>
-                          <div className="text-base italic text-white/90">
-                            {exp.title}
-                          </div>
-                          <div className="text-base font-semibold text-white">
-                            {exp.company}
-                          </div>
-                          {exp.location && (
-                            <div className="text-base text-gray-300">
-                              {exp.location}
+                        {data.personalInfo.name}
+                      </h1>
+
+                      {/* Bio */}
+                      <div
+                        className="text-lg leading-relaxed mb-8"
+                        style={{ color: "#fff" }}
+                      >
+                        {data.personalInfo.bio
+                          .split(". ")
+                          .map((sentence, index) => {
+                            if (sentence.includes(data.personalInfo.focus)) {
+                              const parts = sentence.split(
+                                data.personalInfo.focus
+                              );
+                              return (
+                                <span key={index}>
+                                  {parts[0]}
+                                  <em
+                                    className="italic font-medium"
+                                    style={{ color: "#ffeb3b" }}
+                                  >
+                                    {data.personalInfo.focus}
+                                  </em>
+                                  {parts[1]}
+                                  {index <
+                                  data.personalInfo.bio.split(". ").length - 1
+                                    ? ". "
+                                    : ""}
+                                </span>
+                              );
+                            }
+                            return (
+                              sentence +
+                              (index <
+                              data.personalInfo.bio.split(". ").length - 1
+                                ? ". "
+                                : "")
+                            );
+                          })}
+                      </div>
+
+                      {/* Three Column Box */}
+                      <div
+                        className="bg-black/60 backdrop-blur-lg rounded-2xl p-6 border border-white/10 flex-1"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.9) 100%)",
+                        }}
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+                          {/* Education Column */}
+                          <div className="flex flex-col">
+                            <h3 className="text-xl font-bold mb-4 text-white border-b border-white/20 pb-2">
+                              Education
+                            </h3>
+                            <div className="space-y-4 flex-1">
+                              {data.education && data.education.length > 0 ? (
+                                data.education.map((ed, i) => (
+                                  <div key={i} className="text-sm">
+                                    <div className="font-semibold text-white mb-1">
+                                      {ed.period}
+                                    </div>
+                                    <div className="text-gray-300 mb-1">
+                                      {ed.degree}
+                                    </div>
+                                    <div className="text-gray-400 text-xs">
+                                      {ed.institution}
+                                    </div>
+                                    <div className="text-gray-500 text-xs">
+                                      {ed.location}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-gray-400 text-sm">
+                                  No education data
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="text-base leading-relaxed text-white/90">
-                            {exp.description}
+                          </div>
+
+                          {/* Experience Column */}
+                          <div className="flex flex-col">
+                            <h3 className="text-xl font-bold mb-4 text-white border-b border-white/20 pb-2">
+                              Experience
+                            </h3>
+                            <div className="space-y-4 flex-1">
+                              {data.experience && data.experience.length > 0 ? (
+                                data.experience.map((exp, i) => (
+                                  <div key={i} className="text-sm">
+                                    <div className="font-semibold text-white mb-1">
+                                      {exp.period}
+                                    </div>
+                                    <div className="text-gray-300 mb-1 font-medium">
+                                      {exp.title}
+                                    </div>
+                                    <div className="text-gray-400 text-xs mb-1">
+                                      {exp.company}
+                                    </div>
+                                    {exp.location && (
+                                      <div className="text-gray-500 text-xs mb-2">
+                                        {exp.location}
+                                      </div>
+                                    )}
+                                    <div className="text-gray-300 text-xs leading-relaxed">
+                                      {exp.description.length > 100
+                                        ? exp.description.substring(0, 100) +
+                                          "..."
+                                        : exp.description}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-gray-400 text-sm">
+                                  No experience data
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Skills Column */}
+                          <div className="flex flex-col">
+                            <h3 className="text-xl font-bold mb-4 text-white border-b border-white/20 pb-2">
+                              Skills
+                            </h3>
+                            <div className="space-y-4 flex-1">
+                              {data.skills && data.skills.length > 0 ? (
+                                data.skills.map((cat, idx) => (
+                                  <div key={idx}>
+                                    {cat.title && (
+                                      <div className="text-sm font-semibold mb-2 text-white">
+                                        {cat.title}
+                                      </div>
+                                    )}
+                                    <div className="flex flex-wrap gap-1">
+                                      {(cat.items || []).map((it, j) => (
+                                        <div
+                                          key={j}
+                                          className="inline-block px-2 py-1 rounded text-xs"
+                                          style={{
+                                            background: "rgba(255,255,255,0.1)",
+                                            color: "#fff",
+                                            border:
+                                              "1px solid rgba(255,255,255,0.2)",
+                                          }}
+                                        >
+                                          {it}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-gray-400 text-sm">
+                                  No skills data
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                {data.skills && data.skills.length > 0 && (
-                  <div className="mt-8" style={cardStyle}>
-                    <h2
-                      className="text-5xl font-bold mb-12"
-                      style={sectionTitleStyle}
-                    >
-                      skills
-                    </h2>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                      {data.skills.map((cat, idx) => (
-                        <div key={idx}>
-                          <div className="text-lg font-semibold mb-2 text-white">
-                            {cat.title}
+
+                      {/* Contact Info */}
+                      <div className="mt-6 flex flex-wrap gap-4 text-sm">
+                        {data.personalInfo.phone && (
+                          <div className="text-white">
+                            📱 {data.personalInfo.phone}
                           </div>
-                          <div className="flex flex-wrap gap-x-2 gap-y-1.5 items-start">
-                            {cat.items.map((it, j) => (
-                              <div
-                                key={j}
-                                className="inline-block h-6 leading-[24px] px-3 rounded-full text-xs font-medium text-center align-middle whitespace-nowrap"
-                                style={{
-                                  background: "rgba(255,255,255,0.08)",
-                                  color: "#fff",
-                                  border: "1px solid rgba(255,255,255,0.12)",
-                                  boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
-                                }}
-                              >
-                                {it}
-                              </div>
-                            ))}
+                        )}
+                        {data.personalInfo.email && (
+                          <div className="text-white">
+                            ✉️ {data.personalInfo.email}
                           </div>
-                        </div>
-                      ))}
+                        )}
+                        {data.personalInfo.location && (
+                          <div className="text-white">
+                            📍 {data.personalInfo.location}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                )}
-                <div style={{ height: 60 }} />
+                </div>
               </div>
             </Box>
           </Paper>
