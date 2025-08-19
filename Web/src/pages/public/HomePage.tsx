@@ -740,7 +740,7 @@ const Homepage: React.FC = () => {
   }, [targetScrollY.current, currentScrollY.current]);
 
   // ENHANCED: Track scroll direction for visual feedback
-  const [scrollDirection, setScrollDirection] = useState<
+  const [, setScrollDirection] = useState<
     "up" | "down" | "none"
   >("none");
   const lastScrollY = useRef(0);
@@ -1460,8 +1460,8 @@ inset: 0, // FIXED: Use inset to cover entire section
   )}
 </AnimatePresence>
 
-      {/* ENHANCED: Scroll Progress Indicator */}
-      <motion.div
+  
+      {/* <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
@@ -1477,7 +1477,7 @@ inset: 0, // FIXED: Use inset to cover entire section
           gap: "8px",
         }}
       >
-        {/* Scroll Progress Bar */}
+        
         <div
           style={{
             width: "4px",
@@ -1509,7 +1509,7 @@ inset: 0, // FIXED: Use inset to cover entire section
             transition={{ duration: 0.3, ease: "easeOut" }}
           />
 
-          {/* Scroll Direction Indicator */}
+        
           {scrollDirection !== "none" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -1530,7 +1530,7 @@ inset: 0, // FIXED: Use inset to cover entire section
           )}
         </div>
 
-        {/* Scroll Percentage */}
+
         <motion.div
           style={{
             fontSize: "12px",
@@ -1552,7 +1552,7 @@ inset: 0, // FIXED: Use inset to cover entire section
             : 0}
           %
         </motion.div>
-      </motion.div>
+      </motion.div>  */}
     </div>
   );
 };
