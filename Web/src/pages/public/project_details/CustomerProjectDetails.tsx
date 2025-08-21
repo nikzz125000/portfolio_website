@@ -160,7 +160,7 @@ const ProjectDetailsPage: React.FC = () => {
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [exteriorStartY, setExteriorStartY] = useState<number>(0);
   const [interiorStartY, setInteriorStartY] = useState<number>(0);
-  const [, setHoveredButton] = useState<string | null>(null);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const nextProjectsRef = useRef<HTMLDivElement>(null);
@@ -737,88 +737,269 @@ const ProjectDetailsPage: React.FC = () => {
     style={{
       top: deviceType === "mobile" ? "15px" : "20px",
       right: deviceType === "mobile" ? "40px" : "45px",
+      display: "flex",
+      gap: "6px",
+      zIndex: 1000,
     }}
   >
+    {/* EXTERIOR Button */}
     <motion.button
-  className={`section-nav-btn ${
-    currentActiveSection === "exterior" ? "active" : ""
-  }`}
-  onClick={() => handleSectionNavigation("exterior")}
-  onMouseEnter={() => setHoveredButton("exterior")}
-  onMouseLeave={() => setHoveredButton(null)}
-  style={{
-    position: "relative",
-    overflow: "hidden",
-    border: "none",
-    background: "#fff", // 🔹 white background since text is black
-    color: "#000",      // 🔹 black text
-    padding:
-      deviceType === "mobile"
-        ? "6px 12px"
-        : deviceType === "tablet"
-        ? "7px 14px"
-        : "8px 16px",
-    fontSize:
-      deviceType === "mobile"
-        ? "10px"
-        : deviceType === "tablet"
-        ? "11px"
-        : "12px",
-    borderRadius: "6px", // optional rounded look
-  }}
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
->
-  <span style={{ position: "relative", zIndex: 1 }}>
-    EXTERIOR
-    {exteriorSections.length > 0 && (
-      <span className="exterior-badge">{exteriorSections.length}</span>
-    )}
-  </span>
-</motion.button>
+      className={`section-nav-btn ${
+        currentActiveSection === "exterior" ? "active" : ""
+      }`}
+      onClick={() => handleSectionNavigation("exterior")}
+      onMouseEnter={() => setHoveredButton("exterior")}
+      onMouseLeave={() => setHoveredButton(null)}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        border: currentActiveSection === "exterior" 
+          ? "2px solid #F59E0B" 
+          : "2px solid rgba(255, 255, 255, 0.3)",
+        background: currentActiveSection === "exterior"
+          ? "linear-gradient(135deg,#F59E0B 0%, #F59E0B 100%)"
+          : hoveredButton === "exterior"
+          ? "linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)"
+          : "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%)",
+        color: currentActiveSection === "exterior" ?  "#000000" : "#ffffff",
+        padding:
+          deviceType === "mobile"
+            ? "6px 10px"
+            : deviceType === "tablet"
+            ? "7px 12px"
+            : "8px 14px",
+        fontSize:
+          deviceType === "mobile"
+            ? "10px"
+            : deviceType === "tablet"
+            ? "11px"
+            : "12px",
+        fontWeight: "600",
+        letterSpacing: "0.5px",
+        borderRadius: "10px",
+        boxShadow: currentActiveSection === "exterior"
+          ? "0 8px 25px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)"
+          : hoveredButton === "exterior"
+          ? "0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)"
+          : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)",
+        backdropFilter: "blur(10px)",
+        cursor: "pointer",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+      whileHover={{ 
+        scale: 1.05,
+        y: -2,
+      }}
+      whileTap={{ 
+        scale: 0.95,
+        y: 0,
+      }}
+      animate={{
+        scale: currentActiveSection === "exterior" ? 1.02 : 1,
+      }}
+    >
+      {/* Animated background overlay */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%)",
+          borderRadius: "8px",
+          opacity: 0,
+        }}
+        animate={{
+          opacity: hoveredButton === "exterior" ? 1 : 0,
+        }}
+        transition={{ duration: 0.3 }}
+      />
+      
+      <span style={{ 
+        position: "relative", 
+        zIndex: 1,
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+      }}>
+        {/* Icon */}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+        
+        EXTERIOR
+        
+        {exteriorSections.length > 0 && (
+          <motion.span 
+            className="exterior-badge"
+            style={{
+              background: currentActiveSection === "exterior"
+                ? "rgba(255, 255, 255, 0.2)"
+                :"#F59E0B",
+              color: currentActiveSection === "exterior" ? "#ffffff" : "#ffffff",
+              fontSize: "9px",
+              fontWeight: "700",
+              padding: "2px 6px",
+              borderRadius: "8px",
+              minWidth: "16px",
+              height: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: currentActiveSection === "exterior" 
+                ? "1px solid rgba(255, 255, 255, 0.3)" 
+                : "none",
+            }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          >
+            {exteriorSections.length}
+          </motion.span>
+        )}
+      </span>
+    </motion.button>
 
-<motion.button
-  className={`section-nav-btn ${
-    currentActiveSection === "interior" ? "active" : ""
-  }`}
-  onClick={() => handleSectionNavigation("interior")}
-  onMouseEnter={() => setHoveredButton("interior")}
-  onMouseLeave={() => setHoveredButton(null)}
-  style={{
-    position: "relative",
-    overflow: "hidden",
-    border: "none",
-    background: "#000", // 🔹 black background since text is white
-    color: "#fff",      // 🔹 white text
-    padding:
-      deviceType === "mobile"
-        ? "6px 12px"
-        : deviceType === "tablet"
-        ? "7px 14px"
-        : "8px 16px",
-    fontSize:
-      deviceType === "mobile"
-        ? "10px"
-        : deviceType === "tablet"
-        ? "11px"
-        : "12px",
-    borderRadius: "6px",
-  }}
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
->
-  <span style={{ position: "relative", zIndex: 1 }}>
-    INTERIOR
-    {interiorSections.length > 0 && (
-      <span className="interior-badge">{interiorSections.length}</span>
-    )}
-  </span>
-</motion.button>
-
+    {/* INTERIOR Button */}
+    <motion.button
+      className={`section-nav-btn ${
+        currentActiveSection === "interior" ? "active" : ""
+      }`}
+      onClick={() => handleSectionNavigation("interior")}
+      onMouseEnter={() => setHoveredButton("interior")}
+      onMouseLeave={() => setHoveredButton(null)}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        border: currentActiveSection === "interior" 
+          ? "2px solid #F59E0B" 
+          : "2px solid rgba(255, 255, 255, 0.3)",
+        background: currentActiveSection === "interior"
+          ? "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
+          : hoveredButton === "interior"
+          ? "linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)"
+          : "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%)",
+        color: currentActiveSection === "interior" ? "#000000" : "#ffffff",
+        padding:
+          deviceType === "mobile"
+            ? "6px 10px"
+            : deviceType === "tablet"
+            ? "7px 12px"
+            : "8px 14px",
+        fontSize:
+          deviceType === "mobile"
+            ? "10px"
+            : deviceType === "tablet"
+            ? "11px"
+            : "12px",
+        fontWeight: "600",
+        letterSpacing: "0.5px",
+        borderRadius: "10px",
+        boxShadow: currentActiveSection === "interior"
+          ? "0 8px 25px rgba(245, 158, 11, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)"
+          : hoveredButton === "interior"
+          ? "0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)"
+          : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)",
+        backdropFilter: "blur(10px)",
+        cursor: "pointer",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+      whileHover={{ 
+        scale: 1.05,
+        y: -2,
+      }}
+      whileTap={{ 
+        scale: 0.95,
+        y: 0,
+      }}
+      animate={{
+        scale: currentActiveSection === "interior" ? 1.02 : 1,
+      }}
+    >
+      {/* Animated background overlay */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)",
+          borderRadius: "8px",
+          opacity: 0,
+        }}
+        animate={{
+          opacity: hoveredButton === "interior" ? 1 : 0,
+        }}
+        transition={{ duration: 0.3 }}
+      />
+      
+      <span style={{ 
+        position: "relative", 
+        zIndex: 1,
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+      }}>
+        {/* Icon */}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        
+        INTERIOR
+        
+        {interiorSections.length > 0 && (
+          <motion.span 
+            className="interior-badge"
+            style={{
+              background: currentActiveSection === "interior"
+                ? "rgba(0, 0, 0, 0.2)"
+                : "#F59E0B",
+              color: currentActiveSection === "interior" ? "#000000" : "#000000",
+              fontSize: "9px",
+              fontWeight: "700",
+              padding: "2px 6px",
+              borderRadius: "8px",
+              minWidth: "16px",
+              height: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: currentActiveSection === "interior" 
+                ? "1px solid rgba(0, 0, 0, 0.3)" 
+                : "none",
+            }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          >
+            {interiorSections.length}
+          </motion.span>
+        )}
+      </span>
+    </motion.button>
   </div>
 )}
-
-
 
       {/* Fixed Logo with Menu - Responsive positioning */}
       <div

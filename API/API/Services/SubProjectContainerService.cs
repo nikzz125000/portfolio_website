@@ -61,6 +61,7 @@ namespace API.Services
                 container.Title = model.Title;
                 container.ProjectId = model.ProjectId;
                 container.UpdatedDate = DateTime.UtcNow;
+                container.SortOrder = model.SortOrder;
             }
             else
             {
