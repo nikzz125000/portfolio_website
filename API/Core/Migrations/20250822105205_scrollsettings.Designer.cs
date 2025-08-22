@@ -4,6 +4,7 @@ using Core.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250822105205_scrollsettings")]
+    partial class scrollsettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -367,23 +370,11 @@ namespace Core.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Keyboard")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Momentum")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Smoothness")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Touch")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Wheel")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ScrollSettingId");
 

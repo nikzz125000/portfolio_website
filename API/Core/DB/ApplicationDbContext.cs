@@ -26,7 +26,8 @@ namespace Core.DB
         public DbSet<Resume> Resumes { get; set; }
         public DbSet<SubProjectContainer> SubProjectContainers { get; set; }
         public DbSet<SubProject> SubProjects { get; set; }
+        public DbSet<ScrollSetting> ScrollSettings { get; set; }
 
-        
+
     }
 }
