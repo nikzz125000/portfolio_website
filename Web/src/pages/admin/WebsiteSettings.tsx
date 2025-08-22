@@ -1,4 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, } from "react";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { useSaveScrollSpeed } from "../../api/useSaveWebsiteSettings";
+import { useNotification } from "../../components/Tostr";
+import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
 
 // Mock device type detection
 const getDeviceType = () => {
@@ -8,27 +12,7 @@ const getDeviceType = () => {
   return "desktop";
 };
 
-// Loading spinner component
-const LoadingSpinner = ({ variant = "gradient", size = "large", text = "Loading...", fullHeight = false }) => (
-  <div style={{
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: fullHeight ? "100vh" : "200px",
-    gap: "20px"
-  }}>
-    <div style={{
-      width: size === "large" ? "60px" : "40px",
-      height: size === "large" ? "60px" : "40px",
-      border: "4px solid transparent",
-      borderTop: "4px solid white",
-      borderRadius: "50%",
-      animation: "spin 1s linear infinite"
-    }} />
-    <p style={{ color: "white", fontSize: "16px", margin: 0 }}>{text}</p>
-  </div>
-);
+
 
 // Scroll speed settings interface
 interface ScrollSpeedSettings {
@@ -90,7 +74,6 @@ const ScrollTestContainer: React.FC<{
   const [scrollPosition, setScrollPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [lastTouchY, setLastTouchY] = useState<number | null>(null);
 
   // Sample content for scrolling
@@ -317,12 +300,16 @@ const ScrollSpeedAdmin: React.FC = () => {
   const [currentSettings, setCurrentSettings] = useState<ScrollSpeedSettings>(DEFAULT_SETTINGS);
   const [originalSettings, setOriginalSettings] = useState<ScrollSpeedSettings>(DEFAULT_SETTINGS);
   const [selectedPreset, setSelectedPreset] = useState<string>("slow");
-  const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
+  const [, setIsCustomMode] = useState<boolean>(false);
   const [hasChanges, setHasChanges] = useState<boolean>(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
+  const [showSuccessMessage, ] = useState<boolean>(false);
   const [showPreview, setShowPreview] = useState<boolean>(false);
-  const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isLoadingSettings, ] = useState<boolean>(false);
+  const [isSaving, ] = useState<boolean>(false);
+
+   const { data } = useScrollerSpeedSettings();
+console.log(55,data)
+   const { mutate: saveScrollSpeed, isPending: isLoginPending } = useSaveScrollSpeed();
 
   // Mock API data - replace with real API when available
   const scrollSpeedData = { 
@@ -335,7 +322,7 @@ const ScrollSpeedAdmin: React.FC = () => {
     } 
   };
 
-  console.log(123,currentSettings,selectedPreset)
+  console.log(123,currentSettings,selectedPreset,isLoginPending)
 
   // Load current settings from API
   useEffect(() => {
@@ -457,29 +444,25 @@ const ScrollSpeedAdmin: React.FC = () => {
       console.log('🔧 Switched to custom mode (no matching preset)');
     }
   };
+    const { showNotification } = useNotification();  
 
   // Save settings to API
   const handleSaveSettings = async () => {
-    setIsSaving(true);
-    
-    // Log the data being saved
-    console.log('🚀 Saving scroll speed settings:', {
-      timestamp: new Date().toISOString(),
-      preset: selectedPreset,
-      isCustomMode,
-      settings: currentSettings,
-      deviceType,
-      deviceAdjustedSettings: getDeviceAdjustedPreview()
-    });
-    
-    // Simulate API call
-    setTimeout(() => {
-      setOriginalSettings({ ...currentSettings });
-      setIsSaving(false);
-      setShowSuccessMessage(true);
-      console.log('✅ Settings saved successfully!', { savedSettings: currentSettings });
-      setTimeout(() => setShowSuccessMessage(false), 3000);
-    }, 1000);
+    saveScrollSpeed({currentSettings},{
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSuccess: (res: any) => {
+          if (res?.isSuccess) {
+            showNotification("saved successfully!", "success", "Success");
+           
+          } else {
+            showNotification(
+              res?.message || "Failed to Save",
+              "error",
+              "Error"
+            );
+          }
+        },
+      })
   };
 
   // Reset to current API settings
@@ -610,16 +593,7 @@ const ScrollSpeedAdmin: React.FC = () => {
           >
             Scroll Speed Administration
           </h1>
-          <p
-            style={{
-              fontSize: deviceType === "mobile" ? "16px" : "18px",
-              opacity: 0.9,
-              maxWidth: "600px",
-              margin: "0 auto",
-            }}
-          >
-            Configure scroll speed settings for the homepage. Changes will apply to all users immediately.
-          </p>
+         
         </div>
 
         {/* Success Message */}
