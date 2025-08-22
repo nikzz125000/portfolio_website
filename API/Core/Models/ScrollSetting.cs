@@ -14,6 +14,10 @@ namespace Core.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ScrollSettingId { get; set; }
         public decimal Smoothness { get; set; }
+        public decimal Wheel { get; set; }
+        public decimal Touch { get; set; }
+        public decimal Keyboard { get; set; }
+        public decimal Momentum { get; set; }
 
     }
 }

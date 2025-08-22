@@ -12,10 +12,18 @@ namespace ViewModels
     {
         public int ScrollSettingsId { get; set; }
         public decimal Smoothness { get; set; }
+        public decimal Wheel { get; set; }
+        public decimal Touch { get; set; }
+        public decimal Keyboard { get; set; }
+        public decimal Momentum { get; set; }
     }
     public class ScrollSettingsViewModel
     {
         public int ScrollSettingsId { get; set; }
         public decimal Smoothness { get; set; }
+        public decimal Wheel { get; set; }
+        public decimal Touch { get; set; }
+        public decimal Keyboard { get; set; }
+        public decimal Momentum { get; set; }
     }
 }

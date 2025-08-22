@@ -3,6 +3,7 @@ using Core.Models;
 using Repository;
 using ViewModels;
 using ViewModels.Shared;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Services
 {
@@ -39,7 +40,10 @@ namespace API.Services
 
                 // Map simple fields
                 entity.Smoothness = model.Smoothness;
-                
+                entity.Keyboard = model.Keyboard;
+                entity.Momentum = model.Momentum;
+                entity.Touch = model.Touch;
+                entity.Wheel = model.Wheel;
 
                 entity.UpdatedDate= DateTime.UtcNow;
 
@@ -64,6 +68,10 @@ namespace API.Services
                 {
                     ScrollSettingsId = data.ScrollSettingId,
                     Smoothness = data.Smoothness,
+                    Keyboard=data.Keyboard,
+                    Momentum = data.Momentum,
+                    Touch = data.Touch,
+                    Wheel = data.Wheel
                 };
                 response.CreateSuccessResponse();
             }
