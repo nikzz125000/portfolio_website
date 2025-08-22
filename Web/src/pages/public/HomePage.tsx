@@ -6,76 +6,21 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
-
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
-import { getAnimationVariants, homepageStyles } from "../../components/Const";
-
-interface MenuItem {
-  name: string;
-  icon: string;
-  link: string;
-  action?: () => void | Promise<void>;
-}
-
-interface SubImage {
-  projectId: number;
-  name: string;
-  projectImageUrl: string;
-  imageFileName?: string;
-  xPosition: number;
-  yPosition: number;
-  heightPercent: number;
-  animation: string;
-  animationSpeed: string;
-  animationTrigger: string;
-}
-
-interface BackgroundImage {
-  name: string;
-  url: string;
-  aspectRatio?: number;
-}
-
-interface SectionData {
-  id: number;
-  title: string;
-  sortOrder: number;
-  backgroundImageUrl?: string;
-  backgroundImageAspectRatio?: number;
-  backgroundImage?: BackgroundImage | null;
-  projects?: SubImage[];
-  subImages?: SubImage[];
-  projectContainerId: number;
-}
-
-// Enhanced responsive breakpoints
-const BREAKPOINTS = {
-  mobile: 768,
-  tablet: 1024,
-  desktop: 1200,
-};
-
-// Get current device type
-const getDeviceType = () => {
-  const width = window.innerWidth;
-  if (width <= BREAKPOINTS.mobile) return "mobile";
-  if (width <= BREAKPOINTS.tablet) return "tablet";
-  return "desktop";
-};
-
-// Get animation duration based on speed
-const getAnimationDuration = (speed: string): number => {
-  const speedMap: { [key: string]: number } = {
-    "very-slow": 4,
-    slow: 2.5,
-    normal: 1.5,
-    fast: 0.8,
-    "very-fast": 0.4,
-  };
-  return speedMap[speed] || 1.5;
-};
+import {
+  continuousAnimations,
+  getAnimationDuration,
+  getAnimationVariants,
+  getDeviceType,
+  homepageStyles,
+  SAMPLE_BACKGROUND_IMAGE,
+  SAMPLE_SUB_IMAGE,
+  type MenuItem,
+  type SectionData,
+} from "../../components/Const";
+import HomePageLogo from "../../components/HomePageLogo";
 
 // ENHANCED: Mobile-first unified coordinate system
 const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
@@ -153,9 +98,7 @@ const Homepage: React.FC = () => {
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
-
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
@@ -164,25 +107,16 @@ const Homepage: React.FC = () => {
   const isScrolling = useRef<boolean>(false);
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const navigate = useNavigate();
+    const [showLoader, setShowLoader] = useState(false);
 
   const { data, isPending } = useHomePageList();
   const { isPending: isResumePending } = useResumeDetails();
 
-  // Sample fallback images using placehold.co for reliability
-  const SAMPLE_BACKGROUND_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="%232d3748"/><text x="960" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="48">Portfolio Background</text><text x="960" y="160" text-anchor="middle" fill="%23a0aec0" font-family="Arial" font-size="24">with Project Placeholders</text><rect x="200" y="300" width="300" height="200" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="350" y="420" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 1</text><rect x="800" y="400" width="280" height="180" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="940" y="510" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 2</text><rect x="1400" y="350" width="320" height="220" fill="%234a5568" stroke="%23a0aec0" stroke-width="2" rx="8"/><text x="1560" y="480" text-anchor="middle" fill="white" font-family="Arial" font-size="16">Project 3</text></svg>`;
-  const SAMPLE_SUB_IMAGE =
-    "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
-
   // Navigation handler for sub-images
   const handleSubImageClick = (subImageId: number) => {
-    setIsNavigating(true);
-
-    // Simulate navigation delay and then navigate
-    setTimeout(() => {
-      setIsNavigating(false);
+   
       navigate(`/project_details/${subImageId}`);
-    }, 1500);
-    
+   
   };
 
   // Handle centered logo click - navigate to /resume
@@ -235,11 +169,17 @@ const Homepage: React.FC = () => {
     if (device === "mobile") {
       const maxMobileHeight = Math.ceil(window.innerHeight * 1.2);
       const minMobileHeight = Math.ceil(window.innerHeight * 0.8);
-      sectionHeight = Math.max(Math.min(sectionHeight, maxMobileHeight), minMobileHeight);
+      sectionHeight = Math.max(
+        Math.min(sectionHeight, maxMobileHeight),
+        minMobileHeight
+      );
     } else if (device === "tablet") {
       const maxTabletHeight = Math.ceil(window.innerHeight * 1.5);
       const minTabletHeight = Math.ceil(window.innerHeight * 0.9);
-      sectionHeight = Math.max(Math.min(sectionHeight, maxTabletHeight), minTabletHeight);
+      sectionHeight = Math.max(
+        Math.min(sectionHeight, maxTabletHeight),
+        minTabletHeight
+      );
     } else {
       // Desktop: Original behavior with ceiling
       sectionHeight = Math.max(Math.ceil(height), window.innerHeight);
@@ -274,6 +214,20 @@ const Homepage: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [deviceType, isMenuOpen]);
+
+    useEffect(() => {
+    if (isPending || isResumePending) {
+      // Show immediately when API starts
+      setShowLoader(true);
+    } else {
+      // Delay hiding by 2 seconds
+      const timeout = setTimeout(() => {
+        setShowLoader(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isPending, isResumePending]);
 
   // ENHANCED: Calculate total height using responsive system - Fixed rounding
   useEffect(() => {
@@ -352,16 +306,11 @@ const Homepage: React.FC = () => {
 
     // Momentum scrolling variables
     let momentumVelocity = 0;
-    
+
     let isMomentumActive = false;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-
-  
-    
-     
-
       // Enhanced scroll sensitivity with device-specific adjustments
       let scrollMultiplier = 0.2; // Base sensitivity
 
@@ -685,8 +634,8 @@ const Homepage: React.FC = () => {
     const device = getDeviceType();
     return {
       fixedLogo:
-        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
-            SecondLogo:
+        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "154px",
+      SecondLogo:
         device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
       centeredLogo:
         device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
@@ -698,7 +647,10 @@ const Homepage: React.FC = () => {
           : device === "tablet"
           ? "5px 10px"
           : "6px 12px",
+             bottomLogo:
+        device === "mobile" ? "90px" : device === "tablet" ? "108px" : "148px",
     };
+    
   };
 
   const logoSizes = getResponsiveLogoSizes();
@@ -711,9 +663,6 @@ const Homepage: React.FC = () => {
       smoothScrollStep();
     }
   };
-
-
-
 
   // ENHANCED: Add smooth scroll behavior for better user experience
   useEffect(() => {
@@ -740,9 +689,7 @@ const Homepage: React.FC = () => {
   }, [targetScrollY.current, currentScrollY.current]);
 
   // ENHANCED: Track scroll direction for visual feedback
-  const [, setScrollDirection] = useState<
-    "up" | "down" | "none"
-  >("none");
+  const [, setScrollDirection] = useState<"up" | "down" | "none">("none");
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -786,7 +733,7 @@ const Homepage: React.FC = () => {
       }}
     >
       {/* Show loading spinner while data is being fetched */}
-      {(isPending || isResumePending) && (
+      {(showLoader) && (
         <div
           style={{
             position: "fixed",
@@ -794,7 +741,7 @@ const Homepage: React.FC = () => {
             left: 0,
             width: "100%",
             height: "100%",
-            background: "rgba(0, 0, 0, 0.9)",
+             background: "rgba(0, 0, 0, 0.9)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -882,66 +829,9 @@ const Homepage: React.FC = () => {
         `}
       </style>
 
-      {/* Fixed Logo with Menu - Responsive positioning */}
-      <div
-        style={{
-          position: "fixed",
-          top: deviceType === "mobile" ? "60px" : "50px",
-          left: deviceType === "mobile" ? "15px" : "20px",
-          zIndex: 1000,
-          transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
-          transition: "transform 0.3s ease-out",
-          opacity: scrollY > 100 ? 0.9 : 1,
-        }}
-      >
-        {/* Logo */}
-        <div
-          id="main-logo"
-          onClick={handleLogoClick}
-          className="logo-container"
-          style={{
-            cursor: "pointer",
-            position: "relative",
-            borderRadius: "12px",
-            padding: "8px",
-            transition: "all 0.3s ease",
-          }}
-        >
-            {isMenuOpen
-            &&  <img
-            src="/logo/po.png"
-            alt="Fixed Logo"
-            style={{
-              height: logoSizes.SecondLogo,
-              width: "auto",
-              //  filter: "brightness(0) invert(1)",
-              // transition: "transform 0.2s ease, filter 0.2s ease",
-              marginLeft:12
-            }}
-            
-          />}
-        {!isMenuOpen
-            &&    <img
-            src="/logo/font 2_.png"
-            alt="Fixed Logo"
-            style={{
-              height: logoSizes.fixedLogo,
-              width: "auto",
-              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
-              transition: "transform 0.2s ease, filter 0.2s ease",
-            }}
-          />}
-          
-        </div>
 
-        {/* Side Menu Component */}
-        <SideMenu
-          isMenuOpen={isMenuOpen}
-          deviceType={deviceType as "mobile" | "tablet" | "desktop"}
-          variant="homepage"
-          onMenuItemClick={handleMenuItemClick}
-        />
-      </div>
+      <HomePageLogo deviceType={deviceType} handleLogoClick={handleLogoClick}  
+      isMenuOpen={isMenuOpen} handleMenuItemClick={handleMenuItemClick} logoSizes={logoSizes} scrollY={scrollY}/>
 
       {/* Main Content Container - FIXED: Prevent gaps with proper styling */}
       <div
@@ -982,7 +872,7 @@ const Homepage: React.FC = () => {
                 verticalAlign: "top", // FIXED: Align to top
                 fontSize: "16px", // FIXED: Reset font-size for content
                 lineHeight: "normal", // FIXED: Reset line-height for content
-                
+
                 // Layout properties
                 position: "relative",
                 width: "100vw",
@@ -990,10 +880,6 @@ const Homepage: React.FC = () => {
                 minHeight: "0", // FIXED: Remove minimum height constraints that might cause gaps
                 maxHeight: "none", // FIXED: Remove maximum height constraints
                 overflow: "hidden",
-                
-                // Visual effects (keep these as they don't affect layout)
-                // backdropFilter: "blur(1px)",
-                // boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.1)",
               }}
             >
               {/* Separate Background Layer with Blur Effect - FIXED: Eliminate gaps */}
@@ -1014,7 +900,7 @@ const Homepage: React.FC = () => {
                   filter: hoveredImageId !== null ? "blur(3px)" : "none",
                   transition: "filter 0.3s ease",
                   zIndex: 1,
-inset: 0, // FIXED: Use inset to cover entire section
+                  inset: 0, // FIXED: Use inset to cover entire section
                 }}
               />
               {/* Gradient Overlay for Better Integration - FIXED: Eliminate gaps */}
@@ -1108,70 +994,6 @@ inset: 0, // FIXED: Use inset to cover entire section
                     // Handle repeat logic based on trigger and animation type
                     if (subImage.animationTrigger === "continuous") {
                       // Animations that should repeat infinitely on continuous
-                      const continuousAnimations = [
-                        "bounce",
-                        "shake",
-                        "shakeY",
-                        "pulse",
-                        "heartbeat",
-                        "rotate",
-                        "flip",
-                        "flipX",
-                        "flipY",
-                        "flash",
-                        "swing",
-                        "rubberBand",
-                        "wobble",
-                        "jello",
-                        "tada",
-                        "rollOut",
-                        "zoomOut",
-                        "headShake",
-                        "fadeIn",
-                        "fadeInUp",
-                        "fadeInDown",
-                        "fadeInLeft",
-                        "fadeInRight",
-                        "fadeInUpBig",
-                        "fadeInDownBig",
-                        "fadeInLeftBig",
-                        "fadeInRightBig",
-                        "slideInLeft",
-                        "slideInRight",
-                        "slideInUp",
-                        "slideInDown",
-                        "zoomIn",
-                        "zoomInUp",
-                        "zoomInDown",
-                        "zoomInLeft",
-                        "zoomInRight",
-                        "bounceIn",
-                        "bounceInUp",
-                        "bounceInDown",
-                        "bounceInLeft",
-                        "bounceInRight",
-                        "elasticIn",
-                        "elasticInUp",
-                        "elasticInDown",
-                        "elasticInLeft",
-                        "elasticInRight",
-                        "rotateIn",
-                        "rotateInUpLeft",
-                        "rotateInUpRight",
-                        "rotateInDownLeft",
-                        "rotateInDownRight",
-                        "flipInX",
-                        "flipInY",
-                        "lightSpeedInLeft",
-                        "lightSpeedInRight",
-                        "rollIn",
-                        "jackInTheBox",
-                        "hinge",
-                        "backInUp",
-                        "backInDown",
-                        "backInLeft",
-                        "backInRight",
-                      ];
 
                       if (continuousAnimations.includes(subImage.animation)) {
                         transition.repeat = Infinity;
@@ -1327,37 +1149,37 @@ inset: 0, // FIXED: Use inset to cover entire section
         })}
 
         {/* Navigation Loading Overlay */}
-      <AnimatePresence>
-  {isNavigating && (
-    <motion.div
-      initial={{ opacity: 0, y: "100%" }}   // start off-screen bottom
-      animate={{ opacity: 1, y: 0 }}        // slide into view
-      exit={{ opacity: 0, y: "-100%" }}     // slide out upwards
-      transition={{ duration: 0.8, ease: "easeInOut" }} // smooth & slower
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        background: "rgba(0, 0, 0, 0.8)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-      }}
-    >
-      <div style={{ textAlign: "center", color: "white" }}>
-        <LoadingSpinner
-          variant="gradient"
-          size="medium"
-          text="Loading next projects..."
-          fullHeight={false}
-        />
-      </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+        {/* <AnimatePresence>
+          {isNavigating && (
+            <motion.div
+              initial={{ opacity: 0, y: "100%" }} // start off-screen bottom
+              animate={{ opacity: 1, y: 0 }} // slide into view
+              exit={{ opacity: 0, y: "-100%" }} // slide out upwards
+              transition={{ duration: 0.8, ease: "easeInOut" }} // smooth & slower
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: "rgba(0, 0, 0, 0.8)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 9999,
+              }}
+            >
+              <div style={{ textAlign: "center", color: "white" }}>
+                <LoadingSpinner
+                  variant="gradient"
+                  size="medium"
+                  text="Loading next projects..."
+                  fullHeight={false}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence> */}
 
         {/* Footer Section - FIXED: Proper layout integration */}
         <div
@@ -1380,7 +1202,7 @@ inset: 0, // FIXED: Use inset to cover entire section
 
       {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
       <style>
-  {`
+        {`
     .scroll-to-top-btn {
       position: relative;
       overflow: hidden;
@@ -1409,150 +1231,56 @@ inset: 0, // FIXED: Use inset to cover entire section
       box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
     }
   `}
-</style>
+      </style>
 
-{/* ENHANCED: Responsive Scroll to Top Button with transparent background and smooth fill animation */}
-<AnimatePresence>
-  {scrollY > 500 && (
-    <motion.button
-      initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.8, y: 20 }}
-      whileHover={{
-        scale: 1.1,
-        y: -2,
-        transition: { duration: 0.2, ease: "easeOut" },
-      }}
-      whileTap={{
-        scale: 0.95,
-        y: 0,
-        transition: { duration: 0.1, ease: "easeIn" },
-      }}
-      onClick={smoothScrollToTop}
-      className="scroll-to-top-btn"
-      style={{
-        position: "fixed",
-        bottom: deviceType === "mobile" ? "20px" : "30px",
-        right: deviceType === "mobile" ? "20px" : "30px",
-        width: deviceType === "mobile" ? "50px" : "55px",
-        height: deviceType === "mobile" ? "50px" : "55px",
-        borderRadius: "50%",
-        // Transparent background by default
-        background: "transparent",
-        // Border to make it visible when transparent
-        border: "2px solid rgba(255, 255, 255, 0.4)",
-        color: "white",
-        fontSize: deviceType === "mobile" ? "18px" : "22px",
-        cursor: "pointer",
-        zIndex: 1000,
-        boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
-        // Smooth transition for other properties
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        // Position relative for pseudo-element
-  
-        overflow: "hidden",
-      }}
-    >
-      ↑
-    </motion.button>
-  )}
-</AnimatePresence>
-
-  
-      {/* <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5, duration: 0.6 }}
-        style={{
-          position: "fixed",
-          left: "20px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 999,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
-        
-        <div
-          style={{
-            width: "4px",
-            height: "120px",
-            background: "rgba(255, 255, 255, 0.1)",
-            borderRadius: "2px",
-            position: "relative",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-          }}
-        >
-          <motion.div
+      {/* ENHANCED: Responsive Scroll to Top Button with transparent background and smooth fill animation */}
+      <AnimatePresence>
+        {scrollY > 500 && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{
+              scale: 1.1,
+              y: -2,
+              transition: { duration: 0.2, ease: "easeOut" },
+            }}
+            whileTap={{
+              scale: 0.95,
+              y: 0,
+              transition: { duration: 0.1, ease: "easeIn" },
+            }}
+            onClick={smoothScrollToTop}
+            className="scroll-to-top-btn"
             style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              width: "100%",
-              background:
-                "linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
-              borderRadius: "2px",
-              transformOrigin: "bottom",
+              position: "fixed",
+              bottom: deviceType === "mobile" ? "20px" : "30px",
+              right: deviceType === "mobile" ? "20px" : "30px",
+              width: deviceType === "mobile" ? "50px" : "55px",
+              height: deviceType === "mobile" ? "50px" : "55px",
+              borderRadius: "50%",
+              // Transparent background by default
+              background: "transparent",
+              // Border to make it visible when transparent
+              border: "2px solid rgba(255, 255, 255, 0.4)",
+              color: "white",
+              fontSize: deviceType === "mobile" ? "18px" : "22px",
+              cursor: "pointer",
+              zIndex: 1000,
+              boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              // Smooth transition for other properties
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              // Position relative for pseudo-element
+
+              overflow: "hidden",
             }}
-            animate={{
-              scaleY:
-                totalHeight > 0
-                  ? Math.min(1, scrollY / (totalHeight - window.innerHeight))
-                  : 0,
-            }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          />
-
-        
-          {scrollDirection !== "none" && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              style={{
-                position: "absolute",
-                right: "-8px",
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: scrollDirection === "down" ? "#4ade80" : "#f87171",
-                border: "2px solid rgba(255, 255, 255, 0.8)",
-                top: scrollDirection === "down" ? "10px" : "auto",
-                bottom: scrollDirection === "up" ? "10px" : "auto",
-              }}
-            />
-          )}
-        </div>
-
-
-        <motion.div
-          style={{
-            fontSize: "12px",
-            color: "rgba(255, 255, 255, 0.8)",
-            fontWeight: "500",
-            fontFamily: "monospace",
-            background: "rgba(0, 0, 0, 0.6)",
-            padding: "4px 8px",
-            borderRadius: "12px",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          }}
-          animate={{
-            opacity: scrollY > 0 ? 1 : 0.3,
-          }}
-        >
-          {totalHeight > 0
-            ? Math.round((scrollY / (totalHeight - window.innerHeight)) * 100)
-            : 0}
-          %
-        </motion.div>
-      </motion.div>  */}
+          >
+            ↑
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

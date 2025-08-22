@@ -36,7 +36,27 @@ export const App = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (       <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                 background: "rgba(0, 0, 0, 0.9)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 9999,
+              }}
+            >
+              <LoadingSpinner
+                variant="gradient"
+                size="large"
+                text="Loading your portfolio..."
+                fullHeight={true}
+              />
+            </div>);
   }
 
   return (
