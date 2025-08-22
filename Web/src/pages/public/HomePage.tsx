@@ -22,6 +22,7 @@ import {
   type SectionData,
 } from "../../components/Const";
 import HomePageLogo from "../../components/HomePageLogo";
+import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
 
 // ENHANCED: Scroll speed settings interface
 interface ScrollSpeedSettings {
@@ -138,7 +139,8 @@ const Homepage: React.FC = () => {
   //   isPending: isScrollSpeedPending,
   //   error: scrollSpeedError 
   // } = useScrollSpeedSettings();
-  const scrollSpeedData = { data: {    wheel: 0.2, touch: 0.6, keyboard: 1.0, momentum: 0.3, smoothness: 0.08 } }; // Mock data 
+  const { data: scrollSpeedData} = useScrollerSpeedSettings();
+  // const scrollSpeedData = { data: {    wheel: 0.2, touch: 0.6, keyboard: 1.0, momentum: 0.3, smoothness: 0.08 } }; // Mock data 
 const scrollSpeedError = null; // Mock error
 const isScrollSpeedPending = false; // Mock pending state
   // ENHANCED: Update scroll settings when API data is available
