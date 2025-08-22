@@ -448,7 +448,7 @@ console.log(55,data)
 
   // Save settings to API
   const handleSaveSettings = async () => {
-    saveScrollSpeed({currentSettings},{
+    saveScrollSpeed(currentSettings,{
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuccess: (res: any) => {
           if (res?.isSuccess) {
