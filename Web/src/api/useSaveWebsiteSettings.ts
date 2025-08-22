@@ -1,0 +1,16 @@
+import { useMutation } from "@tanstack/react-query";
+import api from "../utils/axios";
+
+export const useSaveScrollSpeed= () => {
+  return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: async (payload: any): Promise<any> => {
+         
+      const response = await api.post("Settings/Scroll/CreateOrModify", payload, {
+        
+      })
+      return response.data;
+    },
+   
+  });
+};
