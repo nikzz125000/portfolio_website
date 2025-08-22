@@ -10,7 +10,6 @@ namespace ViewModels
     
     public class ScrollSettingsPostModel
     {
-        public int ScrollSettingsId { get; set; }
         public decimal Smoothness { get; set; }
         public decimal Wheel { get; set; }
         public decimal Touch { get; set; }
