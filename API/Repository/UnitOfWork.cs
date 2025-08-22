@@ -26,6 +26,7 @@ namespace Repository
         private IResumeRepository _resumes;
         private ISubProjectContainerRepository _subProjectContainers;
         private ISubProjectRepository _subProjects;
+        private IScrollSettingRepository _scrollSettings;
 
 
         public ApplicationDbContext _context { get; }
@@ -169,6 +170,17 @@ namespace Repository
                     _subProjects = new SubProjectRepository(_context, _config);
                 }
                 return _subProjects;
+            }
+        }
+        public IScrollSettingRepository ScrollSettings
+        {
+            get
+            {
+                if (_scrollSettings == null)
+                {
+                    _scrollSettings = new ScrollSettingRepository(_context, _config);
+                }
+                return _scrollSettings;
             }
         }
 

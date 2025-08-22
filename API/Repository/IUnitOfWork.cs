@@ -24,5 +24,6 @@ namespace Repository
         IResumeRepository Resumes { get; }
         ISubProjectContainerRepository SubProjectContainers { get; }
         ISubProjectRepository SubProjects { get; }
+        IScrollSettingRepository ScrollSettings { get; }
     }
 }
