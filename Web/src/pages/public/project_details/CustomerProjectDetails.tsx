@@ -175,8 +175,8 @@ const ProjectDetailsPage: React.FC = () => {
   const { data: nextProjects } = useNextProjectDetails(
     projectId ? parseInt(projectId, 10) : 0
   );
-
-  const { data, isPending } = useGetProjectDetailsList(
+ const [showLoader, setShowLoader] = useState(false);
+  const { data,isFetching} = useGetProjectDetailsList(
     projectId ? parseInt(projectId, 10) : 0
   );
 
@@ -198,8 +198,8 @@ const ProjectDetailsPage: React.FC = () => {
   const SAMPLE_SUB_IMAGE =
     "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
 
-  // Handle centered logo click - navigate to /resume
-  
+
+
 
   // Handle logo click
   const handleLogoClick = () => {
@@ -265,6 +265,20 @@ const ProjectDetailsPage: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [deviceType, isMenuOpen]);
+
+    useEffect(() => {
+      if (isFetching) {
+        // Show immediately when API starts
+        setShowLoader(true);
+      } else {
+        // Delay hiding by 2 seconds
+        const timeout = setTimeout(() => {
+          setShowLoader(false);
+        }, 2000);
+  
+        return () => clearTimeout(timeout);
+      }
+    }, [isFetching]);
 
   // Measure NextProjects block height whenever layout changes
   useEffect(() => {
@@ -723,7 +737,65 @@ const ProjectDetailsPage: React.FC = () => {
         display: "flex", // ADDED: Use flexbox for better layout control
         flexDirection: "column", // ADDED: Stack content vertically
       }}
+
     >
+         {showLoader && (
+          // <div
+          //   style={{
+          //     position: "fixed",
+          //     top: 0,
+          //     left: 0,
+          //     width: "100%",
+          //     height: "100%",
+          //     background: "rgba(0, 0, 0, 0.9)",
+          //     display: "flex",
+          //     alignItems: "center",
+          //     justifyContent: "center",
+          //     zIndex: 9999,
+          //   }}
+          // >
+          //   <LoadingSpinner
+          //     variant="gradient"
+          //     size="large"
+          //     text="Loading project details..."
+          //     fullHeight={true}
+          //   />
+          // </div>
+          <AnimatePresence>
+                 
+                      <motion.div
+                        initial={{ opacity: 0, y: "100%" }} // start off-screen bottom
+                        animate={{ opacity: 1, y: 0 }} // slide into view
+                        exit={{ opacity: 0, y: "-100%" }} // slide out upwards
+                        transition={{ duration: 1, ease: "easeInOut" }} // smooth & slower
+                        style={{
+                          position: "fixed",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          background: "rgba(0, 0, 0, 0.8)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 9999,
+                        }}
+                      >
+                        <div style={{ textAlign: "center", color: "white" }}>
+                          <LoadingSpinner
+                            variant="gradient"
+                            size="medium"
+                            text="Loading  projects..."
+                            fullHeight={true}
+                             typewriterEffect={true}  // Add this!
+        typewriterSpeed={70}     // Optional: adjust speed
+        showCursor={true} 
+                          />
+                        </div>
+                      </motion.div>
+                   
+                  </AnimatePresence>
+        )}
       <style>{projectDetailsStyles}</style>
       <style>{homepageStyles}</style>
       <div className="gradient-background-pattern" />
@@ -1079,29 +1151,7 @@ const ProjectDetailsPage: React.FC = () => {
         }}
       >
         {/* Loading state */}
-        {isPending && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "rgba(0, 0, 0, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-            }}
-          >
-            <LoadingSpinner
-              variant="gradient"
-              size="large"
-              text="Loading project details..."
-              fullHeight={true}
-            />
-          </div>
-        )}
+     
 
         {/* ENHANCED: Responsive sections with background blur effect */}
         {sections?.map((section) => {

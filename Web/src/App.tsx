@@ -22,6 +22,7 @@ import ResumeEditor from "./pages/admin/resume/ResumeEditor";
 import Homepage from "./pages/public/HomePage";
 import ProjectDetailsPage from "./pages/public/project_details/CustomerProjectDetails";
 import ImageEditor from "./pages/admin/home/Subproject";
+import ScrollSpeedAdmin from "./pages/admin/WebsiteSettings";
 
 
 
@@ -36,7 +37,27 @@ export const App = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (       <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                 background: "rgba(0, 0, 0, 0.9)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 9999,
+              }}
+            >
+              <LoadingSpinner
+                variant="gradient"
+                size="large"
+                text="Loading your portfolio..."
+                fullHeight={true}
+              />
+            </div>);
   }
 
   return (
@@ -163,6 +184,17 @@ export const App = () => {
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
               <ResumeEditor />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/website_settings"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminLayout>
+              <ScrollSpeedAdmin />
             </AdminLayout>
           </ProtectedRoute>
         }
