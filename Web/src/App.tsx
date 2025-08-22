@@ -22,6 +22,7 @@ import ResumeEditor from "./pages/admin/resume/ResumeEditor";
 import Homepage from "./pages/public/HomePage";
 import ProjectDetailsPage from "./pages/public/project_details/CustomerProjectDetails";
 import ImageEditor from "./pages/admin/home/Subproject";
+import ScrollSpeedAdmin from "./pages/admin/WebsiteSettings";
 
 
 
@@ -183,6 +184,17 @@ export const App = () => {
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
               <ResumeEditor />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/website_settings"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminLayout>
+              <ScrollSpeedAdmin />
             </AdminLayout>
           </ProtectedRoute>
         }

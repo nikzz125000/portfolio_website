@@ -6,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
+// import { useScrollSpeedSettings } from "../../api/useScrollSpeedSettings"; // New API hook
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import SideMenu from "../../components/SideMenu";
+// import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
 import {
   continuousAnimations,
@@ -22,27 +23,42 @@ import {
 } from "../../components/Const";
 import HomePageLogo from "../../components/HomePageLogo";
 
+// ENHANCED: Scroll speed settings interface
+interface ScrollSpeedSettings {
+  wheel: number;
+  touch: number;
+  keyboard: number;
+  momentum: number;
+  smoothness: number;
+}
+
+// ENHANCED: Default fallback settings if API fails
+const DEFAULT_SCROLL_SETTINGS: ScrollSpeedSettings = {
+  wheel: 0.2,
+  touch: 0.6,
+  keyboard: 1.0,
+  momentum: 0.3,
+  smoothness: 0.08,
+};
+
 // ENHANCED: Mobile-first unified coordinate system
 const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
   const getImageDimensions = (containerWidth: number) => {
     const deviceType = getDeviceType();
 
     if (!aspectRatio || aspectRatio <= 0) {
-      // Default responsive aspect ratios
       const defaultRatios = {
-        mobile: 0.75, // 3:4 - more portrait for mobile
-        tablet: 1.33, // 4:3 - better for tablets
-        desktop: 1.78, // 16:9 - standard for desktop
+        mobile: 0.75,
+        tablet: 1.33,
+        desktop: 1.78,
       };
       aspectRatio = defaultRatios[deviceType];
     }
 
-    // MOBILE-FIRST: Adjust aspect ratio for better mobile experience
     let adjustedAspectRatio = aspectRatio;
     if (deviceType === "mobile") {
-      // Prevent extremely tall images on mobile
-      adjustedAspectRatio = Math.max(aspectRatio, 0.6); // Minimum 0.6 ratio (3:5)
-      adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.0); // Maximum 2.0 ratio
+      adjustedAspectRatio = Math.max(aspectRatio, 0.6);
+      adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.0);
     } else if (deviceType === "tablet") {
       adjustedAspectRatio = Math.max(aspectRatio, 0.8);
       adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.2);
@@ -99,6 +115,10 @@ const Homepage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
+  
+  // ENHANCED: API-based scroll speed settings
+  const [apiScrollSettings, setApiScrollSettings] = useState<ScrollSpeedSettings>(DEFAULT_SCROLL_SETTINGS);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetScrollY = useRef<number>(0);
@@ -107,33 +127,75 @@ const Homepage: React.FC = () => {
   const isScrolling = useRef<boolean>(false);
   const [totalHeight, setTotalHeight] = useState<number>(0);
   const navigate = useNavigate();
-    const [showLoader, setShowLoader] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const { data, isPending } = useHomePageList();
   const { isPending: isResumePending } = useResumeDetails();
+  
+  // ENHANCED: Fetch scroll speed settings from API
+  // const { 
+  //   data: scrollSpeedData, 
+  //   isPending: isScrollSpeedPending,
+  //   error: scrollSpeedError 
+  // } = useScrollSpeedSettings();
+  const scrollSpeedData = { data: {    wheel: 0.2, touch: 0.6, keyboard: 1.0, momentum: 0.3, smoothness: 0.08 } }; // Mock data 
+const scrollSpeedError = null; // Mock error
+const isScrollSpeedPending = false; // Mock pending state
+  // ENHANCED: Update scroll settings when API data is available
+  useEffect(() => {
+    if (scrollSpeedData?.data) {
+      const apiSettings: ScrollSpeedSettings = {
+        wheel: scrollSpeedData.data.wheel ?? DEFAULT_SCROLL_SETTINGS.wheel,
+        touch: scrollSpeedData.data.touch ?? DEFAULT_SCROLL_SETTINGS.touch,
+        keyboard: scrollSpeedData.data.keyboard ?? DEFAULT_SCROLL_SETTINGS.keyboard,
+        momentum: scrollSpeedData.data.momentum ?? DEFAULT_SCROLL_SETTINGS.momentum,
+        smoothness: scrollSpeedData.data.smoothness ?? DEFAULT_SCROLL_SETTINGS.smoothness,
+      };
+      setApiScrollSettings(apiSettings);
+    } else if (scrollSpeedError) {
+      // Fallback to default settings if API fails
+      console.warn("Failed to load scroll speed settings, using defaults:", scrollSpeedError);
+      setApiScrollSettings(DEFAULT_SCROLL_SETTINGS);
+    }
+  }, [scrollSpeedData, scrollSpeedError]);
 
-  // Navigation handler for sub-images
-  const handleSubImageClick = (subImageId: number) => {
-   
-      navigate(`/project_details/${subImageId}`);
-   
+  // ENHANCED: Apply device-specific multipliers to API scroll settings
+  const getDeviceAdjustedScrollSettings = (): ScrollSpeedSettings => {
+    const device = getDeviceType();
+    
+    let deviceMultiplier = 1;
+    if (device === "mobile") {
+      deviceMultiplier = 1.5; // Higher sensitivity for mobile
+    } else if (device === "tablet") {
+      deviceMultiplier = 1.25; // Medium sensitivity for tablet
+    }
+
+    return {
+      wheel: apiScrollSettings.wheel * deviceMultiplier,
+      touch: apiScrollSettings.touch * deviceMultiplier,
+      keyboard: apiScrollSettings.keyboard,
+      momentum: apiScrollSettings.momentum,
+      smoothness: apiScrollSettings.smoothness,
+    };
   };
 
-  // Handle centered logo click - navigate to /resume
+  // Navigation handlers
+  const handleSubImageClick = (subImageId: number) => {
+    navigate(`/project_details/${subImageId}`);
+  };
+
   const handleCenteredLogoClick = () => {
     navigate("/resume");
   };
 
-  // Handle logo click
   const handleLogoClick = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // ENHANCED: Responsive background strategy - FIXED for seamless images
+  // Responsive background strategy
   const getResponsiveBackgroundStyle = (section: SectionData) => {
     if (!section.backgroundImageUrl) return {};
 
-    // Use fallback image if the URL is invalid or empty
     const backgroundUrl =
       section.backgroundImageUrl && section.backgroundImageUrl.trim() !== ""
         ? section.backgroundImageUrl
@@ -141,18 +203,17 @@ const Homepage: React.FC = () => {
 
     return {
       backgroundImage: `url(${backgroundUrl})`,
-      backgroundSize: "cover", // FIXED: Use cover instead of 100% 100% for better seamless connection
-      backgroundPosition: "center center", // FIXED: Center the background for better alignment
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
       backgroundRepeat: "no-repeat",
       backgroundAttachment: "scroll",
-      // ADDED: Additional properties to ensure seamless connection
       imageRendering: "auto",
-      WebkitBackgroundSize: "cover", // Safari compatibility
-      MozBackgroundSize: "cover", // Firefox compatibility
+      WebkitBackdropFilter: "cover",
+      MozBackgroundSize: "cover",
     } as React.CSSProperties;
   };
 
-  // ENHANCED: Responsive section dimension calculation - Fixed for seamless sections
+  // Responsive section dimension calculation
   const getResponsiveSectionDimensions = (section: SectionData) => {
     const containerWidth = window.innerWidth;
     const device = getDeviceType();
@@ -162,10 +223,8 @@ const Homepage: React.FC = () => {
     const { height, adjustedAspectRatio } =
       coordinateSystem.getImageDimensions(containerWidth);
 
-    // FIXED: Use Math.ceil to prevent fractional heights that cause gaps
     let sectionHeight = Math.ceil(height);
 
-    // Device-specific height calculation - ensuring integer values
     if (device === "mobile") {
       const maxMobileHeight = Math.ceil(window.innerHeight * 1.2);
       const minMobileHeight = Math.ceil(window.innerHeight * 0.8);
@@ -181,7 +240,6 @@ const Homepage: React.FC = () => {
         minTabletHeight
       );
     } else {
-      // Desktop: Original behavior with ceiling
       sectionHeight = Math.max(Math.ceil(height), window.innerHeight);
     }
 
@@ -205,7 +263,6 @@ const Homepage: React.FC = () => {
       setViewportWidth(newWidth);
       setDeviceType(newDeviceType);
 
-      // Close menu on resize to prevent positioning issues
       if (isMenuOpen && newDeviceType !== deviceType) {
         setIsMenuOpen(false);
       }
@@ -215,71 +272,64 @@ const Homepage: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [deviceType, isMenuOpen]);
 
-    useEffect(() => {
-    if (isPending || isResumePending) {
-      // Show immediately when API starts
+  useEffect(() => {
+    if (isPending || isResumePending || isScrollSpeedPending) {
       setShowLoader(true);
     } else {
-      // Delay hiding by 2 seconds
       const timeout = setTimeout(() => {
         setShowLoader(false);
       }, 2000);
 
       return () => clearTimeout(timeout);
     }
-  }, [isPending, isResumePending]);
+  }, [isPending, isResumePending, isScrollSpeedPending]);
 
-  // ENHANCED: Calculate total height using responsive system - Fixed rounding
+  // Calculate total height using responsive system
   useEffect(() => {
     if (sections.length > 0) {
       let height = 0;
       sections.forEach((section) => {
         const dimensions = getResponsiveSectionDimensions(section);
-        height += dimensions.height; // Already using Math.ceil in getResponsiveSectionDimensions
+        height += dimensions.height;
       });
 
-      // Responsive footer height - ensure it matches Footer component dimensions
       const footerHeight =
         deviceType === "mobile" ? 340 : deviceType === "tablet" ? 280 : 240;
       height += footerHeight;
 
       setTotalHeight(height);
 
-      // Reset scroll if it's beyond the new bounds
       if (targetScrollY.current > height - window.innerHeight) {
         targetScrollY.current = Math.max(0, height - window.innerHeight);
       }
     }
   }, [sections, viewportHeight, viewportWidth, deviceType]);
 
-  // ENHANCED: Professional smooth scroll animation with advanced easing
+  // ENHANCED: Professional smooth scroll animation with API-driven dynamic speed
   const smoothScrollStep = () => {
+    const scrollSettings = getDeviceAdjustedScrollSettings();
     const difference = targetScrollY.current - currentScrollY.current;
 
-    // Dynamic easing based on scroll distance for professional feel
-    let easingFactor = 0.08; // Default smooth factor
+    // Dynamic easing based on scroll distance and API smoothness setting
+    let easingFactor = scrollSettings.smoothness;
 
     if (Math.abs(difference) > 100) {
-      easingFactor = 0.12; // Faster for long distances
+      easingFactor = scrollSettings.smoothness * 1.5; // Faster for long distances
     } else if (Math.abs(difference) < 10) {
-      easingFactor = 0.04; // Slower for fine-tuning
+      easingFactor = scrollSettings.smoothness * 0.5; // Slower for fine-tuning
     }
 
-    // Apply easing curve for natural movement
     const step = difference * easingFactor;
 
-    // Enhanced completion threshold with momentum consideration
     if (Math.abs(difference) < 0.8) {
       currentScrollY.current = targetScrollY.current;
       isScrolling.current = false;
       setScrollY(currentScrollY.current);
 
-      // Apply final position with smooth transition
       if (containerRef.current) {
         containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
         containerRef.current.style.transition = "transform 0.1s ease-out";
 
-        // Remove transition after animation completes
         setTimeout(() => {
           if (containerRef.current) {
             containerRef.current.style.transition = "none";
@@ -294,40 +344,29 @@ const Homepage: React.FC = () => {
 
     if (containerRef.current) {
       containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
-      containerRef.current.style.transition = "none"; // Ensure smooth custom animation
+      containerRef.current.style.transition = "none";
     }
 
     animationFrameId.current = requestAnimationFrame(smoothScrollStep);
   };
 
-  // ENHANCED: Handle wheel events for custom scrolling with momentum
+  // ENHANCED: Handle wheel events with API-driven scroll speed
   useEffect(() => {
     if (totalHeight === 0) return;
 
-    // Momentum scrolling variables
     let momentumVelocity = 0;
-
     let isMomentumActive = false;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Enhanced scroll sensitivity with device-specific adjustments
-      let scrollMultiplier = 0.2; // Base sensitivity
-
-      // Adjust sensitivity based on device type
-      if (deviceType === "mobile") {
-        scrollMultiplier = 0.5; // Higher sensitivity for mobile
-      } else if (deviceType === "tablet") {
-        scrollMultiplier = 0.45; // Medium sensitivity for tablet
-      }
-
-      // Calculate scroll amount with momentum
-      const scrollAmount = e.deltaY * scrollMultiplier;
+      const scrollSettings = getDeviceAdjustedScrollSettings();
+      
+      // Use API-driven wheel speed
+      const scrollAmount = e.deltaY * scrollSettings.wheel;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
 
-      // Apply momentum to scroll velocity
       if (Math.abs(scrollAmount) > 0) {
-        momentumVelocity = scrollAmount * 0.3; // Momentum factor
+        momentumVelocity = scrollAmount * scrollSettings.momentum;
         isMomentumActive = true;
       }
 
@@ -339,14 +378,12 @@ const Homepage: React.FC = () => {
         smoothScrollStep();
       }
 
-      // Clear momentum after a delay
       setTimeout(() => {
         isMomentumActive = false;
         momentumVelocity = 0;
       }, 150);
     };
 
-    // Enhanced momentum scrolling effect
     const applyMomentum = () => {
       if (isMomentumActive && Math.abs(momentumVelocity) > 0.1) {
         const maxScroll = Math.max(0, totalHeight - window.innerHeight);
@@ -358,21 +395,20 @@ const Homepage: React.FC = () => {
           smoothScrollStep();
         }
 
-        momentumVelocity *= 0.95; // Decay momentum
+        momentumVelocity *= 0.95;
       }
     };
 
-    // Apply momentum effect
-    const momentumInterval = setInterval(applyMomentum, 16); // 60fps
+    const momentumInterval = setInterval(applyMomentum, 16);
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Enhanced scroll amounts with acceleration
-      let scrollAmount =
-        deviceType === "mobile" ? 40 : deviceType === "tablet" ? 60 : 80;
+      const scrollSettings = getDeviceAdjustedScrollSettings();
+      
+      // Use API-driven keyboard speed
+      let scrollAmount = 80 * scrollSettings.keyboard;
 
-      // Apply acceleration for held keys
       if (e.repeat) {
-        scrollAmount *= 1.5; // Accelerate when key is held
+        scrollAmount *= 1.5;
       }
 
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
@@ -430,27 +466,19 @@ const Homepage: React.FC = () => {
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         e.preventDefault();
+        const scrollSettings = getDeviceAdjustedScrollSettings();
         const currentY = e.touches[0].clientY;
         const currentTime = Date.now();
         const deltaY = startY - currentY;
         const timeDelta = currentTime - startTime;
 
-        // Enhanced touch sensitivity with velocity calculation
-        let touchMultiplier = 0.6; // Base touch sensitivity
+        // Use API-driven touch speed
+        const scrollAmount = deltaY * scrollSettings.touch;
 
-        // Adjust sensitivity based on device type
-        if (deviceType === "mobile") {
-          touchMultiplier = 0.7; // Higher sensitivity for mobile
-        } else if (deviceType === "tablet") {
-          touchMultiplier = 0.65; // Medium sensitivity for tablet
-        }
-
-        // Calculate velocity for momentum
         if (timeDelta > 0) {
-          touchVelocity = (deltaY / timeDelta) * 10; // Velocity factor
+          touchVelocity = (deltaY / timeDelta) * 10;
         }
 
-        const scrollAmount = deltaY * touchMultiplier;
         const maxScroll = Math.max(0, totalHeight - window.innerHeight);
 
         targetScrollY.current = Math.max(
@@ -467,11 +495,10 @@ const Homepage: React.FC = () => {
       }
     };
 
-    // Enhanced touch momentum
     const handleTouchEnd = () => {
       if (Math.abs(touchVelocity) > 0.5) {
-        // Apply momentum based on touch velocity
-        const momentumScroll = touchVelocity * 50; // Momentum multiplier
+        const scrollSettings = getDeviceAdjustedScrollSettings();
+        const momentumScroll = touchVelocity * 50 * scrollSettings.momentum;
         const maxScroll = Math.max(0, totalHeight - window.innerHeight);
 
         targetScrollY.current = Math.max(
@@ -512,7 +539,7 @@ const Homepage: React.FC = () => {
         clearInterval(momentumInterval);
       }
     };
-  }, [totalHeight, deviceType]);
+  }, [totalHeight, deviceType, apiScrollSettings]); // Now depends on apiScrollSettings
 
   // Handle click outside menu
   useEffect(() => {
@@ -586,7 +613,7 @@ const Homepage: React.FC = () => {
     };
   }, [sections]);
 
-  // ENHANCED: Responsive image dimensions calculation
+  // Responsive image dimensions calculation
   const calculateResponsiveImageDimensions = (
     containerWidth: number,
     heightPercent: number,
@@ -597,18 +624,16 @@ const Homepage: React.FC = () => {
     const { width: imageWidth } =
       coordinateSystem.getImageDimensions(containerWidth);
 
-    // Device-specific sizing adjustments
     let scaleFactor = 1;
     if (device === "mobile") {
-      scaleFactor = 0.8; // Slightly smaller on mobile for better touch targets
+      scaleFactor = 0.8;
     } else if (device === "tablet") {
-      scaleFactor = 0.9; // Slightly smaller on tablet
+      scaleFactor = 0.9;
     }
 
     const adjustedHeightPercent = heightPercent * scaleFactor;
     const height = (adjustedHeightPercent / 100) * imageWidth;
 
-    // Responsive maximum constraints
     const maxWidths = {
       mobile: containerWidth * 0.85,
       tablet: containerWidth * 0.9,
@@ -647,15 +672,14 @@ const Homepage: React.FC = () => {
           : device === "tablet"
           ? "5px 10px"
           : "6px 12px",
-             bottomLogo:
+      bottomLogo:
         device === "mobile" ? "90px" : device === "tablet" ? "108px" : "148px",
     };
-    
   };
 
   const logoSizes = getResponsiveLogoSizes();
 
-  // ENHANCED: Smooth scroll to top with easing
+  // Smooth scroll to top with easing
   const smoothScrollToTop = () => {
     targetScrollY.current = 0;
     if (!isScrolling.current) {
@@ -664,9 +688,8 @@ const Homepage: React.FC = () => {
     }
   };
 
-  // ENHANCED: Add smooth scroll behavior for better user experience
+  // Add smooth scroll behavior for better user experience
   useEffect(() => {
-    // Smooth scroll behavior for programmatic scrolling
     const handleSmoothScroll = () => {
       if (containerRef.current) {
         containerRef.current.style.transition =
@@ -674,21 +697,19 @@ const Homepage: React.FC = () => {
       }
     };
 
-    // Remove smooth transition after animation
     const removeSmoothTransition = () => {
       if (containerRef.current) {
         containerRef.current.style.transition = "none";
       }
     };
 
-    // Apply smooth behavior for programmatic scrolls
     if (targetScrollY.current !== currentScrollY.current) {
       handleSmoothScroll();
       setTimeout(removeSmoothTransition, 300);
     }
   }, [targetScrollY.current, currentScrollY.current]);
 
-  // ENHANCED: Track scroll direction for visual feedback
+  // Track scroll direction for visual feedback
   const [, setScrollDirection] = useState<"up" | "down" | "none">("none");
   const lastScrollY = useRef(0);
 
@@ -698,17 +719,15 @@ const Homepage: React.FC = () => {
       setScrollDirection(direction);
       lastScrollY.current = scrollY;
 
-      // Reset direction after a delay
       setTimeout(() => setScrollDirection("none"), 1000);
     }
   }, [scrollY]);
 
-  // ENHANCED: Add scroll performance optimization
+  // Add scroll performance optimization
   useEffect(() => {
-    // Optimize scroll performance
     if (containerRef.current) {
       containerRef.current.style.willChange = "transform";
-      containerRef.current.style.transform = "translateZ(0)"; // Force hardware acceleration
+      containerRef.current.style.transform = "translateZ(0)";
     }
 
     return () => {
@@ -726,14 +745,14 @@ const Homepage: React.FC = () => {
         top: 0,
         left: 0,
         width: "100%",
-        height: "100vh", // FIXED: Use viewport height to prevent content overflow
-        overflow: "hidden", // FIXED: Ensure no scrolling on main container
+        height: "100vh",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* Show loading spinner while data is being fetched */}
-      {(showLoader) && (
+      {showLoader && (
         <div
           style={{
             position: "fixed",
@@ -741,7 +760,7 @@ const Homepage: React.FC = () => {
             left: 0,
             width: "100%",
             height: "100%",
-             background: "rgba(0, 0, 0, 0.9)",
+            background: "rgba(0, 0, 0, 0.9)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -761,7 +780,6 @@ const Homepage: React.FC = () => {
       {/* Additional CSS to eliminate background gaps */}
       <style>
         {`
-          /* CRITICAL: Force seamless background connection */
           section > div:first-child {
             margin-top: -1px !important;
             height: calc(100% + 2px) !important;
@@ -793,6 +811,34 @@ const Homepage: React.FC = () => {
           section:not(:first-child) > div:nth-child(2) {
             margin-top: -2px !important;
             height: calc(100% + 3px) !important;
+          }
+
+          .scroll-to-top-btn {
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .scroll-to-top-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+          }
+          
+          .scroll-to-top-btn:hover::before {
+            transform: scale(1);
+          }
+          
+          .scroll-to-top-btn:hover {
+            border-color: rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
           }
         `}
       </style>
@@ -829,11 +875,16 @@ const Homepage: React.FC = () => {
         `}
       </style>
 
+      <HomePageLogo 
+        deviceType={deviceType} 
+        handleLogoClick={handleLogoClick}  
+        isMenuOpen={isMenuOpen} 
+        handleMenuItemClick={handleMenuItemClick} 
+        logoSizes={logoSizes} 
+        scrollY={scrollY}
+      />
 
-      <HomePageLogo deviceType={deviceType} handleLogoClick={handleLogoClick}  
-      isMenuOpen={isMenuOpen} handleMenuItemClick={handleMenuItemClick} logoSizes={logoSizes} scrollY={scrollY}/>
-
-      {/* Main Content Container - FIXED: Prevent gaps with proper styling */}
+      {/* Main Content Container */}
       <div
         ref={containerRef}
         className="homepage-content"
@@ -842,17 +893,16 @@ const Homepage: React.FC = () => {
           top: 0,
           left: 0,
           width: "100%",
-          height: "100%", // FIXED: Use 100% height
-          display: "block", // FIXED: Use block instead of flex to prevent gaps
-          fontSize: 0, // FIXED: Remove font-size to eliminate whitespace gaps
-          lineHeight: 0, // FIXED: Remove line-height to eliminate whitespace gaps
+          height: "100%",
+          display: "block",
+          fontSize: 0,
+          lineHeight: 0,
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
       >
-        {/* ENHANCED: Responsive sections with NO gaps - Critical styling fixes */}
+        {/* Responsive sections with NO gaps */}
         {sections?.map((section, sectionIndex) => {
-          // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
           const bgStyle = getResponsiveBackgroundStyle(section);
           const coordinateSystem = createResponsiveCoordinateSystem(
@@ -863,35 +913,32 @@ const Homepage: React.FC = () => {
             <section
               key={section.projectContainerId}
               style={{
-                // CRITICAL: Properties to eliminate gaps
-                display: "block", // FIXED: Use block display
-                margin: 0, // FIXED: Remove all margins
-                padding: 0, // FIXED: Remove all padding
-                border: "none", // FIXED: Remove borders
-                outline: "none", // FIXED: Remove outline
-                verticalAlign: "top", // FIXED: Align to top
-                fontSize: "16px", // FIXED: Reset font-size for content
-                lineHeight: "normal", // FIXED: Reset line-height for content
-
-                // Layout properties
+                display: "block",
+                margin: 0,
+                padding: 0,
+                border: "none",
+                outline: "none",
+                verticalAlign: "top",
+                fontSize: "16px",
+                lineHeight: "normal",
                 position: "relative",
                 width: "100vw",
-                height: `${dimensions.height}px`, // Using exact calculated height
-                minHeight: "0", // FIXED: Remove minimum height constraints that might cause gaps
-                maxHeight: "none", // FIXED: Remove maximum height constraints
+                height: `${dimensions.height}px`,
+                minHeight: "0",
+                maxHeight: "none",
                 overflow: "hidden",
               }}
             >
-              {/* Separate Background Layer with Blur Effect - FIXED: Eliminate gaps */}
+              {/* Separate Background Layer with Blur Effect */}
               <div
                 style={{
                   position: "absolute",
-                  top: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  left: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  right: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  bottom: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  width: "calc(100% + 4px)", // FIXED: Explicit width to ensure full coverage
-                  height: "calc(100% + 4px)", // FIXED: Explicit height to ensure full coverage
+                  top: "-2px",
+                  left: "-2px",
+                  right: "-2px",
+                  bottom: "-2px",
+                  width: "calc(100% + 4px)",
+                  height: "calc(100% + 4px)",
                   margin: 0,
                   padding: 0,
                   border: "none",
@@ -900,38 +947,38 @@ const Homepage: React.FC = () => {
                   filter: hoveredImageId !== null ? "blur(3px)" : "none",
                   transition: "filter 0.3s ease",
                   zIndex: 1,
-                  inset: 0, // FIXED: Use inset to cover entire section
+                  inset: 0,
                 }}
               />
-              {/* Gradient Overlay for Better Integration - FIXED: Eliminate gaps */}
+              
+              {/* Gradient Overlay */}
               <div
                 style={{
                   position: "absolute",
-                  top: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  left: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  right: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  bottom: "-2px", // FIXED: Extend 2px beyond to prevent hairline gaps
-                  width: "calc(100% + 4px)", // FIXED: Explicit width to ensure full coverage
-                  height: "calc(100% + 4px)", // FIXED: Explicit height to ensure full coverage
+                  top: "-2px",
+                  left: "-2px",
+                  right: "-2px",
+                  bottom: "-2px",
+                  width: "calc(100% + 4px)",
+                  height: "calc(100% + 4px)",
                   margin: 0,
                   padding: 0,
                   border: "none",
                   outline: "none",
-                  // background:
-                  //   "linear-gradient(135deg, rgba(110, 34, 110, 0.1) 0%, rgba(165, 32, 106, 0.1) 14%, rgba(211, 22, 99, 0.1) 28%, rgba(237, 49, 118, 0.1) 42%, rgba(253, 51, 107, 0.1) 56%, rgba(242, 61, 100, 0.1) 70%, rgba(246, 93, 85, 0.1) 84%, rgba(245, 101, 93, 0.1) 100%)",
                   zIndex: 2,
                   pointerEvents: "none",
                 }}
               />
-              {/* Content Layer - Sub-images and other content */}
+              
+              {/* Content Layer */}
               <div
                 style={{
                   position: "relative",
                   width: "100%",
                   height: "100%",
                   zIndex: 10,
-                  fontSize: "16px", // FIXED: Reset font-size for content
-                  lineHeight: "normal", // FIXED: Reset line-height for content
+                  fontSize: "16px",
+                  lineHeight: "normal",
                 }}
               >
                 {/* Responsive Centered Top Logo - Only show on first section */}
@@ -959,10 +1006,9 @@ const Homepage: React.FC = () => {
                   </div>
                 )}
 
-                {/* ENHANCED: Responsive sub-images positioned using coordinate system with Framer Motion */}
+                {/* Responsive sub-images positioned using coordinate system */}
                 <AnimatePresence>
                   {section.projects?.map((subImage) => {
-                    // ENHANCED: Use responsive coordinate system for positioning
                     const containerWidth = window.innerWidth;
                     const { x: pixelX, y: pixelY } =
                       coordinateSystem.getPixelFromPercent(
@@ -979,7 +1025,6 @@ const Homepage: React.FC = () => {
 
                     const isHovered = hoveredImageId === subImage.projectId;
 
-                    // Get animation variants for this image
                     const animationVariants = getAnimationVariants(
                       subImage.animation,
                       subImage.animationTrigger
@@ -988,18 +1033,13 @@ const Homepage: React.FC = () => {
                       subImage.animationSpeed
                     );
 
-                    // Build proper transition with duration and repeat logic
                     const transition: any = { duration };
 
-                    // Handle repeat logic based on trigger and animation type
                     if (subImage.animationTrigger === "continuous") {
-                      // Animations that should repeat infinitely on continuous
-
                       if (continuousAnimations.includes(subImage.animation)) {
                         transition.repeat = Infinity;
                       }
 
-                      // Linear easing for rotation animations
                       if (
                         ["rotate", "flip", "flipX", "flipY"].includes(
                           subImage.animation
@@ -1010,7 +1050,6 @@ const Homepage: React.FC = () => {
                     }
 
                     if (subImage.animationTrigger === "once") {
-                      // Attention seeking animations that should repeat a few times for "once" trigger
                       const attentionAnimations = [
                         "bounce",
                         "shake",
@@ -1027,7 +1066,6 @@ const Homepage: React.FC = () => {
                       ];
 
                       if (attentionAnimations.includes(subImage.animation)) {
-                        // Different repeat counts for different animation types
                         const repeatCounts: { [key: string]: number } = {
                           bounce: 3,
                           shake: 3,
@@ -1047,9 +1085,8 @@ const Homepage: React.FC = () => {
                       }
                     }
 
-                    // Special duration adjustments for specific animations
                     if (subImage.animation === "hinge") {
-                      transition.duration = duration * 1.5; // Hinge needs more time
+                      transition.duration = duration * 1.5;
                     }
 
                     if (
@@ -1061,7 +1098,7 @@ const Homepage: React.FC = () => {
                         "elasticInRight",
                       ].includes(subImage.animation)
                     ) {
-                      transition.duration = duration * 1.2; // Elastic animations need more time
+                      transition.duration = duration * 1.2;
                     }
 
                     return (
@@ -1113,7 +1150,6 @@ const Homepage: React.FC = () => {
                           }
                           onMouseLeave={() => setHoveredImageId(null)}
                           onError={(e) => {
-                            // Fallback to sample image if the original fails to load
                             if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
                               e.currentTarget.src = SAMPLE_SUB_IMAGE;
                             }
@@ -1142,55 +1178,20 @@ const Homepage: React.FC = () => {
                 >
                   {section.title}
                 </h1>
-              </div>{" "}
-              {/* End Content Layer */}
+              </div>
             </section>
           );
         })}
 
-        {/* Navigation Loading Overlay */}
-        {/* <AnimatePresence>
-          {isNavigating && (
-            <motion.div
-              initial={{ opacity: 0, y: "100%" }} // start off-screen bottom
-              animate={{ opacity: 1, y: 0 }} // slide into view
-              exit={{ opacity: 0, y: "-100%" }} // slide out upwards
-              transition={{ duration: 0.8, ease: "easeInOut" }} // smooth & slower
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "rgba(0, 0, 0, 0.8)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 9999,
-              }}
-            >
-              <div style={{ textAlign: "center", color: "white" }}>
-                <LoadingSpinner
-                  variant="gradient"
-                  size="medium"
-                  text="Loading next projects..."
-                  fullHeight={false}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence> */}
-
-        {/* Footer Section - FIXED: Proper layout integration */}
+        {/* Footer Section */}
         <div
           style={{
-            // CRITICAL: Ensure footer doesn't create gaps
             display: "block",
             margin: 0,
             padding: 0,
             border: "none",
-            fontSize: "16px", // FIXED: Reset font-size for footer
-            lineHeight: "normal", // FIXED: Reset line-height for footer
+            fontSize: "16px",
+            lineHeight: "normal",
           }}
         >
           <Footer
@@ -1200,40 +1201,7 @@ const Homepage: React.FC = () => {
         </div>
       </div>
 
-      {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
-      <style>
-        {`
-    .scroll-to-top-btn {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .scroll-to-top-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%);
-      border-radius: 50%;
-      transform: scale(0);
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: -1;
-    }
-    
-    .scroll-to-top-btn:hover::before {
-      transform: scale(1);
-    }
-    
-    .scroll-to-top-btn:hover {
-      border-color: rgba(255, 255, 255, 0.8) !important;
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
-    }
-  `}
-      </style>
-
-      {/* ENHANCED: Responsive Scroll to Top Button with transparent background and smooth fill animation */}
+      {/* Responsive Scroll to Top Button */}
       <AnimatePresence>
         {scrollY > 500 && (
           <motion.button
@@ -1259,9 +1227,7 @@ const Homepage: React.FC = () => {
               width: deviceType === "mobile" ? "50px" : "55px",
               height: deviceType === "mobile" ? "50px" : "55px",
               borderRadius: "50%",
-              // Transparent background by default
               background: "transparent",
-              // Border to make it visible when transparent
               border: "2px solid rgba(255, 255, 255, 0.4)",
               color: "white",
               fontSize: deviceType === "mobile" ? "18px" : "22px",
@@ -1270,10 +1236,7 @@ const Homepage: React.FC = () => {
               boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              // Smooth transition for other properties
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              // Position relative for pseudo-element
-
               overflow: "hidden",
             }}
           >
