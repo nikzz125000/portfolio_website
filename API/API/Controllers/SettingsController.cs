@@ -51,7 +51,7 @@ namespace API.Controllers
         [Route("Scroll/Details")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<ScrollSettingsViewModel>), 200)]
-        public async Task<ModelEntityResponse<ScrollSettingsViewModel>> GetDetails(int id)
+        public async Task<ModelEntityResponse<ScrollSettingsViewModel>> GetDetails()
         {
             ModelEntityResponse<ScrollSettingsViewModel> response = new ModelEntityResponse<ScrollSettingsViewModel>();
             try
@@ -64,9 +64,9 @@ namespace API.Controllers
                 response.CreateFailureResponse(CommonData.ErrorMessage);
 
                 ExceptionLog log = new ExceptionLog();
-                log.Api = $@"api/Settings/Scroll/Details/{id}";
+                log.Api = $@"api/Settings/Scroll/Details";
                 log.ApiType = ApiType.Get;
-                log.Parameters = $@"id={id}";
+                log.Parameters = $@"";
                 log.Message = e.Message;
                 log.StackTrace = e.StackTrace;
                 await SaveExceptionLog(log);
