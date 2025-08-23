@@ -160,7 +160,7 @@ const ProjectDetailsPage: React.FC = () => {
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
   const [scrollY, setScrollY] = useState<number>(0);
  
-  const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
+  // REMOVED: hoveredImageId state since we don't want hover effects
   const [exteriorStartY, setExteriorStartY] = useState<number>(0);
   const [interiorStartY, setInteriorStartY] = useState<number>(0);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -215,6 +215,7 @@ const ProjectDetailsPage: React.FC = () => {
         : SAMPLE_BACKGROUND_IMAGE;
 
     // Force exact fill of the section box to avoid any visible seams or gaps
+    // REMOVED: No more blur filter on hover
     return {
       backgroundImage: `url(${backgroundUrl})`,
       backgroundSize: "100% 100%",
@@ -754,6 +755,138 @@ const ProjectDetailsPage: React.FC = () => {
         )}
       <style>{projectDetailsStyles}</style>
       <style>{homepageStyles}</style>
+      {/* Custom CSS to disable ALL hover effects AND default glow effects on subproject images */}
+      <style>
+        {`
+          .clickable-sub-project {
+            transition: none !important;
+            box-shadow: none !important;
+            transform: none !important;
+            scale: 1 !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+          
+          .clickable-sub-project:hover {
+            transform: none !important;
+            transform-origin: center !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            glow: none !important;
+            text-shadow: none !important;
+            background: none !important;
+            opacity: 1 !important;
+            transition: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+          
+          .clickable-sub-project:focus {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            glow: none !important;
+            text-shadow: none !important;
+            background: none !important;
+            opacity: 1 !important;
+            transition: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+          
+          .sub-project-container:hover {
+            transform: none !important;
+            scale: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            transition: none !important;
+            cursor: default !important;
+          }
+          
+          .sub-project-visible:hover {
+            transform: none !important;
+            scale: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            transition: none !important;
+            cursor: default !important;
+          }
+
+          /* Target any motion components specifically */
+          .sub-project-container > * {
+            transform: none !important;
+            scale: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+
+          .sub-project-container > *:hover {
+            transform: none !important;
+            scale: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any global img hover styles and default filters */
+          img.clickable-sub-project {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            box-shadow: none !important;
+            cursor: default !important;
+          }
+
+          img.clickable-sub-project:hover {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            box-shadow: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any subtleGlow animation or class */
+          .subtleGlow,
+          .clickable-sub-project.subtleGlow {
+            filter: none !important;
+            drop-shadow: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any CSS animations that might add glow */
+          @keyframes subtleGlow {
+            from { filter: none !important; }
+            to { filter: none !important; }
+          }
+        `}
+      </style>
       <div className="gradient-background-pattern" />
 
       {/* Section Navigation Buttons - Only show if we have typed sections */}
@@ -825,7 +958,7 @@ const ProjectDetailsPage: React.FC = () => {
           willChange: "transform",
         }}
       >
-        {/* ENHANCED: Responsive sections with background blur effect */}
+        {/* ENHANCED: Responsive sections with NO background blur effect */}
         {sections?.map((section) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
@@ -849,7 +982,7 @@ const ProjectDetailsPage: React.FC = () => {
                 overflow: "hidden",
               }}
             >
-              {/* Separate Background Layer with Blur Effect */}
+              {/* Background Layer - NO blur effect anymore */}
               <div
                 style={{
                   position: "absolute",
@@ -858,8 +991,6 @@ const ProjectDetailsPage: React.FC = () => {
                   right: 0,
                   bottom: 0,
                   ...bgStyle,
-                  filter: hoveredImageId !== null ? "blur(3px)" : "none",
-                  transition: "filter 0.3s ease",
                   zIndex: 1,
                 }}
               />
@@ -872,7 +1003,7 @@ const ProjectDetailsPage: React.FC = () => {
                   zIndex: 10,
                 }}
               >
-                {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
+                {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion - NO HOVER EFFECTS */}
                 <AnimatePresence>
                   {section.subProjects?.map((subProject) => {
                     // ENHANCED: Use responsive coordinate system for positioning
@@ -891,8 +1022,7 @@ const ProjectDetailsPage: React.FC = () => {
                       section.backgroundImageAspectRatio
                     );
 
-                    const isHovered =
-                      hoveredImageId === subProject.subProjectId;
+                    // REMOVED: isHovered since we don't want hover effects
 
                     // Get animation variants for this sub-project
                     const animationVariants = getAnimationVariants(
@@ -1051,7 +1181,7 @@ const ProjectDetailsPage: React.FC = () => {
                           position: "absolute",
                           left: `${pixelX}px`,
                           top: `${pixelY}px`,
-                          zIndex: isHovered ? 50 : 20,
+                          zIndex: 20, // REMOVED: hover z-index change, now constant
                         }}
                       >
                         <motion.img
@@ -1080,18 +1210,13 @@ const ProjectDetailsPage: React.FC = () => {
                               ? "animate"
                               : "initial"
                           }
-                          whileHover={
-                            subProject.animation !== "none" &&
-                            subProject.animationTrigger === "hover"
-                              ? "animate"
-                              : {}
-                          }
+                          // EXPLICITLY disable all hover behaviors
+                          whileHover={{}}
+                          whileFocus={{}}
+                          whileTap={{}}
                           transition={transition}
                           onClick={() => {}}
-                          onMouseEnter={() =>
-                            setHoveredImageId(subProject.subProjectId)
-                          }
-                          onMouseLeave={() => setHoveredImageId(null)}
+                          // REMOVED: onMouseEnter and onMouseLeave handlers
                           onError={(e) => {
                             // Fallback to sample image if the original fails to load
                             if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
@@ -1102,13 +1227,24 @@ const ProjectDetailsPage: React.FC = () => {
                             ...imageDimensions,
                             display: "block",
                             borderRadius: "8px",
-                            cursor: "pointer",
                             backfaceVisibility: "hidden",
                             perspective: "1000px",
                             // Enhanced touch targets for mobile
                             minWidth: deviceType === "mobile" ? "44px" : "auto",
                             minHeight:
                               deviceType === "mobile" ? "44px" : "auto",
+                            // Explicitly disable ALL effects including default glow
+                            transition: "none !important",
+                            boxShadow: "none !important",
+                            filter: "none !important",
+                            // dropShadow: "none !important",
+                            border: "none !important",
+                            outline: "none !important",
+                            // Force no transform changes
+                            transform: "none !important",
+                            scale: "1 !important",
+                            // Remove cursor pointer - no interactive indication
+                            cursor: "default",
                           }}
                         />
                       </motion.div>
