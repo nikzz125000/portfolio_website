@@ -66,7 +66,7 @@ namespace API.Services
             {
                 response.Data = new ScrollSettingsViewModel
                 {
-                    ScrollSettingsId = data.ScrollSettingId,
+                   
                     Smoothness = data.Smoothness,
                     Keyboard=data.Keyboard,
                     Momentum = data.Momentum,
