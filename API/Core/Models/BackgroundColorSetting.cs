@@ -16,6 +16,6 @@ namespace Core.Models
         public string Title { get; set; }
         public string BackgroundColor { get; set; }
 
-
+        public string Gradient { get; set; }
     }
 }
