@@ -154,6 +154,7 @@ namespace API.Services
                 // Map simple fields
                 entity.Title = model.Title;
                 entity.BackgroundColor = model.BackgroundColor;
+                entity.Gradient = model.Gradient;
 
                 entity.UpdatedDate = DateTime.UtcNow;
 
