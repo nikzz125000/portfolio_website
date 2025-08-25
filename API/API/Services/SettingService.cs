@@ -13,6 +13,9 @@ namespace API.Services
         Task<ModelEntityResponse<ScrollSettingsViewModel>> GetScrollSettingById();
         Task<CommonEntityResponse> CreateOrModifyPaddingSettings(PaddingSettingsPostModel model);
         Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById();
+        Task<CommonEntityResponse> CreateOrModifyBackgroundColorSetting(BackgroundColorSetting model);
+        Task<ModelEntityResponse<List<BackgroundColorSetting>>> GetAllBackgroundColorSetting();
+        Task<ModelEntityResponse<BackgroundColorSetting>> GetBackgroundColorSettingByTitle(string Title);
     }
     public class SettingService : ISettingService
     {
@@ -133,6 +136,49 @@ namespace API.Services
             {
                 response.CreateFailureResponse("Settings not found");
             }
+            return response;
+        }
+        public async Task<CommonEntityResponse> CreateOrModifyBackgroundColorSetting(BackgroundColorSetting model)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                BackgroundColorSetting entity;
+
+                entity = await _unitOfWork.BackgroundColorSettings.GetById(model.BackgroundColorSettingId);
+                if (entity == null)
+                {
+                    entity = new BackgroundColorSetting();
+                }
+
+                // Map simple fields
+                entity.Title = model.Title;
+                entity.BackgroundColor = model.BackgroundColor;
+
+                entity.UpdatedDate = DateTime.UtcNow;
+
+                int id = await _unitOfWork.BackgroundColorSettings.CreateOrModify(entity);
+                response.EntityId = id;
+                response.CreateSuccessResponse("Background settings saved successfully");
+            }
+            catch (Exception)
+            {
+                response.CreateFailureResponse("Failed to save Background settings");
+            }
+            return response;
+        }
+        public async Task<ModelEntityResponse<List<BackgroundColorSetting>>> GetAllBackgroundColorSetting()
+        {
+            ModelEntityResponse<List<BackgroundColorSetting>> response = new ModelEntityResponse<List<BackgroundColorSetting>>();
+            var data = await _unitOfWork.BackgroundColorSettings.GetAll();
+            response.Data = data;
+            return response;
+        }
+        public async Task<ModelEntityResponse<BackgroundColorSetting>> GetBackgroundColorSettingByTitle(string Title)
+        {
+            ModelEntityResponse<BackgroundColorSetting> response = new ModelEntityResponse<BackgroundColorSetting>();
+            var data = await _unitOfWork.BackgroundColorSettings.GetByTitle(Title);
+            response.Data = data;
             return response;
         }
     }
