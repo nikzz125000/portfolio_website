@@ -24,7 +24,9 @@ export default function GradientEditor() {
   ];
 
   const [gradientStops, setGradientStops] = useState<GradientStop[]>(defaultGradientStops);
+  
   const [direction, setDirection] = useState<number>(90);
+  const [currentId, setCurrentId] = useState<number>(0);
   const [selectedPage, setSelectedPage] = useState<Page>("home");
   const [, setSavedGradient] = useState<string>("");
 const { showNotification } = useNotification();  
@@ -35,7 +37,8 @@ const { showNotification } = useNotification();
 
      useEffect(() => {
       if(backgroundColor?.data){
-        setGradientStops(backgroundColor.data)
+        setGradientStops(backgroundColor.data?.gradient||defaultGradientStops)
+        setCurrentId(backgroundColor?.data?.backgroundColorSettingId)
       }
      }, [backgroundColor])
      
@@ -74,13 +77,17 @@ const { showNotification } = useNotification();
     }
   };
 
-  const handleSave = (): void => {
-    const gradientString = generateGradientString();
+  const handleSave = async() => {
+    const gradientString = await generateGradientString();
     setSavedGradient(gradientString);
     
-    const data={
-        pageName:selectedPage,
-        backGroundColor:gradientString
+    const data={     
+  "createdDate": "2025-08-25T07:48:18.250Z",
+  "updatedDate": "2025-08-25T07:48:18.250Z",
+  "backgroundColorSettingId": currentId,
+  "title":selectedPage,
+  "backgroundColor":gradientString,
+  gradient:JSON.stringify(gradientStops)
     }
 
     addOrUpdateBackgroundColor(data, {

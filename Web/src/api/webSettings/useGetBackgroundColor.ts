@@ -6,7 +6,7 @@ export const useGetBackgroundColor = (pageName:string) => {
   return useQuery({
     queryKey: ["BackgroundColor/List",pageName],
     queryFn: async () => {
-      const response = await api.get(`Settings/backgrounColor/${pageName}`);
+      const response = await api.get(`Settings/BackGroundColor/Details/${pageName}`);
       return response.data;
     },
     enabled: true,
