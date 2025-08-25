@@ -23,6 +23,8 @@ export default function GradientEditor() {
     { color: "#f5655d", position: 100 },
   ];
 
+ 
+
   const [gradientStops, setGradientStops] = useState<GradientStop[]>(defaultGradientStops);
   
   const [direction, setDirection] = useState<number>(90);
@@ -55,6 +57,9 @@ const { showNotification } = useNotification();
       console.error("Invalid gradient JSON:", err);
       setGradientStops(defaultGradientStops);
     }
+  }else{
+    setGradientStops(defaultGradientStops);
+    setCurrentId(0);
   }
 }, [backgroundColor]);
      

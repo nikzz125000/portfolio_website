@@ -2508,7 +2508,7 @@ export const homepageStyles = `
 
     /* Enhanced HomePage Background */
     .homepage-gradient-bg {
-      background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%) !important;
+      // background: linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%) !important;
       position: relative !important;
       min-height: 100vh !important;
     }
@@ -2520,8 +2520,8 @@ export const homepageStyles = `
       left: 0 !important;
       right: 0 !important;
       bottom: 0 !important;
-      background: 
-        linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
+      // background: 
+         linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
         radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%) !important;
       z-index: -1 !important;
@@ -2574,16 +2574,16 @@ export const homepageStyles = `
 
     /* Responsive gradient adjustments */
     @media (max-width: 768px) {
-      .homepage-gradient-bg::before {
-        background: 
+       .homepage-gradient-bg::before {
+        // background: 
           linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
           radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 60%) !important;
       }
     }
 
     @media (min-width: 769px) and (max-width: 1024px) {
-      .homepage-gradient-bg::before {
-        background: 
+       .homepage-gradient-bg::before {
+        // background: 
           linear-gradient(135deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%),
           radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.09) 0%, transparent 55%) !important;
       }

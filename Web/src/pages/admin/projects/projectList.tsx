@@ -23,7 +23,7 @@ const ImageElementListPage: React.FC = () => {
     useEffect(() => {
       if (data && data.data && data.data?.length > 0 && isSuccess) {
         // Add mock images to the projects if they don't have them
-        console.log(70, data.data, "Loading:", isPending);
+    
   
         setProjects(data.data);
         // Handle your success logic here

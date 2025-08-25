@@ -23,6 +23,7 @@ import {
 } from "../../components/Const";
 import HomePageLogo from "../../components/HomePageLogo";
 import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
+import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
 
 // ENHANCED: Scroll speed settings interface
 interface ScrollSpeedSettings {
@@ -160,6 +161,17 @@ const isScrollSpeedPending = false; // Mock pending state
       setApiScrollSettings(DEFAULT_SCROLL_SETTINGS);
     }
   }, [scrollSpeedData, scrollSpeedError]);
+
+
+     const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
+  
+   const { data: backgroundColor } = useGetBackgroundColor('home');
+  
+       useEffect(() => {
+        if(backgroundColor?.data){
+          setBackgroundColors(backgroundColor?.data?.backgroundColor)
+        }
+       }, [backgroundColor])
 
   useEffect(() => {
   const handleMouseMove = (e: MouseEvent) => {
@@ -779,6 +791,7 @@ const isScrollSpeedPending = false; // Mock pending state
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        background:backgroundColors
       }}
     >
       {/* Show loading spinner while data is being fetched */}
