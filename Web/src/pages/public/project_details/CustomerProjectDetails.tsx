@@ -14,6 +14,7 @@ import {
 } from "../../../components/Const";
 import InterorExteriorSection from "./InterorExteriorSection";
 import { useGetPadding } from "../../../api/webSettings/useGetPadding";
+import { useGetBackgroundColor } from "../../../api/webSettings/useGetBackgroundColor";
 
 
 interface PaddingData {
@@ -199,6 +200,16 @@ const ProjectDetailsPage: React.FC = () => {
         setPaddingData(paddingValue.data);
       }
     }, [paddingValue]);
+
+       const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
+      
+       const { data: backgroundColor } = useGetBackgroundColor('project-details');
+      
+           useEffect(() => {
+            if(backgroundColor?.data){
+              setBackgroundColors(backgroundColor?.data?.backgroundColor)
+            }
+           }, [backgroundColor])
 
 
   // Ensure page starts at top when navigating to a new project
@@ -732,6 +743,7 @@ const ProjectDetailsPage: React.FC = () => {
         paddingTop: `${paddingData.paddingTop}px`,
         paddingBottom: `${paddingData.paddingBottom}px`,
         boxSizing: "border-box", // Ensure padding is included in width calculation
+         background:backgroundColors
       }}
     >
          {showLoader && (

@@ -4,6 +4,7 @@ import { useResumeDetails } from "../../api/useResumeDetails";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { homepageStyles } from "../../components/Const";
+import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
 
 // Types for the resume data structure
 interface EducationEntry {
@@ -86,6 +87,17 @@ const AnimatedResume: React.FC = () => {
     viewport: { once: true, amount: 0.2 },
   };
 
+
+  const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
+        
+         const { data: backgroundColor } = useGetBackgroundColor('resume');
+        
+             useEffect(() => {
+              if(backgroundColor?.data){
+                setBackgroundColors(backgroundColor?.data?.backgroundColor)
+              }
+             }, [backgroundColor])
+
   // Ensure natural page scrolling is enabled
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -165,8 +177,9 @@ const AnimatedResume: React.FC = () => {
     <div
       className="min-h-screen ff-brand"
       style={{
-        background:
-          "linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff0080 50%, #8e44ad 75%, #3742fa 100%)",
+                background:backgroundColors,
+        // background:
+          // "linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff0080 50%, #8e44ad 75%, #3742fa 100%)",
         color: "#fff",
         overflowY: "auto",
       }}
