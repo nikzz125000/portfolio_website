@@ -22,7 +22,9 @@ import ResumeEditor from "./pages/admin/resume/ResumeEditor";
 import Homepage from "./pages/public/HomePage";
 import ProjectDetailsPage from "./pages/public/project_details/CustomerProjectDetails";
 import ImageEditor from "./pages/admin/home/Subproject";
-import ScrollSpeedAdmin from "./pages/admin/WebsiteSettings";
+import ScrollSpeedAdmin from "./pages/admin/webSettings/ScrollSpeed";
+import GradientEditor from "./pages/admin/webSettings/BackgroundColor";
+import PaddingAdjuster from "./pages/admin/webSettings/Padding";
 
 
 
@@ -190,11 +192,33 @@ export const App = () => {
       />
 
       <Route
-        path="/admin/website_settings"
+        path="/admin/scroll_speed"
         element={
           <ProtectedRoute roles={["admin"]}>
             <AdminLayout>
               <ScrollSpeedAdmin />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+       <Route
+        path="/admin/background_color"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminLayout>
+              <GradientEditor />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/padding"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminLayout>
+              <PaddingAdjuster />
             </AdminLayout>
           </ProtectedRoute>
         }

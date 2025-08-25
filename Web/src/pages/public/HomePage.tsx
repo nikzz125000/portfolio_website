@@ -161,6 +161,34 @@ const isScrollSpeedPending = false; // Mock pending state
     }
   }, [scrollSpeedData, scrollSpeedError]);
 
+  useEffect(() => {
+  const handleMouseMove = (e: MouseEvent) => {
+    // Update CSS variables for cursor position
+    document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+    document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+  };
+
+  // Only track mouse on clickable elements
+  const clickableElements = document.querySelectorAll('.clickable-sub-image');
+  
+  clickableElements.forEach(element => {
+    element.addEventListener('mouseenter', () => {
+      document.addEventListener('mousemove', handleMouseMove);
+    });
+    
+    element.addEventListener('mouseleave', () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      // Hide cursor when not hovering
+      document.documentElement.style.setProperty('--mouse-x', '-100px');
+      document.documentElement.style.setProperty('--mouse-y', '-100px');
+    });
+  });
+
+  return () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+  };
+}, [sections]);
+
   // ENHANCED: Apply device-specific multipliers to API scroll settings
   const getDeviceAdjustedScrollSettings = (): ScrollSpeedSettings => {
     const device = getDeviceType();
@@ -1126,7 +1154,8 @@ const isScrollSpeedPending = false; // Mock pending state
                           data-animation={subImage.animation}
                           data-animation-speed={subImage.animationSpeed}
                           data-animation-trigger={subImage.animationTrigger}
-                          className="clickable-sub-image"
+                          // className="clickable-sub-image"
+                           className="clickable-sub-image-gradient"
                           variants={animationVariants}
                           initial={
                             subImage.animation !== "none" ? "initial" : {}
@@ -1160,7 +1189,7 @@ const isScrollSpeedPending = false; // Mock pending state
                             ...imageDimensions,
                             display: "block",
                             borderRadius: "8px",
-                            cursor: "pointer",
+                            // cursor: "pointer",
                             backfaceVisibility: "hidden",
                             perspective: "1000px",
                           }}

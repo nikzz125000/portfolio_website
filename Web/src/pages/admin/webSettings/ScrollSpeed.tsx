@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, } from "react";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import { useSaveScrollSpeed } from "../../api/useSaveWebsiteSettings";
-import { useNotification } from "../../components/Tostr";
-import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
+import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import { useSaveScrollSpeed } from "../../../api/useSaveWebsiteSettings";
+import { useNotification } from "../../../components/Tostr";
+import { useScrollerSpeedSettings } from "../../../api/useScrollSpeedSettings";
 
 // Mock device type detection
 const getDeviceType = () => {
