@@ -26,6 +26,7 @@ namespace ViewModels
     }
     public class PaddingSettingsPostModel
     {
+        public int ProjectId { get; set; }
         public decimal PaddingLeft { get; set; }
         public decimal PaddingRight { get; set; }
         public decimal PaddingBottom { get; set; }

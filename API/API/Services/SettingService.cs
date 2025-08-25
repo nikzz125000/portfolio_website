@@ -12,7 +12,7 @@ namespace API.Services
         Task<CommonEntityResponse> CreateOrModifyScrollSetting(ScrollSettingsPostModel model);
         Task<ModelEntityResponse<ScrollSettingsViewModel>> GetScrollSettingById();
         Task<CommonEntityResponse> CreateOrModifyPaddingSettings(PaddingSettingsPostModel model);
-        Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById();
+        Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById(int ProjectId);
         Task<CommonEntityResponse> CreateOrModifyBackgroundColorSetting(BackgroundColorSetting model);
         Task<ModelEntityResponse<List<BackgroundColorSetting>>> GetAllBackgroundColorSetting();
         Task<ModelEntityResponse<BackgroundColorSetting>> GetBackgroundColorSettingByTitle(string Title);
@@ -92,7 +92,7 @@ namespace API.Services
             {
                 PaddingSetting entity;
 
-                entity = await _unitOfWork.PaddingSettings.GetById();
+                entity = await _unitOfWork.PaddingSettings.GetById(model.ProjectId);
                 if (entity == null)
                 {
                     entity = new PaddingSetting();
@@ -117,10 +117,10 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById()
+        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById(int ProjectId)
         {
             ModelEntityResponse<PaddingSettingsViewModel> response = new ModelEntityResponse<PaddingSettingsViewModel>();
-            var data = await _unitOfWork.PaddingSettings.GetById();
+            var data = await _unitOfWork.PaddingSettings.GetById(ProjectId);
             if (data is not null)
             {
                 response.Data = new PaddingSettingsViewModel

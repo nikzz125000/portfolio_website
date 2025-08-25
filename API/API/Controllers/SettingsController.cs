@@ -99,23 +99,23 @@ namespace API.Controllers
             return response;
         }
 
-        [Route("Padding/Details")]
+        [Route("Padding/Details/{ProjectId}")]
         [HttpGet]
         [ProducesResponseType(typeof(ModelEntityResponse<PaddingSettingsViewModel>), 200)]
-        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingDetails()
+        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingDetails(int ProjectId)
         {
             ModelEntityResponse<PaddingSettingsViewModel> response = new ModelEntityResponse<PaddingSettingsViewModel>();
             try
             {
                 //getCurrentUser();
-                response = await _settingService.GetPaddingSettingById();
+                response = await _settingService.GetPaddingSettingById(ProjectId);
             }
             catch (Exception e)
             {
                 response.CreateFailureResponse(CommonData.ErrorMessage);
 
                 ExceptionLog log = new ExceptionLog();
-                log.Api = $@"api/Settings/Padding/Details";
+                log.Api = $@"api/Settings/Padding/Details/{ProjectId}";
                 log.ApiType = ApiType.Get;
                 log.Parameters = $@"";
                 log.Message = e.Message;
