@@ -92,7 +92,7 @@ namespace API.Services
             {
                 if(model.ProjectId <= 0)
                 {
-                    response.CreateFailureResponse();
+                    response.CreateFailureResponse("Project id cant be null");
                     return response;
                 }
 
