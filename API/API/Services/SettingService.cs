@@ -9,8 +9,10 @@ namespace API.Services
 {
     public interface ISettingService
     {
-        Task<CommonEntityResponse> CreateOrModify(ScrollSettingsPostModel model);
-        Task<ModelEntityResponse<ScrollSettingsViewModel>> GetById();
+        Task<CommonEntityResponse> CreateOrModifyScrollSetting(ScrollSettingsPostModel model);
+        Task<ModelEntityResponse<ScrollSettingsViewModel>> GetScrollSettingById();
+        Task<CommonEntityResponse> CreateOrModifyPaddingSettings(PaddingSettingsPostModel model);
+        Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById();
     }
     public class SettingService : ISettingService
     {
@@ -25,7 +27,7 @@ namespace API.Services
         }
 
 
-        public async Task<CommonEntityResponse> CreateOrModify(ScrollSettingsPostModel model)
+        public async Task<CommonEntityResponse> CreateOrModifyScrollSetting(ScrollSettingsPostModel model)
         {
             CommonEntityResponse response = new CommonEntityResponse();
             try
@@ -58,7 +60,7 @@ namespace API.Services
             return response;
         }
 
-        public async Task<ModelEntityResponse<ScrollSettingsViewModel>> GetById()
+        public async Task<ModelEntityResponse<ScrollSettingsViewModel>> GetScrollSettingById()
         {
             ModelEntityResponse<ScrollSettingsViewModel> response = new ModelEntityResponse<ScrollSettingsViewModel>();
             var data = await _unitOfWork.ScrollSettings.GetById();
@@ -66,12 +68,64 @@ namespace API.Services
             {
                 response.Data = new ScrollSettingsViewModel
                 {
-                    ScrollSettingsId = data.ScrollSettingId,
                     Smoothness = data.Smoothness,
                     Keyboard=data.Keyboard,
                     Momentum = data.Momentum,
                     Touch = data.Touch,
                     Wheel = data.Wheel
+                };
+                response.CreateSuccessResponse();
+            }
+            else
+            {
+                response.CreateFailureResponse("Settings not found");
+            }
+            return response;
+        }
+        public async Task<CommonEntityResponse> CreateOrModifyPaddingSettings(PaddingSettingsPostModel model)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                PaddingSetting entity;
+
+                entity = await _unitOfWork.PaddingSettings.GetById();
+                if (entity == null)
+                {
+                    entity = new PaddingSetting();
+                }
+
+                // Map simple fields
+                entity.PaddingLeft = model.PaddingLeft;
+                entity.PaddingRight = model.PaddingRight;
+                entity.PaddingBottom = model.PaddingBottom;
+                entity.PaddingTop = model.PaddingTop;
+
+                entity.UpdatedDate = DateTime.UtcNow;
+
+                int id = await _unitOfWork.PaddingSettings.CreateOrModify(entity);
+                response.EntityId = id;
+                response.CreateSuccessResponse("Padding settings saved successfully");
+            }
+            catch (Exception)
+            {
+                response.CreateFailureResponse("Failed to save Padding settings");
+            }
+            return response;
+        }
+
+        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingSettingById()
+        {
+            ModelEntityResponse<PaddingSettingsViewModel> response = new ModelEntityResponse<PaddingSettingsViewModel>();
+            var data = await _unitOfWork.PaddingSettings.GetById();
+            if (data is not null)
+            {
+                response.Data = new PaddingSettingsViewModel
+                {
+                    PaddingLeft = data.PaddingLeft,
+                    PaddingRight = data.PaddingRight,
+                    PaddingBottom = data.PaddingBottom,
+                    PaddingTop = data.PaddingTop,
                 };
                 response.CreateSuccessResponse();
             }
