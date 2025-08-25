@@ -109,7 +109,7 @@ namespace API.Services
                 entity.PaddingRight = model.PaddingRight;
                 entity.PaddingBottom = model.PaddingBottom;
                 entity.PaddingTop = model.PaddingTop;
-
+                entity.ProjectId = model.ProjectId;
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 int id = await _unitOfWork.PaddingSettings.CreateOrModify(entity);
