@@ -24,4 +24,18 @@ namespace ViewModels
         public decimal Keyboard { get; set; }
         public decimal Momentum { get; set; }
     }
+    public class PaddingSettingsPostModel
+    {
+        public decimal PaddingLeft { get; set; }
+        public decimal PaddingRight { get; set; }
+        public decimal PaddingBottom { get; set; }
+        public decimal PaddingTop { get; set; }
+    }
+    public class PaddingSettingsViewModel
+    {
+        public decimal PaddingLeft { get; set; }
+        public decimal PaddingRight { get; set; }
+        public decimal PaddingBottom { get; set; }
+        public decimal PaddingTop { get; set; }
+    }
 }

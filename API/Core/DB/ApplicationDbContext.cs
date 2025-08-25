@@ -27,7 +27,8 @@ namespace Core.DB
         public DbSet<SubProjectContainer> SubProjectContainers { get; set; }
         public DbSet<SubProject> SubProjects { get; set; }
         public DbSet<ScrollSetting> ScrollSettings { get; set; }
-
+        public DbSet<PaddingSetting> PaddingSettings { get; set; }
+        public DbSet<BackgroundColorSetting> BackgroundColorSettings { get; set; }
 
     }
 }

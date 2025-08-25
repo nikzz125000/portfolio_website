@@ -27,6 +27,8 @@ namespace Repository
         private ISubProjectContainerRepository _subProjectContainers;
         private ISubProjectRepository _subProjects;
         private IScrollSettingRepository _scrollSettings;
+        private IPaddingSettingRepository _paddingSettings;
+        private IBackgroundColorSettingRepository _backgroundColorSettings;
 
 
         public ApplicationDbContext _context { get; }
@@ -181,6 +183,28 @@ namespace Repository
                     _scrollSettings = new ScrollSettingRepository(_context, _config);
                 }
                 return _scrollSettings;
+            }
+        }
+        public IPaddingSettingRepository PaddingSettings
+        {
+            get
+            {
+                if (_paddingSettings == null)
+                {
+                    _paddingSettings = new PaddingSettingRepository(_context, _config);
+                }
+                return _paddingSettings;
+            }
+        }
+        public IBackgroundColorSettingRepository BackgroundColorSettings
+        {
+            get
+            {
+                if (_backgroundColorSettings == null)
+                {
+                    _backgroundColorSettings = new BackgroundColorSettingRepository(_context, _config);
+                }
+                return _backgroundColorSettings;
             }
         }
 

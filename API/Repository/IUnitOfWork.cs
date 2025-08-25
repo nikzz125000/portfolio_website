@@ -25,5 +25,7 @@ namespace Repository
         ISubProjectContainerRepository SubProjectContainers { get; }
         ISubProjectRepository SubProjects { get; }
         IScrollSettingRepository ScrollSettings { get; }
+        IPaddingSettingRepository PaddingSettings { get; }
+        IBackgroundColorSettingRepository BackgroundColorSettings { get; }
     }
 }

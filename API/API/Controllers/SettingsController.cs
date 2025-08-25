@@ -31,7 +31,7 @@ namespace API.Controllers
             CommonEntityResponse response = new CommonEntityResponse();
             try
             {
-                response = await _settingService.CreateOrModify(model);
+                response = await _settingService.CreateOrModifyScrollSetting(model);
             }
             catch (Exception e)
             {
@@ -57,7 +57,7 @@ namespace API.Controllers
             try
             {
                 //getCurrentUser();
-                response = await _settingService.GetById();
+                response = await _settingService.GetScrollSettingById();
             }
             catch (Exception e)
             {
@@ -65,6 +65,57 @@ namespace API.Controllers
 
                 ExceptionLog log = new ExceptionLog();
                 log.Api = $@"api/Settings/Scroll/Details";
+                log.ApiType = ApiType.Get;
+                log.Parameters = $@"";
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+        [Route("Padding/CreateOrModify")]
+        [HttpPost]
+        [ProducesResponseType(typeof(CommonEntityResponse), 200)]
+        [Authorize]
+        public async Task<CommonEntityResponse> CreateOrModifyPaddingAsync([FromBody] PaddingSettingsPostModel model)
+        {
+            CommonEntityResponse response = new CommonEntityResponse();
+            try
+            {
+                response = await _settingService.CreateOrModifyPaddingSettings(model);
+            }
+            catch (Exception e)
+            {
+                response.CreateFailureResponse(CommonData.ErrorMessage);
+
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Settings/Padding/CreateOrModify";
+                log.ApiType = ApiType.Post;
+                log.Parameters = "form-data";
+                log.Message = e.Message;
+                log.StackTrace = e.StackTrace;
+                await SaveExceptionLog(log);
+            }
+            return response;
+        }
+
+        [Route("Padding/Details")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ModelEntityResponse<PaddingSettingsViewModel>), 200)]
+        public async Task<ModelEntityResponse<PaddingSettingsViewModel>> GetPaddingDetails()
+        {
+            ModelEntityResponse<PaddingSettingsViewModel> response = new ModelEntityResponse<PaddingSettingsViewModel>();
+            try
+            {
+                //getCurrentUser();
+                response = await _settingService.GetPaddingSettingById();
+            }
+            catch (Exception e)
+            {
+                response.CreateFailureResponse(CommonData.ErrorMessage);
+
+                ExceptionLog log = new ExceptionLog();
+                log.Api = $@"api/Settings/Padding/Details";
                 log.ApiType = ApiType.Get;
                 log.Parameters = $@"";
                 log.Message = e.Message;
