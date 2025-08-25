@@ -1,4 +1,7 @@
-import React, { useState,  } from 'react';
+import React, { useEffect, useState,  } from 'react';
+import { useSavePadding } from '../../../api/webSettings/useSavePadding';
+import { useNotification } from '../../../components/Tostr';
+import { useGetPadding } from '../../../api/webSettings/useGetPadding';
 
 interface PaddingData {
   paddingLeft: number;
@@ -29,14 +32,19 @@ const PaddingAdjuster: React.FC = () => {
     paddingTop: 0
   });
 
-//   const { data: paddingData } = useGetPadding();
+   const { data: paddingData } = useGetPadding();
+  useEffect(() => {
+    if (paddingData?.data) {
+   
+      setPadding(paddingData.data);
+    }
+  }, [paddingData]);
+const { showNotification } = useNotification(); 
+	
 
-//   useEffect(() => {
-//     if (paddingData?.data) {
-//       console.log("API Padding Data:", paddingData.data);
-//       setPadding(paddingData.data);
-//     }
-//   }, [paddingData]);
+ const { mutate: addOrUpdatePadding, isPending: isSaving } = useSavePadding();
+
+
 
   const handlePaddingChange = (key: keyof PaddingData, value: number) => {
     console.log(`Changing ${key} to ${value}`);
@@ -46,8 +54,23 @@ const PaddingAdjuster: React.FC = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async() => {
     console.log('Adjusted padding:', padding);
+    await addOrUpdatePadding(padding, {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSuccess: (res: any) => {
+          if (res?.isSuccess) {
+            showNotification("Padding saved successfully!", "success", "Success");
+          
+          } else {
+            showNotification(
+              res?.message || "Failed to save Padding",
+              "error",
+              "Error"
+            );
+          }
+        },
+      });
   };
 
   const handleSetDefault = () => {
@@ -60,9 +83,9 @@ const PaddingAdjuster: React.FC = () => {
   };
 
   const sliderFields: { key: keyof PaddingData; label: string; icon: string; color: string }[] = [
-    { key: 'paddingTop', label: 'Top Padding', icon: '↑', color: 'bg-red-500' },
+    // { key: 'paddingTop', label: 'Top Padding', icon: '↑', color: 'bg-red-500' },
     { key: 'paddingRight', label: 'Right Padding', icon: '→', color: 'bg-blue-500' },
-    { key: 'paddingBottom', label: 'Bottom Padding', icon: '↓', color: 'bg-green-500' },
+    // { key: 'paddingBottom', label: 'Bottom Padding', icon: '↓', color: 'bg-green-500' },
     { key: 'paddingLeft', label: 'Left Padding', icon: '←', color: 'bg-purple-500' }
   ];
 
@@ -185,6 +208,7 @@ const PaddingAdjuster: React.FC = () => {
             <div className="flex space-x-3 pt-4">
               <button
                 onClick={handleSave}
+                disabled={isSaving}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200"
               >
                 💾 Save Changes

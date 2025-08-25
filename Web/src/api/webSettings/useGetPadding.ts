@@ -4,9 +4,9 @@ import api from "../../utils/axios";
 
 export const useGetPadding = () => {
   return useQuery({
-    queryKey: ["Padding/List"],
+    queryKey: ["Padding/Details"],
     queryFn: async () => {
-      const response = await api.get(`Settings/Padding`);
+      const response = await api.get(`Settings/Padding/Details`);
       return response.data;
     },
     enabled: true,

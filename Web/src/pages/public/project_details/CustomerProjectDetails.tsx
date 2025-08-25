@@ -13,9 +13,15 @@ import {
   homepageStyles,
 } from "../../../components/Const";
 import InterorExteriorSection from "./InterorExteriorSection";
+import { useGetPadding } from "../../../api/webSettings/useGetPadding";
 
 
-
+interface PaddingData {
+  paddingLeft: number;
+  paddingRight: number;
+  paddingBottom: number;
+  paddingTop: number;
+}
 interface SubProject {
   subProjectId: number;
   name: string;
@@ -136,13 +142,16 @@ const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
 };
 
 const ProjectDetailsPage: React.FC = () => {
-  // Add paddingData - this would come from your API or props
-  const paddingData = {
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingBottom: 0,
-    paddingTop: 0
-  };
+ 
+
+  const [paddingData, setPaddingData] = useState<PaddingData>({
+      paddingLeft: 100,
+      paddingRight: 100,
+      paddingBottom: 100,
+      paddingTop: 100
+    });
+  
+  
 
   const { projectId } = useParams<{ projectId: string }>();
   const [sections, setSections] = useState<ProjectContainer[]>([]);
@@ -182,6 +191,15 @@ const ProjectDetailsPage: React.FC = () => {
   const { data,isFetching} = useGetProjectDetailsList(
     projectId ? parseInt(projectId, 10) : 0
   );
+
+     const { data: paddingValue } = useGetPadding();
+    useEffect(() => {
+      if (paddingValue?.data) {
+     
+        setPaddingData(paddingValue.data);
+      }
+    }, [paddingValue]);
+
 
   // Ensure page starts at top when navigating to a new project
   useEffect(() => {
