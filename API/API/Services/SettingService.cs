@@ -90,6 +90,12 @@ namespace API.Services
             CommonEntityResponse response = new CommonEntityResponse();
             try
             {
+                if(model.ProjectId <= 0)
+                {
+                    response.CreateFailureResponse("Project id cant be null");
+                    return response;
+                }
+
                 PaddingSetting entity;
 
                 entity = await _unitOfWork.PaddingSettings.GetById(model.ProjectId);
