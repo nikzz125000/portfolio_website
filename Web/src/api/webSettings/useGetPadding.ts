@@ -2,14 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import api from "../../utils/axios";
 
 
-export const useGetPadding = () => {
+export const useGetPadding = (projectId:number) => {
   return useQuery({
-    queryKey: ["Padding/Details"],
+    queryKey: ["Padding/Details",projectId],
     queryFn: async () => {
-      const response = await api.get(`Settings/Padding/Details`);
+      const response = await api.get(`Settings/Padding/Details/${projectId}`);
       return response.data;
     },
-    enabled: true,
+    enabled: !!projectId,
     // ✅ Forces a refetch every time the component is mounted
     refetchOnMount: true,
     // ✅ Also refetch if the window is focused

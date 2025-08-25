@@ -28,8 +28,8 @@ interface ImageElement {
 
 const PaddingAdjuster: React.FC = () => {
   const [projects, setProjects] = useState<ImageElement[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(0);
+   const [selectedProjectName, setSelectedProjectName] = useState<string >("");
   const [padding, setPadding] = useState<PaddingData>({
     paddingLeft: 0,
     paddingRight: 0,
@@ -48,7 +48,7 @@ const PaddingAdjuster: React.FC = () => {
   }, [isSuccess, data]);
 
   // Padding API
-  const { data: paddingData } = useGetPadding();
+  const { data: paddingData } = useGetPadding(selectedProjectId||0);
   useEffect(() => {
     if (paddingData?.data) {
       setPadding(paddingData.data);
@@ -58,14 +58,18 @@ const PaddingAdjuster: React.FC = () => {
   const { showNotification } = useNotification();
   const { mutate: addOrUpdatePadding, isPending: isSaving } = useSavePadding();
 
-  const handleProjectSelect = (projectId: number) => {
-    if (projectId === 0) {
-      setSelectedProjectId(null);
+  const handleProjectSelect = (projectName: string) => {
+   
+    console.log(600,projectName)
+    if (projectName === "none") {
+      setSelectedProjectId(0);
       console.log('No project selected');
+       setSelectedProjectName('')
     } else {
-      const id =projectId||0
+      const id =projects?.find((data)=>data?.name===projectName)?.projectId||0
       setSelectedProjectId(id);
-      console.log('Selected project ID:', id);
+      
+       setSelectedProjectName(projectName)
       // In the future, you can pass this id to your get API here
     }
   };
@@ -82,7 +86,7 @@ const PaddingAdjuster: React.FC = () => {
     console.log('Adjusted padding:', padding);
     console.log('For project ID:', selectedProjectId);
     
-    await addOrUpdatePadding(padding, {
+    await addOrUpdatePadding({...padding,projectId:selectedProjectId}, {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onSuccess: (res: any) => {
         if (res?.isSuccess) {
@@ -186,7 +190,7 @@ const PaddingAdjuster: React.FC = () => {
             
             <select
               id="project-select"
-              value={selectedProjectId || 'none'}
+              value={selectedProjectName || 'none'}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onChange={(e) => handleProjectSelect(e.target.value as any)}
               className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
@@ -195,7 +199,7 @@ const PaddingAdjuster: React.FC = () => {
               <option value="none">-- Select a Project --</option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
-                  {project.name} (ID: {project.projectId})
+                  {project.name} 
                 </option>
               ))}
             </select>
@@ -208,15 +212,15 @@ const PaddingAdjuster: React.FC = () => {
           {selectedProjectId && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="text-sm text-blue-700">
-                <strong>Selected Project:</strong> {projects.find(p => p.id === selectedProjectId)?.name} 
-                <span className="ml-2 text-blue-600">(ID: {selectedProjectId})</span>
+                <strong>Selected Project:</strong>{selectedProjectName} 
+              
               </div>
             </div>
           )}
         </div>
 
         {/* Padding Adjuster - Only visible when project is selected */}
-        {selectedProjectId && (
+        {selectedProjectName && (
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Controls Section */}
             <div className="space-y-6">
@@ -357,7 +361,7 @@ const PaddingAdjuster: React.FC = () => {
         )}
 
         {/* No Project Selected Message */}
-        {!selectedProjectId && (
+        {!selectedProjectName && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
