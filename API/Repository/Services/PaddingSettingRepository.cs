@@ -37,9 +37,9 @@ namespace Repository.Services
             return model.PaddingSettingId;
         }
 
-        public async Task<PaddingSetting?> GetById()
+        public async Task<PaddingSetting?> GetById(int ProjectId)
         {
-            return await _context.PaddingSettings.FirstOrDefaultAsync();
+            return await _context.PaddingSettings.Where(x=>x.ProjectId == ProjectId).FirstOrDefaultAsync();
         }
     }
 }

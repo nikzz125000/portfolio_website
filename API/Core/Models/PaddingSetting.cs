@@ -13,6 +13,7 @@ namespace Core.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PaddingSettingId { get; set; }
+        public int ProjectId { get; set; }
         public decimal PaddingLeft { get; set; }
         public decimal PaddingRight { get; set; }
         public decimal PaddingBottom { get; set; }

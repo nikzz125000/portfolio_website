@@ -10,6 +10,6 @@ namespace Repository.Interfaces
     public interface IPaddingSettingRepository
     {
         Task<int> CreateOrModify(PaddingSetting model);
-        Task<PaddingSetting?> GetById();
+        Task<PaddingSetting?> GetById(int ProjectId);
     }
 }
