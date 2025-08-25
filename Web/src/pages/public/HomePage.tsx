@@ -116,7 +116,7 @@ const Homepage: React.FC = () => {
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
-  const [isNavigating, setIsNavigating] = useState<boolean>(false);
+  
   
   // ENHANCED: API-based scroll speed settings
   const [apiScrollSettings, setApiScrollSettings] = useState<ScrollSpeedSettings>(DEFAULT_SCROLL_SETTINGS);

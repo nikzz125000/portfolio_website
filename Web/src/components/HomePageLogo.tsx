@@ -1,4 +1,4 @@
-import React from 'react'
+
 import SideMenu from './SideMenu'
 import type { MenuItem } from './Const'
 
