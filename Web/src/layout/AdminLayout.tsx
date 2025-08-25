@@ -58,6 +58,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { label: "Home Page", path: "/admin/dashboard" },
     { label: "Projects", path: "/admin/projects" },
     { label: "My Resume", path: "/admin/resume" },
+      { label: "Scroll Speed", path: "/admin/scroll_speed" },
+      { label: "Background Color", path: "/admin/background_color" },
+           { label: "Paddings", path: "/admin/padding" },
   ];
 
   const drawer = (
