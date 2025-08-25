@@ -35,12 +35,28 @@ const { showNotification } = useNotification();
 
 	 const { data: backgroundColor } = useGetBackgroundColor(selectedPage);
 
-     useEffect(() => {
-      if(backgroundColor?.data){
-        setGradientStops(backgroundColor.data?.gradient||defaultGradientStops)
-        setCurrentId(backgroundColor?.data?.backgroundColorSettingId)
+ useEffect(() => {
+  if (backgroundColor?.data) {
+    try {
+      const gradientStr = backgroundColor.data?.gradient;
+
+      if (gradientStr && gradientStr.trim() !== "") {
+        const parsedGradient = JSON.parse(gradientStr);
+        console.log("Parsed Gradient:", parsedGradient);
+
+        setGradientStops(parsedGradient);
+      } else {
+        // fallback to default if nothing stored
+        setGradientStops(defaultGradientStops);
       }
-     }, [backgroundColor])
+
+      setCurrentId(backgroundColor?.data?.backgroundColorSettingId || 0);
+    } catch (err) {
+      console.error("Invalid gradient JSON:", err);
+      setGradientStops(defaultGradientStops);
+    }
+  }
+}, [backgroundColor]);
      
 
   const generateGradientString = (): string => {
