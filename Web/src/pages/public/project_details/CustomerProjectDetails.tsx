@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetProjectDetailsList } from "../../../api/useGetProjectDetails";
 import Footer from "../../../components/Footer";
-import SideMenu from "../../../components/SideMenu";
 import NextProjects from "./NextProjects";
 import { useNextProjectDetails } from "../../../api/useGetNextProject";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
@@ -13,13 +12,9 @@ import {
   projectDetailsStyles,
   homepageStyles,
 } from "../../../components/Const";
+import InterorExteriorSection from "./InterorExteriorSection";
 
-interface MenuItem {
-  name: string;
-  icon: string;
-  link: string;
-  action?: () => void | Promise<void>;
-}
+
 
 interface SubProject {
   subProjectId: number;
@@ -141,6 +136,14 @@ const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
 };
 
 const ProjectDetailsPage: React.FC = () => {
+  // Add paddingData - this would come from your API or props
+  const paddingData = {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingTop: 0
+  };
+
   const { projectId } = useParams<{ projectId: string }>();
   const [sections, setSections] = useState<ProjectContainer[]>([]);
   const [exteriorSections, setExteriorSections] = useState<ProjectContainer[]>(
@@ -156,8 +159,8 @@ const ProjectDetailsPage: React.FC = () => {
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
   const [scrollY, setScrollY] = useState<number>(0);
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
+ 
+  // REMOVED: hoveredImageId state since we don't want hover effects
   const [exteriorStartY, setExteriorStartY] = useState<number>(0);
   const [interiorStartY, setInteriorStartY] = useState<number>(0);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -198,12 +201,8 @@ const ProjectDetailsPage: React.FC = () => {
   const SAMPLE_SUB_IMAGE =
     "https://placehold.co/400x300/718096/ffffff?text=Project+Image";
 
-
-
-
   // Handle logo click
   const handleLogoClick = () => {
-    // setIsMenuOpen(!isMenuOpen);
     navigate('/')
   };
 
@@ -216,6 +215,7 @@ const ProjectDetailsPage: React.FC = () => {
         : SAMPLE_BACKGROUND_IMAGE;
 
     // Force exact fill of the section box to avoid any visible seams or gaps
+    // REMOVED: No more blur filter on hover
     return {
       backgroundImage: `url(${backgroundUrl})`,
       backgroundSize: "100% 100%",
@@ -227,7 +227,8 @@ const ProjectDetailsPage: React.FC = () => {
 
   // ENHANCED: Responsive section dimension calculation
   const getResponsiveSectionDimensions = (section: ProjectContainer) => {
-    const containerWidth = window.innerWidth;
+    // Account for padding in container width calculation
+    const containerWidth = window.innerWidth - (paddingData.paddingLeft || 0) - (paddingData.paddingRight || 0);
     const coordinateSystem = createResponsiveCoordinateSystem(
       section.backgroundImageAspectRatio
     );
@@ -257,14 +258,12 @@ const ProjectDetailsPage: React.FC = () => {
       setDeviceType(newDeviceType);
 
       // Close menu on resize to prevent positioning issues
-      if (isMenuOpen && newDeviceType !== deviceType) {
-        setIsMenuOpen(false);
-      }
+     
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [deviceType, isMenuOpen]);
+  }, [deviceType,]);
 
     useEffect(() => {
       if (isFetching) {
@@ -493,27 +492,7 @@ const ProjectDetailsPage: React.FC = () => {
     };
   }, [totalHeight, deviceType]);
 
-  // Handle click outside menu
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isMenuOpen) {
-        const target = event.target as HTMLElement;
-        const logoElement = document.getElementById("main-logo");
-        const menuElement = document.getElementById("logo-menu");
 
-        if (logoElement && menuElement) {
-          if (!logoElement.contains(target) && !menuElement.contains(target)) {
-            setIsMenuOpen(false);
-          }
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMenuOpen]);
 
   // Load data from API and separate exterior/interior
   useEffect(() => {
@@ -576,14 +555,7 @@ const ProjectDetailsPage: React.FC = () => {
   }, [data, hasTypedSections]);
 
   // Handle menu item click
-  const handleMenuItemClick = (item: MenuItem) => {
-    if (item.link.startsWith("http")) {
-      window.open(item.link, "_blank");
-    } else {
-      navigate(item.link);
-    }
-    setIsMenuOpen(false);
-  };
+  
 
   // Handle section navigation (only if we have typed sections)
   const handleSectionNavigation = (sectionType: "exterior" | "interior") => {
@@ -628,6 +600,38 @@ const ProjectDetailsPage: React.FC = () => {
     };
   }, [sections]);
 
+  // Get responsive logo and menu sizes
+  const getResponsiveLogoSizes = () => {
+    const device = getDeviceType();
+    return {
+      fixedLogo:
+        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
+               SecondLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
+      centeredLogo:
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
+      menuItemSize:
+        device === "mobile" ? "8px" : device === "tablet" ? "10px" : "11px",
+      menuPadding:
+        device === "mobile"
+          ? "4px 8px"
+          : device === "tablet"
+          ? "5px 10px"
+          : "6px 12px",
+    };
+  };
+
+  // Get current active section for navigation buttons (only if typed sections exist)
+  const getCurrentActiveSection = () => {
+    if (!hasTypedSections) return null;
+
+    if (scrollY < interiorStartY) {
+      return "exterior";
+    } else {
+      return "interior";
+    }
+  };
+
   // ENHANCED: Responsive image dimensions calculation
   const calculateResponsiveImageDimensions = (
     containerWidth: number,
@@ -671,38 +675,6 @@ const ProjectDetailsPage: React.FC = () => {
     };
   };
 
-  // Get responsive logo and menu sizes
-  const getResponsiveLogoSizes = () => {
-    const device = getDeviceType();
-    return {
-      fixedLogo:
-        device === "mobile" ? "100px" : device === "tablet" ? "120px" : "150px",
-               SecondLogo:
-        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
-      centeredLogo:
-        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
-      menuItemSize:
-        device === "mobile" ? "8px" : device === "tablet" ? "10px" : "11px",
-      menuPadding:
-        device === "mobile"
-          ? "4px 8px"
-          : device === "tablet"
-          ? "5px 10px"
-          : "6px 12px",
-    };
-  };
-
-  // Get current active section for navigation buttons (only if typed sections exist)
-  const getCurrentActiveSection = () => {
-    if (!hasTypedSections) return null;
-
-    if (scrollY < interiorStartY) {
-      return "exterior";
-    } else {
-      return "interior";
-    }
-  };
-
    // ENHANCED: Smooth scroll to top with easing
   const smoothScrollToTop = () => {
     targetScrollY.current = 0;
@@ -728,39 +700,24 @@ const ProjectDetailsPage: React.FC = () => {
     <div
       className="project-details-container homepage-gradient-bg"
       style={{
-        position: "relative", // CHANGED: From "fixed" to "relative" for proper content flow
+        position: "relative",
         top: 0,
         left: 0,
-        width: "100%", // CHANGED: From "100vw" to "100%" for better content flow
+        width: "100%",
         minHeight: "100vh",
-        overflow: "auto", // CHANGED: From "hidden" to "auto" for proper scrolling
-        display: "flex", // ADDED: Use flexbox for better layout control
-        flexDirection: "column", // ADDED: Stack content vertically
+        overflow: "auto",
+        display: "flex",
+        flexDirection: "column",
+        // Apply padding from paddingData
+        paddingLeft: `${paddingData.paddingLeft}px`,
+        paddingRight: `${paddingData.paddingRight}px`,
+        paddingTop: `${paddingData.paddingTop}px`,
+        paddingBottom: `${paddingData.paddingBottom}px`,
+        boxSizing: "border-box", // Ensure padding is included in width calculation
       }}
-
     >
          {showLoader && (
-          // <div
-          //   style={{
-          //     position: "fixed",
-          //     top: 0,
-          //     left: 0,
-          //     width: "100%",
-          //     height: "100%",
-          //     background: "rgba(0, 0, 0, 0.9)",
-          //     display: "flex",
-          //     alignItems: "center",
-          //     justifyContent: "center",
-          //     zIndex: 9999,
-          //   }}
-          // >
-          //   <LoadingSpinner
-          //     variant="gradient"
-          //     size="large"
-          //     text="Loading project details..."
-          //     fullHeight={true}
-          //   />
-          // </div>
+          
           <AnimatePresence>
                  
                       <motion.div
@@ -798,279 +755,146 @@ const ProjectDetailsPage: React.FC = () => {
         )}
       <style>{projectDetailsStyles}</style>
       <style>{homepageStyles}</style>
+      {/* Custom CSS to disable ALL hover effects AND default glow effects on subproject images */}
+      <style>
+        {`
+          .clickable-sub-project {
+            transition: none !important;
+            box-shadow: none !important;
+            transform: none !important;
+            scale: 1 !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+          
+          .clickable-sub-project:hover {
+            transform: none !important;
+            transform-origin: center !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            glow: none !important;
+            text-shadow: none !important;
+            background: none !important;
+            opacity: 1 !important;
+            transition: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+          
+          .clickable-sub-project:focus {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            glow: none !important;
+            text-shadow: none !important;
+            background: none !important;
+            opacity: 1 !important;
+            transition: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+          
+          .sub-project-container:hover {
+            transform: none !important;
+            scale: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            transition: none !important;
+            cursor: default !important;
+          }
+          
+          .sub-project-visible:hover {
+            transform: none !important;
+            scale: 1 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            transition: none !important;
+            cursor: default !important;
+          }
+
+          /* Target any motion components specifically */
+          .sub-project-container > * {
+            transform: none !important;
+            scale: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+
+          .sub-project-container > *:hover {
+            transform: none !important;
+            scale: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any global img hover styles and default filters */
+          img.clickable-sub-project {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            box-shadow: none !important;
+            cursor: default !important;
+          }
+
+          img.clickable-sub-project:hover {
+            transform: none !important;
+            scale: 1 !important;
+            zoom: 1 !important;
+            transition: none !important;
+            filter: none !important;
+            drop-shadow: none !important;
+            box-shadow: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any subtleGlow animation or class */
+          .subtleGlow,
+          .clickable-sub-project.subtleGlow {
+            filter: none !important;
+            drop-shadow: none !important;
+            animation: none !important;
+            cursor: default !important;
+          }
+
+          /* Override any CSS animations that might add glow */
+          @keyframes subtleGlow {
+            from { filter: none !important; }
+            to { filter: none !important; }
+          }
+        `}
+      </style>
       <div className="gradient-background-pattern" />
 
       {/* Section Navigation Buttons - Only show if we have typed sections */}
-     {/* Section Navigation Buttons - Only show if we have typed sections */}
-{/* Section Navigation Buttons - Only show if we have typed sections */}
 {hasTypedSections && (
-  <div
-    className="section-nav-buttons"
-    style={{
-      top: deviceType === "mobile" ? "15px" : "20px",
-      right: deviceType === "mobile" ? "40px" : "45px",
-      display: "flex",
-      gap: "6px",
-      zIndex: 1000,
-    }}
-  >
-    {/* EXTERIOR Button */}
-    <motion.button
-      className={`section-nav-btn ${
-        currentActiveSection === "exterior" ? "active" : ""
-      }`}
-      onClick={() => handleSectionNavigation("exterior")}
-      onMouseEnter={() => setHoveredButton("exterior")}
-      onMouseLeave={() => setHoveredButton(null)}
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        border: currentActiveSection === "exterior" 
-          ? "2px solid #F59E0B" 
-          : "2px solid rgba(255, 255, 255, 0.3)",
-        background: currentActiveSection === "exterior"
-          ? "linear-gradient(135deg,#F59E0B 0%, #F59E0B 100%)"
-          : hoveredButton === "exterior"
-          ? "linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)"
-          : "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%)",
-        color: currentActiveSection === "exterior" ?  "#000000" : "#ffffff",
-        padding:
-          deviceType === "mobile"
-            ? "6px 10px"
-            : deviceType === "tablet"
-            ? "7px 12px"
-            : "8px 14px",
-        fontSize:
-          deviceType === "mobile"
-            ? "10px"
-            : deviceType === "tablet"
-            ? "11px"
-            : "12px",
-        fontWeight: "600",
-        letterSpacing: "0.5px",
-        borderRadius: "10px",
-        boxShadow: currentActiveSection === "exterior"
-          ? "0 8px 25px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)"
-          : hoveredButton === "exterior"
-          ? "0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)"
-          : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)",
-        backdropFilter: "blur(10px)",
-        cursor: "pointer",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      }}
-      whileHover={{ 
-        scale: 1.05,
-        y: -2,
-      }}
-      whileTap={{ 
-        scale: 0.95,
-        y: 0,
-      }}
-      animate={{
-        scale: currentActiveSection === "exterior" ? 1.02 : 1,
-      }}
-    >
-      {/* Animated background overlay */}
-      <motion.div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%)",
-          borderRadius: "8px",
-          opacity: 0,
-        }}
-        animate={{
-          opacity: hoveredButton === "exterior" ? 1 : 0,
-        }}
-        transition={{ duration: 0.3 }}
-      />
-      
-      <span style={{ 
-        position: "relative", 
-        zIndex: 1,
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-      }}>
-        {/* Icon */}
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-        </svg>
-        
-        EXTERIOR
-        
-        {exteriorSections.length > 0 && (
-          <motion.span 
-            className="exterior-badge"
-            style={{
-              background: currentActiveSection === "exterior"
-                ? "rgba(255, 255, 255, 0.2)"
-                :"#F59E0B",
-              color: currentActiveSection === "exterior" ? "#ffffff" : "#ffffff",
-              fontSize: "9px",
-              fontWeight: "700",
-              padding: "2px 6px",
-              borderRadius: "8px",
-              minWidth: "16px",
-              height: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: currentActiveSection === "exterior" 
-                ? "1px solid rgba(255, 255, 255, 0.3)" 
-                : "none",
-            }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          >
-            {exteriorSections.length}
-          </motion.span>
-        )}
-      </span>
-    </motion.button>
+  <InterorExteriorSection currentActiveSection={currentActiveSection} deviceType={deviceType}
+   exteriorSections={exteriorSections}handleSectionNavigation={handleSectionNavigation}
+    hoveredButton={hoveredButton} interiorSections={interiorSections} setHoveredButton={setHoveredButton}/>
 
-    {/* INTERIOR Button */}
-    <motion.button
-      className={`section-nav-btn ${
-        currentActiveSection === "interior" ? "active" : ""
-      }`}
-      onClick={() => handleSectionNavigation("interior")}
-      onMouseEnter={() => setHoveredButton("interior")}
-      onMouseLeave={() => setHoveredButton(null)}
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        border: currentActiveSection === "interior" 
-          ? "2px solid #F59E0B" 
-          : "2px solid rgba(255, 255, 255, 0.3)",
-        background: currentActiveSection === "interior"
-          ? "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
-          : hoveredButton === "interior"
-          ? "linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)"
-          : "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%)",
-        color: currentActiveSection === "interior" ? "#000000" : "#ffffff",
-        padding:
-          deviceType === "mobile"
-            ? "6px 10px"
-            : deviceType === "tablet"
-            ? "7px 12px"
-            : "8px 14px",
-        fontSize:
-          deviceType === "mobile"
-            ? "10px"
-            : deviceType === "tablet"
-            ? "11px"
-            : "12px",
-        fontWeight: "600",
-        letterSpacing: "0.5px",
-        borderRadius: "10px",
-        boxShadow: currentActiveSection === "interior"
-          ? "0 8px 25px rgba(245, 158, 11, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)"
-          : hoveredButton === "interior"
-          ? "0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)"
-          : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)",
-        backdropFilter: "blur(10px)",
-        cursor: "pointer",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      }}
-      whileHover={{ 
-        scale: 1.05,
-        y: -2,
-      }}
-      whileTap={{ 
-        scale: 0.95,
-        y: 0,
-      }}
-      animate={{
-        scale: currentActiveSection === "interior" ? 1.02 : 1,
-      }}
-    >
-      {/* Animated background overlay */}
-      <motion.div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)",
-          borderRadius: "8px",
-          opacity: 0,
-        }}
-        animate={{
-          opacity: hoveredButton === "interior" ? 1 : 0,
-        }}
-        transition={{ duration: 0.3 }}
-      />
-      
-      <span style={{ 
-        position: "relative", 
-        zIndex: 1,
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-      }}>
-        {/* Icon */}
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
-        </svg>
-        
-        INTERIOR
-        
-        {interiorSections.length > 0 && (
-          <motion.span 
-            className="interior-badge"
-            style={{
-              background: currentActiveSection === "interior"
-                ? "rgba(0, 0, 0, 0.2)"
-                : "#F59E0B",
-              color: currentActiveSection === "interior" ? "#000000" : "#000000",
-              fontSize: "9px",
-              fontWeight: "700",
-              padding: "2px 6px",
-              borderRadius: "8px",
-              minWidth: "16px",
-              height: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: currentActiveSection === "interior" 
-                ? "1px solid rgba(0, 0, 0, 0.3)" 
-                : "none",
-            }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          >
-            {interiorSections.length}
-          </motion.span>
-        )}
-      </span>
-    </motion.button>
-  </div>
 )}
 
       {/* Fixed Logo with Menu - Responsive positioning */}
@@ -1098,39 +922,23 @@ const ProjectDetailsPage: React.FC = () => {
             transition: "all 0.3s ease",
           }}
         >
-            {isMenuOpen
-            &&  <img
-            src="/logo/po.png"
-            alt="Fixed Logo"
-            style={{
-              height: logoSizes.SecondLogo,
-              width: "auto",
-              //  filter: "brightness(0) invert(1)",
-              // transition: "transform 0.2s ease, filter 0.2s ease",
-              marginLeft:12
-            }}
-            
-          />}
-        {!isMenuOpen
-            &&    <img
-            src="/logo/font 2_.png"
+             <img
+            src="/logo/font.png"
             alt="Fixed Logo"
             style={{
               height: logoSizes.fixedLogo,
               width: "auto",
-              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
-              transition: "transform 0.2s ease, filter 0.2s ease",
+                filter: "brightness(0) invert(1)",
+              // transition: "transform 0.2s ease, filter 0.2s ease",
+              marginLeft:12
             }}
-          />}
+            
+          />
+    
         </div>
 
         {/* Side Menu Component */}
-        <SideMenu
-          isMenuOpen={isMenuOpen}
-          deviceType={deviceType as "mobile" | "tablet" | "desktop"}
-          variant="project-details"
-          onMenuItemClick={handleMenuItemClick}
-        />
+       
       </div>
 
       {/* Main Content Container */}
@@ -1138,22 +946,19 @@ const ProjectDetailsPage: React.FC = () => {
         ref={containerRef}
         className="project-details-content"
         style={{
-          position: "relative", // CHANGED: From "absolute" to "relative" for proper flow
+          position: "relative",
           top: 0,
           left: 0,
           width: "100%",
-          minHeight: "100vh", // ADDED: Ensure minimum height for proper footer positioning
-          display: "flex", // ADDED: Use flexbox for better layout control
-          flexDirection: "column", // ADDED: Stack content vertically
-          flex: 1, // ADDED: Take up available space
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
           transition: "transform 0.1s ease-out",
           willChange: "transform",
         }}
       >
-        {/* Loading state */}
-     
-
-        {/* ENHANCED: Responsive sections with background blur effect */}
+        {/* ENHANCED: Responsive sections with NO background blur effect */}
         {sections?.map((section) => {
           // ENHANCED: Calculate proper dimensions using responsive system
           const dimensions = getResponsiveSectionDimensions(section);
@@ -1162,20 +967,22 @@ const ProjectDetailsPage: React.FC = () => {
             section.backgroundImageAspectRatio
           );
 
-          // Get section type info (null if backgroundType is 0)
-          // const sectionTypeInfo = getSectionTypeInfo(section.backgroundType);
+          // Calculate section width based on padding
+          const sectionWidth = paddingData.paddingLeft || paddingData.paddingRight 
+            ? `calc(100vw - ${(paddingData.paddingLeft || 0) + (paddingData.paddingRight || 0)}px)`
+            : "100vw";
 
           return (
             <section
               key={section.subProjectContainerId}
               style={{
                 position: "relative",
-                width: "100vw",
+                width: sectionWidth,
                 height: `${dimensions.height}px`,
                 overflow: "hidden",
               }}
             >
-              {/* Separate Background Layer with Blur Effect */}
+              {/* Background Layer - NO blur effect anymore */}
               <div
                 style={{
                   position: "absolute",
@@ -1184,8 +991,6 @@ const ProjectDetailsPage: React.FC = () => {
                   right: 0,
                   bottom: 0,
                   ...bgStyle,
-                  filter: hoveredImageId !== null ? "blur(3px)" : "none",
-                  transition: "filter 0.3s ease",
                   zIndex: 1,
                 }}
               />
@@ -1198,57 +1003,12 @@ const ProjectDetailsPage: React.FC = () => {
                   zIndex: 10,
                 }}
               >
-                {/* Section Type Badge - Only show if we have typed sections */}
-                {/* {sectionTypeInfo && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "20px",
-                      left: "20px",
-                      background: sectionTypeInfo.color,
-                      color: "white",
-                      padding: "6px 12px",
-                      borderRadius: "20px",
-                      fontSize: deviceType === "mobile" ? "10px" : "12px",
-                      fontWeight: "600",
-                      zIndex: 100,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    {/* {sectionTypeInfo.label} */}
-                {/* </div>
-                )}  */}
-
-                {/* Responsive Centered Top Logo - Only show on first section */}
-                {/* {sectionIndex === 0 && (
-                  <div
-                    className="centered-logo"
-                    onClick={handleCenteredLogoClick}
-                    style={{
-                      top:
-                        deviceType === "mobile"
-                          ? "20px"
-                          : deviceType === "tablet"
-                          ? "30px"
-                          : "80px",
-                    }}
-                  >
-                    <img
-                      src="/logo/logo.webp"
-                      alt="Centered Logo"
-                      style={{
-                        cursor: "pointer",
-                        height: logoSizes.centeredLogo,
-                      }}
-                    />
-                  </div>
-                )} */}
-
-                {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion */}
+                {/* ENHANCED: Responsive sub-projects positioned using coordinate system with Framer Motion - NO HOVER EFFECTS */}
                 <AnimatePresence>
                   {section.subProjects?.map((subProject) => {
                     // ENHANCED: Use responsive coordinate system for positioning
-                    const containerWidth = window.innerWidth;
+                    // Account for padding in container width calculation
+                    const containerWidth = window.innerWidth - (paddingData.paddingLeft || 0) - (paddingData.paddingRight || 0);
                     const { x: pixelX, y: pixelY } =
                       coordinateSystem.getPixelFromPercent(
                         subProject.xPosition,
@@ -1257,13 +1017,12 @@ const ProjectDetailsPage: React.FC = () => {
                       );
 
                     const imageDimensions = calculateResponsiveImageDimensions(
-                      containerWidth,
+                      containerWidth, // Now uses the padding-adjusted width
                       subProject.heightPercent,
                       section.backgroundImageAspectRatio
                     );
 
-                    const isHovered =
-                      hoveredImageId === subProject.subProjectId;
+                    // REMOVED: isHovered since we don't want hover effects
 
                     // Get animation variants for this sub-project
                     const animationVariants = getAnimationVariants(
@@ -1422,7 +1181,7 @@ const ProjectDetailsPage: React.FC = () => {
                           position: "absolute",
                           left: `${pixelX}px`,
                           top: `${pixelY}px`,
-                          zIndex: isHovered ? 50 : 20,
+                          zIndex: 20, // REMOVED: hover z-index change, now constant
                         }}
                       >
                         <motion.img
@@ -1451,18 +1210,13 @@ const ProjectDetailsPage: React.FC = () => {
                               ? "animate"
                               : "initial"
                           }
-                          whileHover={
-                            subProject.animation !== "none" &&
-                            subProject.animationTrigger === "hover"
-                              ? "animate"
-                              : {}
-                          }
+                          // EXPLICITLY disable all hover behaviors
+                          whileHover={{}}
+                          whileFocus={{}}
+                          whileTap={{}}
                           transition={transition}
                           onClick={() => {}}
-                          onMouseEnter={() =>
-                            setHoveredImageId(subProject.subProjectId)
-                          }
-                          onMouseLeave={() => setHoveredImageId(null)}
+                          // REMOVED: onMouseEnter and onMouseLeave handlers
                           onError={(e) => {
                             // Fallback to sample image if the original fails to load
                             if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
@@ -1473,13 +1227,24 @@ const ProjectDetailsPage: React.FC = () => {
                             ...imageDimensions,
                             display: "block",
                             borderRadius: "8px",
-                            cursor: "pointer",
                             backfaceVisibility: "hidden",
                             perspective: "1000px",
                             // Enhanced touch targets for mobile
                             minWidth: deviceType === "mobile" ? "44px" : "auto",
                             minHeight:
                               deviceType === "mobile" ? "44px" : "auto",
+                            // Explicitly disable ALL effects including default glow
+                            transition: "none !important",
+                            boxShadow: "none !important",
+                            filter: "none !important",
+                            // dropShadow: "none !important",
+                            border: "none !important",
+                            outline: "none !important",
+                            // Force no transform changes
+                            transform: "none !important",
+                            scale: "1 !important",
+                            // Remove cursor pointer - no interactive indication
+                            cursor: "default",
                           }}
                         />
                       </motion.div>
@@ -1495,11 +1260,9 @@ const ProjectDetailsPage: React.FC = () => {
                     visibility: "hidden",
                   }}
                 >
-                  {section.title}{" "}
-                  {/* {sectionTypeInfo ? ` - ${sectionTypeInfo.label}` : ""} */}
+                  {section.title}
                 </h1>
-              </div>{" "}
-              {/* End Content Layer */}
+              </div>
             </section>
           );
         })}
@@ -1519,12 +1282,10 @@ const ProjectDetailsPage: React.FC = () => {
           variant="project-details"
           className="project-details-footer"
         />
-
-        {/* Footer is now properly positioned in the content flow, no additional padding needed */}
       </div>
 
-        {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
-        <style>
+      {/* ENHANCED: Responsive Scroll to Top Button with professional animations */}
+      <style>
     {`
       .scroll-to-top-btn {
         position: relative;

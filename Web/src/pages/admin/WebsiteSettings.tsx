@@ -322,6 +322,24 @@ console.log(55,data)
     } 
   };
 
+  const findMatchingPreset = (settings: ScrollSpeedSettings): string | null => {
+    for (const [presetName, presetSettings] of Object.entries(SCROLL_SPEED_PRESETS)) {
+      if (settingsEqual(settings, presetSettings)) {
+        return presetName;
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+  if(data?.data){
+setCurrentSettings(data.data)
+const current=findMatchingPreset(data.data)
+setSelectedPreset(current || "custom");
+  }
+  }, [data?.data])
+  
+
   console.log(123,currentSettings,selectedPreset,isLoginPending)
 
   // Load current settings from API
@@ -385,14 +403,7 @@ console.log(55,data)
   };
 
   // Find matching preset for given settings
-  const findMatchingPreset = (settings: ScrollSpeedSettings): string | null => {
-    for (const [presetName, presetSettings] of Object.entries(SCROLL_SPEED_PRESETS)) {
-      if (settingsEqual(settings, presetSettings)) {
-        return presetName;
-      }
-    }
-    return null;
-  };
+  
 
   // Handle preset selection
   const handlePresetChange = (preset: string) => {

@@ -1063,8 +1063,7 @@ export const projectDetailsStyles = `
 
     .sub-project-visible {
       opacity: 1;
-      transform: translateY(0);
-      transition: all 0.6s ease-out;
+     
     }
 
     .logo-press {
@@ -1170,7 +1169,7 @@ export const projectDetailsStyles = `
 
     /* REMOVED: All dimming effects for sub-projects */
     .sub-project-container {
-      transition: all 0.4s ease;
+      // transition: all 0.4s ease;
       /* No dimming classes needed anymore */
     }
 
