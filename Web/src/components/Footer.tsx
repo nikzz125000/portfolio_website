@@ -1442,6 +1442,7 @@ const Footer: React.FC<FooterProps> = ({
           gap: dimensions.gap,
           marginTop: "auto",
           overflow: "hidden",
+          
         }}
       >
         {/* Left side - Font logo and text */}
