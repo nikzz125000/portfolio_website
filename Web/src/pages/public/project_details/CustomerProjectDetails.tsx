@@ -146,10 +146,10 @@ const ProjectDetailsPage: React.FC = () => {
  
 
   const [paddingData, setPaddingData] = useState<PaddingData>({
-      paddingLeft: 100,
-      paddingRight: 100,
-      paddingBottom: 100,
-      paddingTop: 100
+      paddingLeft: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+      paddingTop: 0
     });
   
   
@@ -193,11 +193,18 @@ const ProjectDetailsPage: React.FC = () => {
     projectId ? parseInt(projectId, 10) : 0
   );
 
-     const { data: paddingValue } = useGetPadding();
+     const { data: paddingValue } = useGetPadding( projectId ? parseInt(projectId, 10) : 0);
     useEffect(() => {
       if (paddingValue?.data) {
      
         setPaddingData(paddingValue.data);
+      }else{
+        setPaddingData({
+      paddingLeft: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+      paddingTop: 0
+    })
       }
     }, [paddingValue]);
 

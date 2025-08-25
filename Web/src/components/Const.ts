@@ -2590,23 +2590,24 @@ export const homepageStyles = `
     }
       /* MAGNIFYING GLASS CURSOR WITH OPPOSITE COLORS */
  /* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT */
+/* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT - REDUCED SIZE */
 .clickable-sub-image {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='16' cy='17' r='12' fill='%23000000' fill-opacity='0.2'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='16' cy='16' r='12' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.5'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='16' cy='16' r='8' fill='url(%23highlight)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='14' cy='12' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 16 16, pointer !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
   
   cursor: pointer !important;
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
   z-index: 20;
   /* Base glow effect with subtle animation */
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
   animation: subtleGlow 3s ease-in-out infinite;
 }
 
 .clickable-sub-image:hover {
   /* Enhanced convex glass cursor on hover with blue tint */
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='18' cy='19' r='14' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with blue tint --%3E%3Ccircle cx='18' cy='18' r='14' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.8'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='18' cy='18' r='10' fill='url(%23highlightHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='15' cy='13' rx='4' ry='2' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='21' cy='15' rx='2' ry='1' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 18 18, pointer !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with blue tint --%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
   
-  filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 60px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 80px rgba(102, 126, 234, 0.3));
+  filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 45px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 60px rgba(102, 126, 234, 0.3));
   z-index: 50 !important;
   transform: scale(1.03);
   animation: none;
@@ -2616,24 +2617,24 @@ export const homepageStyles = `
 @media (max-width: 768px) {
   .clickable-sub-image {
     /* Smaller convex glass for mobile */
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='15' r='10' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='14' cy='14' r='10' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='14' cy='14' r='7' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='12' cy='11' rx='2.5' ry='1.2' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 14 14, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.5' r='7.5' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='10' cy='10' r='7.5' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.3'/%3E%3Ccircle cx='10' cy='10' r='5' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='9' cy='8' rx='1.8' ry='0.9' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 10 10, pointer !important;
     
     /* Enhanced base glow for touch devices */
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
   }
   
   .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobileHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobileHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='16' r='11' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='15' cy='15' r='11' fill='url(%23glassGradMobileHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3Ccircle cx='15' cy='15' r='8' fill='url(%23highlightMobileHover)'/%3E%3Cellipse cx='13' cy='12' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 15 15, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobileHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobileHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='11' cy='11.5' r='8' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='11' cy='11' r='8' fill='url(%23glassGradMobileHover)' stroke='%236c757d' stroke-width='0.4'/%3E%3Ccircle cx='11' cy='11' r='6' fill='url(%23highlightMobileHover)'/%3E%3Cellipse cx='9.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 11 11, pointer !important;
     
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 22px rgba(255, 255, 255, 0.3));
     transform: scale(1.02);
   }
 
   /* Disable hover effects on pure touch devices */
   @media (hover: none) {
     .clickable-sub-image:hover {
-      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='15' r='10' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='14' cy='14' r='10' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='14' cy='14' r='7' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='12' cy='11' rx='2.5' ry='1.2' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 14 14, pointer !important;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.5' r='7.5' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='10' cy='10' r='7.5' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.3'/%3E%3Ccircle cx='10' cy='10' r='5' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='9' cy='8' rx='1.8' ry='0.9' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 10 10, pointer !important;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
       transform: none;
       animation: subtleGlow 3s ease-in-out infinite;
     }
@@ -2643,11 +2644,11 @@ export const homepageStyles = `
 /* Tablet responsive cursors */
 @media (min-width: 769px) and (max-width: 1024px) {
   .clickable-sub-image {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cdefs%3E%3CradialGradient id='glassGradTablet' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTablet' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='16' r='11' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='15' cy='15' r='11' fill='url(%23glassGradTablet)' stroke='%23adb5bd' stroke-width='0.5'/%3E%3Ccircle cx='15' cy='15' r='8' fill='url(%23highlightTablet)'/%3E%3Cellipse cx='13' cy='12' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 15 15, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cdefs%3E%3CradialGradient id='glassGradTablet' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTablet' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='11' cy='11.5' r='8' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='11' cy='11' r='8' fill='url(%23glassGradTablet)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='11' cy='11' r='6' fill='url(%23highlightTablet)'/%3E%3Cellipse cx='9.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 11 11, pointer !important;
   }
   
   .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cdefs%3E%3CradialGradient id='glassGradTabletHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTabletHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='17' cy='18' r='13' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='17' cy='17' r='13' fill='url(%23glassGradTabletHover)' stroke='%236c757d' stroke-width='0.7'/%3E%3Ccircle cx='17' cy='17' r='9' fill='url(%23highlightTabletHover)'/%3E%3Cellipse cx='14' cy='13' rx='3.5' ry='1.8' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 17 17, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cdefs%3E%3CradialGradient id='glassGradTabletHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTabletHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='13' cy='13.5' r='10' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='13' cy='13' r='10' fill='url(%23glassGradTabletHover)' stroke='%236c757d' stroke-width='0.5'/%3E%3Ccircle cx='13' cy='13' r='7' fill='url(%23highlightTabletHover)'/%3E%3Cellipse cx='11' cy='10' rx='2.6' ry='1.3' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 13 13, pointer !important;
     transform: scale(1.02);
   }
 }
@@ -2655,122 +2656,31 @@ export const homepageStyles = `
 /* Desktop enhanced cursors */
 @media (min-width: 1025px) {
   .clickable-sub-image {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktop' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktop' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='16' cy='17' r='12' fill='%23000000' fill-opacity='0.25'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='16' cy='16' r='12' fill='url(%23glassGradDesktop)' stroke='%23adb5bd' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='16' cy='16' r='8' fill='url(%23highlightDesktop)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='14' cy='12' rx='3.5' ry='1.8' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary smaller highlight --%3E%3Cellipse cx='19' cy='14' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 16 16, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktop' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktop' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.25'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGradDesktop)' stroke='%23adb5bd' stroke-width='0.5'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlightDesktop)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.6' ry='1.3' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary smaller highlight --%3E%3Cellipse cx='14' cy='10.5' rx='1.1' ry='0.6' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 12 12, pointer !important;
   }
   
   .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='38' viewBox='0 0 38 38'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktopHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.98'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.85'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.65'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.45'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktopHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Enhanced outer shadow --%3E%3Ccircle cx='19' cy='20' r='15' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with enhanced blue tint --%3E%3Ccircle cx='19' cy='19' r='15' fill='url(%23glassGradDesktopHover)' stroke='%236c757d' stroke-width='0.8'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='19' cy='19' r='11' fill='url(%23highlightDesktopHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='16' cy='14' rx='4.5' ry='2.2' fill='%23ffffff' fill-opacity='0.8'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='22' cy='16' rx='2' ry='1.2' fill='%23ffffff' fill-opacity='0.5'/%3E%3C!-- Subtle inner ring for depth --%3E%3Ccircle cx='19' cy='19' r='6' fill='none' stroke='%23ffffff' stroke-width='0.3' stroke-opacity='0.3'/%3E%3C/svg%3E") 19 19, pointer !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktopHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.98'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.85'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.65'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.45'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktopHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Enhanced outer shadow --%3E%3Ccircle cx='14' cy='14.5' r='11' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with enhanced blue tint --%3E%3Ccircle cx='14' cy='14' r='11' fill='url(%23glassGradDesktopHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='8' fill='url(%23highlightDesktopHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10.5' rx='3.3' ry='1.6' fill='%23ffffff' fill-opacity='0.8'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.9' fill='%23ffffff' fill-opacity='0.5'/%3E%3C!-- Subtle inner ring for depth --%3E%3Ccircle cx='14' cy='14' r='4.5' fill='none' stroke='%23ffffff' stroke-width='0.2' stroke-opacity='0.3'/%3E%3C/svg%3E") 14 14, pointer !important;
     transform: scale(1.03);
   }
 }
 
-/* Remove the old magnifying glass styles */
+/* Apply same style to gradient class */
 .clickable-sub-image-gradient {
-  /* Use the same convex glass style as the main cursor */
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='17' r='12' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='16' cy='16' r='12' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.5'/%3E%3Ccircle cx='16' cy='16' r='8' fill='url(%23highlight)'/%3E%3Cellipse cx='14' cy='12' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 16 16, pointer !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
 }
 
 .clickable-sub-image-gradient:hover {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='18' cy='19' r='14' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='18' cy='18' r='14' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.8'/%3E%3Ccircle cx='18' cy='18' r='10' fill='url(%23highlightHover)'/%3E%3Cellipse cx='15' cy='13' rx='4' ry='2' fill='%23ffffff' fill-opacity='0.7'/%3E%3Cellipse cx='21' cy='15' rx='2' ry='1' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 18 18, pointer !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
 }
 
-  /* SIMPLE GLASS CURSOR WITH LIGHT BLUE TINT */
-.clickable-sub-image {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='simpleGlass' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23e6f3ff' stop-opacity='0.3'/%3E%3Cstop offset='70%25' stop-color='%23b3daff' stop-opacity='0.2'/%3E%3Cstop offset='100%25' stop-color='%2399ccff' stop-opacity='0.1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='12' fill='url(%23simpleGlass)' stroke='%234da6ff' stroke-width='1' stroke-opacity='0.6'/%3E%3Ccircle cx='13' cy='13' r='3' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 16 16, pointer !important;
-  
-  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  z-index: 20;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
-  animation: subtleGlow 3s ease-in-out infinite;
-}
-
-.clickable-sub-image:hover {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CradialGradient id='simpleGlassHover' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23cce7ff' stop-opacity='0.4'/%3E%3Cstop offset='70%25' stop-color='%2399ccff' stop-opacity='0.3'/%3E%3Cstop offset='100%25' stop-color='%2366b3ff' stop-opacity='0.2'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='18' cy='18' r='14' fill='url(%23simpleGlassHover)' stroke='%233399ff' stroke-width='1.2' stroke-opacity='0.7'/%3E%3Ccircle cx='15' cy='15' r='4' fill='%23ffffff' fill-opacity='0.5'/%3E%3C/svg%3E") 18 18, pointer !important;
-  
-  filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4));
-  z-index: 50 !important;
-  transform: scale(1.03);
-  animation: none;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .clickable-sub-image {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='simpleGlassMobile' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23e6f3ff' stop-opacity='0.3'/%3E%3Cstop offset='70%25' stop-color='%23b3daff' stop-opacity='0.2'/%3E%3Cstop offset='100%25' stop-color='%2399ccff' stop-opacity='0.1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='14' r='10' fill='url(%23simpleGlassMobile)' stroke='%234da6ff' stroke-width='0.8' stroke-opacity='0.6'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
+/* Keyframe animation for subtle glow */
+@keyframes subtleGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
   }
-  
-  .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cdefs%3E%3CradialGradient id='simpleGlassMobileHover' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23cce7ff' stop-opacity='0.4'/%3E%3Cstop offset='70%25' stop-color='%2399ccff' stop-opacity='0.3'/%3E%3Cstop offset='100%25' stop-color='%2366b3ff' stop-opacity='0.2'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='15' r='11' fill='url(%23simpleGlassMobileHover)' stroke='%233399ff' stroke-width='1' stroke-opacity='0.7'/%3E%3Ccircle cx='13' cy='13' r='3' fill='%23ffffff' fill-opacity='0.5'/%3E%3C/svg%3E") 15 15, pointer !important;
-  }
-}
-
-/* OPPOSITE COLOR GLASS CURSOR USING BLEND MODE */
-.clickable-sub-image {
-  cursor: none !important; /* Hide default cursor */
-  position: relative;
-  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  z-index: 20;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
-  animation: subtleGlow 3s ease-in-out infinite;
-}
-
-/* Custom glass cursor that follows mouse */
-.clickable-sub-image::after {
-  content: '';
-  position: fixed;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 40% 30%, 
-    rgba(255,255,255,0.5) 0%,
-    rgba(255,255,255,0.3) 30%,
-    rgba(255,255,255,0.1) 70%,
-    transparent 100%
-  );
-  border: 1px solid rgba(255,255,255,0.8);
-  mix-blend-mode: difference; /* This creates opposite colors! */
-  pointer-events: none;
-  z-index: 1000;
-  transform: translate(-50%, -50%);
-  left: var(--mouse-x, 50%);
-  top: var(--mouse-y, 50%);
-  transition: all 0.1s ease-out;
-  backdrop-filter: blur(1px);
-}
-
-/* Enhanced version on hover */
-.clickable-sub-image:hover::after {
-  width: 36px;
-  height: 36px;
-  background: radial-gradient(
-    circle at 40% 30%, 
-    rgba(255,255,255,0.7) 0%,
-    rgba(255,255,255,0.4) 30%,
-    rgba(255,255,255,0.2) 70%,
-    transparent 100%
-  );
-  border: 2px solid rgba(255,255,255,0.9);
-}
-
-.clickable-sub-image:hover {
-  filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
-  z-index: 50 !important;
-  transform: scale(1.03);
-  animation: none;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .clickable-sub-image::after {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .clickable-sub-image:hover::after {
-    width: 30px;
-    height: 30px;
+  50% {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.15));
   }
 }
   
