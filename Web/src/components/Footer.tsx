@@ -1066,6 +1066,7 @@ import { useCustomerConnect } from "../api/useCustomerConnect";
 import { useResumeDetails } from "../api/useResumeDetails";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
+import { useGetBackgroundColor } from "../api/webSettings/useGetBackgroundColor";
 
 interface FooterProps {
   deviceType?: "mobile" | "tablet" | "desktop";
@@ -1180,6 +1181,16 @@ const Footer: React.FC<FooterProps> = ({
       },
     },
   };
+
+   const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
+
+ const { data: backgroundColor } = useGetBackgroundColor('footer');
+
+     useEffect(() => {
+      if(backgroundColor?.data){
+        setBackgroundColors(backgroundColor?.data?.backgroundColor)
+      }
+     }, [backgroundColor])
 
   // Handle email click - opens email client with prefilled address
   const handleEmailClick = (emailAddress: string) => {
@@ -1430,8 +1441,8 @@ const Footer: React.FC<FooterProps> = ({
           left: 0,
           width: "100%",
           height: dimensions.height,
-          background:
-            "linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
+          background:backgroundColors,
+            // "linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)",
           display: "flex",
           flexDirection: dimensions.flexDirection,
           alignItems: "center",
