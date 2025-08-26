@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { homepageStyles } from "../../components/Const";
 import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
+import { CustomCursor } from "../../components/CustomCursor";
 
 // Types for the resume data structure
 interface EducationEntry {
@@ -184,6 +185,7 @@ const AnimatedResume: React.FC = () => {
         overflowY: "auto",
       }}
     >
+       <CustomCursor />
       {/* Reuse homepage gradient styles */}
       <style>{homepageStyles}</style>
       {/* Force-enable scrolling on this page */}

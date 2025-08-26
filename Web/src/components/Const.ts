@@ -1151,7 +1151,7 @@ export const projectDetailsStyles = `
     .rotate-90:active { transform: translate(-50%, -50%) rotate(90deg) scale(0.95) !important; }
 
     .clickable-sub-project {
-      cursor: pointer !important;
+      //  cursor: pointer !important;
       transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
       z-index: 20;
@@ -1181,7 +1181,7 @@ export const projectDetailsStyles = `
       z-index: 15;
       transition: all 0.6s ease;
       opacity: 0.95;
-      cursor: pointer;
+      // cursor: pointer;
     }
 
     .centered-logo img {
@@ -1208,7 +1208,7 @@ export const projectDetailsStyles = `
       border-radius: 25px;
       font-weight: 700;
       font-size: 16px;
-      cursor: pointer;
+      // cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -1244,7 +1244,7 @@ export const projectDetailsStyles = `
       border-radius: 20px;
       font-weight: 600;
       font-size: 12px;
-      cursor: pointer;
+      // cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -1539,7 +1539,7 @@ export const projectDetailsStyles = `
       border: none;
       color: white;
       font-size: 22px;
-      cursor: pointer;
+      // cursor: pointer;
       z-index: 1000;
       box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
       backdrop-filter: blur(10px);
@@ -1825,7 +1825,7 @@ export const homepageStyles = `
     .rotate-90:active { transform: translate(-50%, -50%) rotate(90deg) scale(0.95) !important; }
 
     .clickable-sub-image {
-      cursor: pointer !important;
+      // cursor: pointer !important;
       transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
       z-index: 20;
@@ -1855,7 +1855,7 @@ export const homepageStyles = `
       z-index: 15;
       transition: all 0.6s ease;
       opacity: 0.95;
-      cursor: pointer;
+      // cursor: pointer;
     }
 
     .centered-logo img {
@@ -1997,7 +1997,7 @@ export const homepageStyles = `
       border-radius: 12px;
       font-size: 16px;
       font-weight: 600;
-      cursor: pointer;
+      // cursor: pointer;
       transition: all 0.3s ease;
       margin-bottom: 15px;
     }
@@ -2018,7 +2018,7 @@ export const homepageStyles = `
       background: none;
       border: none;
       color: #718096;
-      cursor: pointer;
+      // cursor: pointer;
       font-size: 14px;
       padding: 10px;
       transition: color 0.3s ease;
@@ -2042,7 +2042,7 @@ export const homepageStyles = `
       border-radius: 25px;
       font-weight: 700;
       font-size: 16px;
-      cursor: pointer;
+      // cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -2351,7 +2351,7 @@ export const homepageStyles = `
       border: none;
       color: white;
       font-size: 22px;
-      cursor: pointer;
+      // cursor: pointer;
       z-index: 1000;
       box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
       backdrop-filter: blur(10px);
@@ -2588,101 +2588,7 @@ export const homepageStyles = `
           radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.09) 0%, transparent 55%) !important;
       }
     }
-      /* MAGNIFYING GLASS CURSOR WITH OPPOSITE COLORS */
- /* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT */
-/* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT - REDUCED SIZE */
-// .clickable-sub-image {
-//   // cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
-  
-//   cursor: pointer !important;
-//   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-//   position: relative;
-//   z-index: 20;
-//   /* Base glow effect with subtle animation */
-//   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
-//   animation: subtleGlow 3s ease-in-out infinite;
-// }
-
-// .clickable-sub-image:hover {
-//   /* Enhanced convex glass cursor on hover with blue tint */
-//   // cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with blue tint --%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
-  
-//   filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 45px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 60px rgba(102, 126, 234, 0.3));
-//   z-index: 50 !important;
-//   transform: scale(1.03);
-//   animation: none;
-// }
-
-/* Mobile responsive cursors */
-@media (max-width: 768px) {
-  .clickable-sub-image {
-    /* Smaller convex glass for mobile */
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.5' r='7.5' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='10' cy='10' r='7.5' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.3'/%3E%3Ccircle cx='10' cy='10' r='5' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='9' cy='8' rx='1.8' ry='0.9' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 10 10, pointer !important;
-    
-    /* Enhanced base glow for touch devices */
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
-  }
-  
-  .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobileHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobileHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='11' cy='11.5' r='8' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='11' cy='11' r='8' fill='url(%23glassGradMobileHover)' stroke='%236c757d' stroke-width='0.4'/%3E%3Ccircle cx='11' cy='11' r='6' fill='url(%23highlightMobileHover)'/%3E%3Cellipse cx='9.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 11 11, pointer !important;
-    
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 22px rgba(255, 255, 255, 0.3));
-    transform: scale(1.02);
-  }
-
-  /* Disable hover effects on pure touch devices */
-  @media (hover: none) {
-    .clickable-sub-image:hover {
-      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='glassGradMobile' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightMobile' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.5' r='7.5' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='10' cy='10' r='7.5' fill='url(%23glassGradMobile)' stroke='%23adb5bd' stroke-width='0.3'/%3E%3Ccircle cx='10' cy='10' r='5' fill='url(%23highlightMobile)'/%3E%3Cellipse cx='9' cy='8' rx='1.8' ry='0.9' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 10 10, pointer !important;
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
-      transform: none;
-      animation: subtleGlow 3s ease-in-out infinite;
-    }
-  }
-}
-
-/* Tablet responsive cursors */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .clickable-sub-image {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cdefs%3E%3CradialGradient id='glassGradTablet' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTablet' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='11' cy='11.5' r='8' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='11' cy='11' r='8' fill='url(%23glassGradTablet)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='11' cy='11' r='6' fill='url(%23highlightTablet)'/%3E%3Cellipse cx='9.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 11 11, pointer !important;
-  }
-  
-  .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cdefs%3E%3CradialGradient id='glassGradTabletHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightTabletHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='13' cy='13.5' r='10' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='13' cy='13' r='10' fill='url(%23glassGradTabletHover)' stroke='%236c757d' stroke-width='0.5'/%3E%3Ccircle cx='13' cy='13' r='7' fill='url(%23highlightTabletHover)'/%3E%3Cellipse cx='11' cy='10' rx='2.6' ry='1.3' fill='%23ffffff' fill-opacity='0.7'/%3E%3C/svg%3E") 13 13, pointer !important;
-    transform: scale(1.02);
-  }
-}
-
-/* Desktop enhanced cursors */
-@media (min-width: 1025px) {
-  .clickable-sub-image {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktop' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktop' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.25'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGradDesktop)' stroke='%23adb5bd' stroke-width='0.5'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlightDesktop)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.6' ry='1.3' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary smaller highlight --%3E%3Cellipse cx='14' cy='10.5' rx='1.1' ry='0.6' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 12 12, pointer !important;
-  }
-  
-  .clickable-sub-image:hover {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradDesktopHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.98'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.85'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.65'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.45'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightDesktopHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Enhanced outer shadow --%3E%3Ccircle cx='14' cy='14.5' r='11' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with enhanced blue tint --%3E%3Ccircle cx='14' cy='14' r='11' fill='url(%23glassGradDesktopHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='8' fill='url(%23highlightDesktopHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10.5' rx='3.3' ry='1.6' fill='%23ffffff' fill-opacity='0.8'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.9' fill='%23ffffff' fill-opacity='0.5'/%3E%3C!-- Subtle inner ring for depth --%3E%3Ccircle cx='14' cy='14' r='4.5' fill='none' stroke='%23ffffff' stroke-width='0.2' stroke-opacity='0.3'/%3E%3C/svg%3E") 14 14, pointer !important;
-    transform: scale(1.03);
-  }
-}
-
-/* Apply same style to gradient class */
-// .clickable-sub-image-gradient {
-//   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
-// }
-
-// .clickable-sub-image-gradient:hover {
-//   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
-// }
-
-/* Keyframe animation for subtle glow */
-@keyframes subtleGlow {
-  0%, 100% {
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
-  }
-  50% {
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.15));
-  }
-}
+ 
   
 
   `;
@@ -2869,7 +2775,7 @@ export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "10px 15px",
     borderRadius: "4px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "14px",
     width: "100%",
     marginBottom: "10px",
@@ -2880,7 +2786,7 @@ export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "8px 12px",
     borderRadius: "4px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "12px",
   },
   buttonDanger: {
@@ -2889,7 +2795,7 @@ export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "5px 8px",
     borderRadius: "3px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "12px",
   },
   // previewArea: {
@@ -2910,7 +2816,7 @@ export const stylesProjectDetails: { [key: string]: React.CSSProperties } = {
     border: "1px solid #eee",
     borderRadius: "4px",
     marginBottom: "5px",
-    cursor: "pointer",
+    // cursor: "pointer",
   },
   selectedItem: {
     backgroundColor: "#e3f2fd",
@@ -3018,7 +2924,7 @@ export const stylesSubproject: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "10px 15px",
     borderRadius: "4px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "14px",
     width: "100%",
     marginBottom: "10px",
@@ -3029,7 +2935,7 @@ export const stylesSubproject: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "8px 12px",
     borderRadius: "4px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "12px",
   },
   buttonDanger: {
@@ -3038,7 +2944,7 @@ export const stylesSubproject: { [key: string]: React.CSSProperties } = {
     border: "none",
     padding: "5px 8px",
     borderRadius: "3px",
-    cursor: "pointer",
+    // cursor: "pointer",
     fontSize: "12px",
   },
   //   previewArea: {
@@ -3060,7 +2966,7 @@ export const stylesSubproject: { [key: string]: React.CSSProperties } = {
     border: "1px solid #eee",
     borderRadius: "4px",
     marginBottom: "5px",
-    cursor: "pointer",
+    // cursor: "pointer",
   },
   selectedItem: {
     backgroundColor: "#e3f2fd",

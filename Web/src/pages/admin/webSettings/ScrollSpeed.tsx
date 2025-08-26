@@ -3,6 +3,7 @@ import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import { useSaveScrollSpeed } from "../../../api/useSaveWebsiteSettings";
 import { useNotification } from "../../../components/Tostr";
 import { useScrollerSpeedSettings } from "../../../api/useScrollSpeedSettings";
+import { CustomCursor } from "../../../components/CustomCursor";
 
 // Mock device type detection
 const getDeviceType = () => {
@@ -585,6 +586,7 @@ setSelectedPreset(current || "custom");
         paddingBottom: "60px",
       }}
     >
+      <CustomCursor/>
       <div style={styles.container}>
         {/* Header */}
         <div

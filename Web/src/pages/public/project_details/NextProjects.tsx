@@ -295,6 +295,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                     variants={hoverVariants}
                     initial="rest"
                     whileHover="hover"
+                  
                     style={{
                       width: '100%',
                       height: limitedData.length === 1 ? 
@@ -302,7 +303,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                         (deviceType === 'mobile' ? '200px' : deviceType === 'tablet' ? '240px' : '280px'),
                       borderRadius: '6px',
                       overflow: 'hidden',
-                      cursor: 'pointer',
+                      // cursor: 'pointer',
                       position: 'relative',
                       backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       display: 'flex',
@@ -321,6 +322,7 @@ const NextProjects: React.FC<DynamicImageShowcaseProps> = ({
                       }
                       alt={image.name}
                       className={getAnimationClasses(image.animation, image.animationSpeed)}
+                      id ='nextProjectImage'
                       style={{
                         maxWidth: '100%',
                         maxHeight: '100%',

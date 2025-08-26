@@ -8,6 +8,7 @@ import { useDeleteProject } from '../../../api/useDeleteProject';
 import DeleteConfirmDialog from '../../../components/DeleteConfirmDialog';
 import { useNotification } from '../../../components/Tostr';
 import { animationOptions, getAnimationVariants, speedOptions, stylesSubproject as styles, triggerOptions } from '../../../components/Const';
+import { CustomCursor } from '../../../components/CustomCursor';
 
 interface SubImage {
   id: number;
@@ -472,6 +473,7 @@ const ImageEditor: React.FC = () => {
 
   return (
     <div style={styles.container}>
+      <CustomCursor/>
       <div style={styles.leftPanel}>
         {isLoadingApiData && (
           <div style={styles.loadingBadge}>

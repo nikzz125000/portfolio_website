@@ -94,7 +94,7 @@ const InterorExteriorSection = ({
                   : "20px",
               fontWeight: "600",
               letterSpacing: "1px",
-              cursor: "pointer",
+            //   cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               textShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
             }}
@@ -124,7 +124,7 @@ const InterorExteriorSection = ({
                   : "20px",
               fontWeight: "600",
               letterSpacing: "1px",
-              cursor: "pointer",
+            //   cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               textShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
             }}

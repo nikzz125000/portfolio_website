@@ -15,6 +15,7 @@ import {
 import InterorExteriorSection from "./InterorExteriorSection";
 import { useGetPadding } from "../../../api/webSettings/useGetPadding";
 import { useGetBackgroundColor } from "../../../api/webSettings/useGetBackgroundColor";
+import { CustomCursor } from "../../../components/CustomCursor";
 
 
 interface PaddingData {
@@ -753,6 +754,7 @@ const ProjectDetailsPage: React.FC = () => {
          background:backgroundColors
       }}
     >
+         <CustomCursor />
          {showLoader && (
           
           <AnimatePresence>
@@ -952,7 +954,7 @@ const ProjectDetailsPage: React.FC = () => {
           onClick={handleLogoClick}
           className="logo-container"
           style={{
-            cursor: "pointer",
+            // cursor: "pointer",
             position: "relative",
             borderRadius: "12px",
             padding: "8px",
@@ -1386,7 +1388,7 @@ const ProjectDetailsPage: React.FC = () => {
           border: "2px solid rgba(255, 255, 255, 0.4)",
           color: "white",
           fontSize: deviceType === "mobile" ? "18px" : "22px",
-          cursor: "pointer",
+          // cursor: "pointer",
           zIndex: 1000,
           boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(10px)",

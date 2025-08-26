@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSaveBackGroundColor } from "../../../api/webSettings/useSaveBackgroundColor";
 import { useNotification } from "../../../components/Tostr";
 import { useGetBackgroundColor } from "../../../api/webSettings/useGetBackgroundColor";
+import { CustomCursor } from "../../../components/CustomCursor";
 
 
 interface GradientStop {
@@ -137,6 +138,7 @@ const { showNotification } = useNotification();
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+         <CustomCursor/>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Gradient Editor</h2>
 
       {/* Page Selector */}

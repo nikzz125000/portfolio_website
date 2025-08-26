@@ -1561,7 +1561,7 @@ const Footer: React.FC<FooterProps> = ({
                     onClick={() => handleEmailClick(resumeData.data.email)}
                     style={{
                       fontSize: deviceType === "mobile" ? "12px" : "14px",
-                      cursor: "pointer",
+                       cursor: "pointer",
                       textDecoration: "underline",
                       transition: "all 0.2s ease",
                       opacity: 0.95,
@@ -1592,7 +1592,7 @@ const Footer: React.FC<FooterProps> = ({
                   style={{
                     marginBottom: "12px",
                     fontSize: deviceType === "mobile" ? "12px" : "14px",
-                    cursor: "pointer",
+                     cursor: "pointer",
                   }}
                   onClick={() => {  window.open("tel:+16265550134", "_self");
       }}
@@ -1926,7 +1926,7 @@ const Footer: React.FC<FooterProps> = ({
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            // cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 15px;
           }
@@ -1947,7 +1947,7 @@ const Footer: React.FC<FooterProps> = ({
             background: none;
             border: none;
             color: #718096;
-            cursor: pointer;
+            // cursor: pointer;
             font-size: 14px;
             padding: 10px;
             transition: color 0.3s ease;

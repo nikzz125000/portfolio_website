@@ -43,7 +43,7 @@ function HomePageLogo({
           onClick={handleLogoClick}
           className="logo-container"
           style={{
-            cursor: "pointer",
+            // cursor: "pointer",
             position: "relative",
             borderRadius: "12px",
             padding: "8px",

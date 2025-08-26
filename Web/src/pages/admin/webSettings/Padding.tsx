@@ -3,6 +3,7 @@ import { useSavePadding } from '../../../api/webSettings/useSavePadding';
 import { useNotification } from '../../../components/Tostr';
 import { useGetPadding } from '../../../api/webSettings/useGetPadding';
 import { useProjectList } from '../../../api/useProjectistList';
+import { CustomCursor } from '../../../components/CustomCursor';
 
 interface PaddingData {
   paddingLeft: number;
@@ -177,6 +178,7 @@ const PaddingAdjuster: React.FC = () => {
       `}</style>
       
       <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+         <CustomCursor/>
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Project Padding Settings</h2>
 
         {/* Project Selection */}
@@ -209,7 +211,7 @@ const PaddingAdjuster: React.FC = () => {
             )}
           </div>
 
-          {selectedProjectId && (
+          {selectedProjectName && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="text-sm text-blue-700">
                 <strong>Selected Project:</strong>{selectedProjectName} 

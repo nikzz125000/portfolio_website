@@ -5,6 +5,7 @@ import DeleteConfirmDialog from "../../../components/DeleteConfirmDialog";
 import { useDeleteContainer } from "../../../api/useContainerDelete";
 import { useNotification } from "../../../components/Tostr";
 import { Box, LinearProgress } from "@mui/material";
+import { CustomCursor } from "../../../components/CustomCursor";
 
 interface ImageProject {
   backgroundImageAspectRatio: number;
@@ -152,7 +153,7 @@ const { showNotification } = useNotification();
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-     
+      <CustomCursor />
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6">
