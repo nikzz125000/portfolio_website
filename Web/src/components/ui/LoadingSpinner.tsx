@@ -108,6 +108,16 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     animation: "logoFadeIn 0.8s ease-out 0.2s both",
   };
 
+//   const logoStyle: React.CSSProperties = {
+//   height: logoSizes.fixedLogo,
+//   width: "auto",
+//   filter: "brightness(0) invert(1)",
+//   transition: "transform 0.2s ease, filter 0.2s ease",
+//   animation: "logoFadeInRotate 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) 0.2s both",
+//   transformStyle: "preserve-3d", // Enable 3D transforms
+//   backfaceVisibility: "hidden", // Prevent flickering during rotation
+// };
+
   const textStyle: React.CSSProperties = {
     fontSize: "16px",
     color: "#666",
@@ -167,6 +177,24 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
             opacity: 0;
           }
         }
+
+//  @keyframes logoFadeInRotate {
+//   0% {
+//     opacity: 0;
+//     transform: scale(0.5) rotateY(180deg) translateY(-20px);
+//   }
+//   30% {
+//     opacity: 0.3;
+//     transform: scale(0.7) rotateY(120deg) translateY(-10px);
+//   }
+//   70% {
+//     opacity: 0.8;
+//     transform: scale(0.95) rotateY(30deg) translateY(0px);
+//   }
+//   100% {
+//     opacity: 1;
+//     transform: scale(1) rotateY(0deg) translateY(0px);
+//   }
       `}</style>
 
       <div style={containerStyle} className={className}>

@@ -978,7 +978,7 @@ setSelectedPreset(current || "custom");
           >
             <button
               onClick={handleSaveSettings}
-              disabled={!hasChanges || isSaving}
+              disabled={ isSaving}
               style={{
                 ...styles.button,
                 background: hasChanges && !isSaving

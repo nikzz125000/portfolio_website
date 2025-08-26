@@ -2591,27 +2591,27 @@ export const homepageStyles = `
       /* MAGNIFYING GLASS CURSOR WITH OPPOSITE COLORS */
  /* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT */
 /* CONVEX GLASS CURSOR WITH REALISTIC 3D EFFECT - REDUCED SIZE */
-.clickable-sub-image {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
+// .clickable-sub-image {
+//   // cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3C!-- Main glass body --%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
   
-  cursor: pointer !important;
-  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  z-index: 20;
-  /* Base glow effect with subtle animation */
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
-  animation: subtleGlow 3s ease-in-out infinite;
-}
+//   cursor: pointer !important;
+//   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+//   position: relative;
+//   z-index: 20;
+//   /* Base glow effect with subtle animation */
+//   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.1));
+//   animation: subtleGlow 3s ease-in-out infinite;
+// }
 
-.clickable-sub-image:hover {
-  /* Enhanced convex glass cursor on hover with blue tint */
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with blue tint --%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
+// .clickable-sub-image:hover {
+//   /* Enhanced convex glass cursor on hover with blue tint */
+//   // cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='50%25' stop-color='%23f0f8ff' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23e6f3ff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3C!-- Outer shadow for 3D depth --%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3C!-- Main glass body with blue tint --%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3C!-- Inner glass highlight --%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3C!-- Top highlight shine --%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3C!-- Secondary highlight for extra glass effect --%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
   
-  filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 45px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 60px rgba(102, 126, 234, 0.3));
-  z-index: 50 !important;
-  transform: scale(1.03);
-  animation: none;
-}
+//   filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 45px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 60px rgba(102, 126, 234, 0.3));
+//   z-index: 50 !important;
+//   transform: scale(1.03);
+//   animation: none;
+// }
 
 /* Mobile responsive cursors */
 @media (max-width: 768px) {
@@ -2666,13 +2666,13 @@ export const homepageStyles = `
 }
 
 /* Apply same style to gradient class */
-.clickable-sub-image-gradient {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
-}
+// .clickable-sub-image-gradient {
+//   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23f8f9fa' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%23e9ecef' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%23dee2e6' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%23adb5bd' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
+// }
 
-.clickable-sub-image-gradient:hover {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
-}
+// .clickable-sub-image-gradient:hover {
+//   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cdefs%3E%3CradialGradient id='glassGradHover' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23f0f8ff' stop-opacity='0.95'/%3E%3Cstop offset='30%25' stop-color='%23e6f3ff' stop-opacity='0.8'/%3E%3Cstop offset='70%25' stop-color='%23cce7ff' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23b3daff' stop-opacity='0.4'/%3E%3C/radialGradient%3E%3CradialGradient id='highlightHover' cx='35%25' cy='25%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='14' cy='14.5' r='10.5' fill='%23000000' fill-opacity='0.3'/%3E%3Ccircle cx='14' cy='14' r='10.5' fill='url(%23glassGradHover)' stroke='%236c757d' stroke-width='0.6'/%3E%3Ccircle cx='14' cy='14' r='7.5' fill='url(%23highlightHover)'/%3E%3Cellipse cx='12' cy='10' rx='3' ry='1.5' fill='%23ffffff' fill-opacity='0.7'/%3E%3Cellipse cx='16' cy='12' rx='1.5' ry='0.8' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E") 14 14, pointer !important;
+// }
 
 /* Keyframe animation for subtle glow */
 @keyframes subtleGlow {

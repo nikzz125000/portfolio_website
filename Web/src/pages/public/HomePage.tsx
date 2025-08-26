@@ -24,6 +24,7 @@ import {
 import HomePageLogo from "../../components/HomePageLogo";
 import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
 import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
+import { generateDynamicCursorStyles } from "../../components/cursorStyle";
 
 // ENHANCED: Scroll speed settings interface
 interface ScrollSpeedSettings {
@@ -779,6 +780,31 @@ const isScrollSpeedPending = false; // Mock pending state
     };
   }, []);
 
+  useEffect(() => {
+    if (sections.length > 0) {
+      const dynamicStyles = generateDynamicCursorStyles(sections);
+      
+      // Remove existing dynamic cursor styles
+      const existingStyle = document.getElementById('dynamic-cursor-styles');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      // Add new dynamic cursor styles
+      const styleElement = document.createElement('style');
+      styleElement.id = 'dynamic-cursor-styles';
+      styleElement.textContent = dynamicStyles;
+      document.head.appendChild(styleElement);
+      
+      return () => {
+        const styleToRemove = document.getElementById('dynamic-cursor-styles');
+        if (styleToRemove) {
+          styleToRemove.remove();
+        }
+      };
+    }
+  }, [sections]);
+
   return (
     <div
       className="homepage-container homepage-gradient-bg"
@@ -917,6 +943,33 @@ const isScrollSpeedPending = false; // Mock pending state
           }
         `}
       </style>
+
+      
+                    <style>
+                      {`
+              
+
+/* Base cursor style - will be overridden by dynamic styles */
+.clickable-sub-image-gradient {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%2381c784' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%2366bb6a' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%234caf50' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%2343a047' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%232e7d32' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
+}
+
+.clickable-sub-image-gradient:hover {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CradialGradient id='glassGrad' cx='40%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%2381c784' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%2366bb6a' stop-opacity='0.7'/%3E%3Cstop offset='70%25' stop-color='%234caf50' stop-opacity='0.5'/%3E%3Cstop offset='100%25' stop-color='%2343a047' stop-opacity='0.3'/%3E%3C/radialGradient%3E%3CradialGradient id='highlight' cx='35%25' cy='25%25' r='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12.5' r='9' fill='%23000000' fill-opacity='0.2'/%3E%3Ccircle cx='12' cy='12' r='9' fill='url(%23glassGrad)' stroke='%232e7d32' stroke-width='0.4'/%3E%3Ccircle cx='12' cy='12' r='6' fill='url(%23highlight)'/%3E%3Cellipse cx='10.5' cy='9' rx='2.2' ry='1.1' fill='%23ffffff' fill-opacity='0.6'/%3E%3C/svg%3E") 12 12, pointer !important;
+}
+
+/* Enhanced visual feedback for position-based cursors */
+.clickable-sub-image {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.clickable-sub-image:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1) saturate(1.2);
+}
+`
+}
+                    </style>
 
       <HomePageLogo 
         deviceType={deviceType} 
@@ -1144,6 +1197,7 @@ const isScrollSpeedPending = false; // Mock pending state
                       transition.duration = duration * 1.2;
                     }
 
+
                     return (
                       <motion.div
                         key={subImage.projectId}
@@ -1168,7 +1222,7 @@ const isScrollSpeedPending = false; // Mock pending state
                           data-animation-speed={subImage.animationSpeed}
                           data-animation-trigger={subImage.animationTrigger}
                           // className="clickable-sub-image"
-                           className="clickable-sub-image-gradient"
+                           className="clickable-sub-image clickable-sub-image-gradient"
                           variants={animationVariants}
                           initial={
                             subImage.animation !== "none" ? "initial" : {}
@@ -1205,6 +1259,7 @@ const isScrollSpeedPending = false; // Mock pending state
                             // cursor: "pointer",
                             backfaceVisibility: "hidden",
                             perspective: "1000px",
+                            
                           }}
                         />
                       </motion.div>
