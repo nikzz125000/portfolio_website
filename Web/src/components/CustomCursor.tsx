@@ -1,98 +1,136 @@
+
 // import { useEffect, useState } from "react";
-// import { motion } from "framer-motion";
+// import { motion, useMotionValue, useSpring } from "framer-motion";
 
 // export const CustomCursor = () => {
-//   const [pos, setPos] = useState({ x: 0, y: 0 });
 //   const [variant, setVariant] = useState<"default" | "hover">("default");
 
+//   // motion values for position
+//   const mouseX = useMotionValue(0);
+//   const mouseY = useMotionValue(0);
+
+//   // smooth spring animation
+//   const x = useSpring(mouseX, { stiffness: 300, damping: 25 });
+//   const y = useSpring(mouseY, { stiffness: 300, damping: 25 });
+
+//   // Track mouse position without re-rendering
 //   useEffect(() => {
 //     const move = (e: MouseEvent) => {
-//       setPos({ x: e.clientX, y: e.clientY });
+//       mouseX.set(e.clientX);
+//       mouseY.set(e.clientY);
 //     };
 //     window.addEventListener("mousemove", move);
 //     return () => window.removeEventListener("mousemove", move);
-//   }, []);
+//   }, [mouseX, mouseY]);
 
-//   // Animated cursor styles
-//   const variants = {
-//     default: {
-//       x: pos.x - 10,
-//       y: pos.y - 10,
-//       height: 20,
-//       width: 20,
-//       backgroundColor: "rgba(255,255,255,0.7)",
-//       mixBlendMode: "difference",
-//     },
-//     hover: {
-//       x: pos.x - 25,
-//       y: pos.y - 25,
-//       height: 50,
-//       width: 50,
-//       backgroundColor: "rgba(255,0,120,0.6)",
-//       mixBlendMode: "difference",
-//     },
-//   };
-
-//   // Detect when hovering on clickable elements
+//   // Hover detection (event delegation)
 //   useEffect(() => {
-//     const addHover = () => setVariant("hover");
-//     const removeHover = () => setVariant("default");
+//     const HOVER_SELECTOR =
+//       `a, button, .clickable-sub-image, 
+//       .cursor-hover, .centered-logo, .logo-container, .section-nav-title,#nextProjectImage`;
 
-//     const hoverables = document.querySelectorAll(
-//       "a, button, .clickable-sub-image, .clickable-sub-image-gradient, img, motion.img ,.cursor-hover, [data-cursor='hover'], .centered-logo"
-//     );
+//     const handleOver = (e: Event) => {
+//       const target = e.target as Element | null;
+//       if (target && target.closest(HOVER_SELECTOR)) {
+//         setVariant("hover");
+//       }
+//     };
 
-//     hoverables.forEach((el) => {
-//       el.addEventListener("mouseenter", addHover);
-//       el.addEventListener("mouseleave", removeHover);
-//     });
+//     const handleOut = (e: Event) => {
+//       const target = e.target as Element | null;
+//       const related = (e as MouseEvent).relatedTarget as Element | null;
+//       const leavingClickable = target?.closest(HOVER_SELECTOR);
+//       const enteringClickable = related?.closest?.(HOVER_SELECTOR);
+//       if (leavingClickable && !enteringClickable) {
+//         setVariant("default");
+//       }
+//     };
+
+//     document.addEventListener("pointerover", handleOver, true);
+//     document.addEventListener("pointerout", handleOut, true);
 
 //     return () => {
-//       hoverables.forEach((el) => {
-//         el.removeEventListener("mouseenter", addHover);
-//         el.removeEventListener("mouseleave", removeHover);
-//       });
+//       document.removeEventListener("pointerover", handleOver, true);
+//       document.removeEventListener("pointerout", handleOut, true);
 //     };
 //   }, []);
 
 //   return (
 //     <motion.div
-//       className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999]"
-//       animate={variant}
-//       variants={variants}
+//       className="fixed top-0 left-0 rounded-full pointer-events-none"
+//       style={{
+//         zIndex: 2147483647,
+//         x: x, // spring smoothed
+//         y: y,
+//         translateX: variant === "hover" ? "-25px" : "-10px",
+//         translateY: variant === "hover" ? "-25px" : "-10px",
+//         height: variant === "hover" ? 50 : 20,
+//         width: variant === "hover" ? 50 : 20,
+//         backgroundColor:
+//           variant === "hover"
+//             ? "rgba(255,0,120,0.6)"
+//             : "rgba(255,255,255,0.7)",
+//         borderRadius: "50%",
+//         mixBlendMode: "difference",
+//       }}
 //       transition={{ type: "spring", stiffness: 300, damping: 25 }}
 //     />
 //   );
 // };
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+
+
+
+
+
+
+import { useEffect, useRef, useState } from "react";
+
 
 export const CustomCursor = () => {
   const [variant, setVariant] = useState<"default" | "hover">("default");
 
-  // motion values for position
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const cursorRef = useRef<HTMLDivElement>(null);
 
-  // smooth spring animation
-  const x = useSpring(mouseX, { stiffness: 300, damping: 25 });
-  const y = useSpring(mouseY, { stiffness: 300, damping: 25 });
+  // target mouse position
+  const mouse = useRef({ x: 0, y: 0 });
+  // animated cursor position
+  const pos = useRef({ x: 0, y: 0 });
 
-  // Track mouse position without re-rendering
+  // track mouse
   useEffect(() => {
     const move = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
+      mouse.current.x = e.clientX;
+      mouse.current.y = e.clientY;
     };
     window.addEventListener("mousemove", move);
     return () => window.removeEventListener("mousemove", move);
-  }, [mouseX, mouseY]);
+  }, []);
 
-  // Hover detection (event delegation)
+  // animation loop (RAF based lerp)
+  useEffect(() => {
+    const lerp = (a: number, b: number, n: number) => a + (b - a) * n;
+
+    const update = () => {
+      pos.current.x = lerp(pos.current.x, mouse.current.x, 0.2); // smoothness
+      pos.current.y = lerp(pos.current.y, mouse.current.y, 0.2);
+
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${
+          pos.current.x - (variant === "hover" ? 25 : 10)
+        }px, ${pos.current.y - (variant === "hover" ? 25 : 10)}px, 0)`;
+      }
+
+      requestAnimationFrame(update);
+    };
+
+    requestAnimationFrame(update);
+  }, [variant]);
+
+  // hover detection
   useEffect(() => {
     const HOVER_SELECTOR =
-      `a, button, .clickable-sub-image, .clickable-sub-image-gradient, 
-      .cursor-hover, [data-cursor='hover'], .centered-logo, .logo-container, .section-nav-title,#nextProjectImage`;
+      `a, button, .clickable-sub-image, 
+      .cursor-hover, .centered-logo, .logo-container, .section-nav-title,#nextProjectImage`;
 
     const handleOver = (e: Event) => {
       const target = e.target as Element | null;
@@ -121,14 +159,11 @@ export const CustomCursor = () => {
   }, []);
 
   return (
-    <motion.div
+    <div
+      ref={cursorRef}
       className="fixed top-0 left-0 rounded-full pointer-events-none"
       style={{
         zIndex: 2147483647,
-        x: x, // spring smoothed
-        y: y,
-        translateX: variant === "hover" ? "-25px" : "-10px",
-        translateY: variant === "hover" ? "-25px" : "-10px",
         height: variant === "hover" ? 50 : 20,
         width: variant === "hover" ? 50 : 20,
         backgroundColor:
@@ -137,8 +172,9 @@ export const CustomCursor = () => {
             : "rgba(255,255,255,0.7)",
         borderRadius: "50%",
         mixBlendMode: "difference",
+        transition: "width 0.2s ease, height 0.2s ease, background 0.3s ease",
       }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     />
   );
 };
+

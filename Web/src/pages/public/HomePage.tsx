@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHomePageList } from "../../api/useHomePage";
@@ -123,7 +123,7 @@ const Homepage: React.FC = () => {
   const [apiScrollSettings, setApiScrollSettings] = useState<ScrollSpeedSettings>(DEFAULT_SCROLL_SETTINGS);
   
   const containerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+ 
   const targetScrollY = useRef<number>(0);
   const currentScrollY = useRef<number>(0);
   const animationFrameId = useRef<number | null>(null);
@@ -135,14 +135,9 @@ const Homepage: React.FC = () => {
   const { data, isPending } = useHomePageList();
   const { isPending: isResumePending } = useResumeDetails();
   
-  // ENHANCED: Fetch scroll speed settings from API
-  // const { 
-  //   data: scrollSpeedData, 
-  //   isPending: isScrollSpeedPending,
-  //   error: scrollSpeedError 
-  // } = useScrollSpeedSettings();
+  
   const { data: scrollSpeedData} = useScrollerSpeedSettings();
-  // const scrollSpeedData = { data: {    wheel: 0.2, touch: 0.6, keyboard: 1.0, momentum: 0.3, smoothness: 0.08 } }; // Mock data 
+  
 const scrollSpeedError = null; // Mock error
 const isScrollSpeedPending = false; // Mock pending state
   // ENHANCED: Update scroll settings when API data is available
@@ -174,44 +169,20 @@ const isScrollSpeedPending = false; // Mock pending state
         }
        }, [backgroundColor])
 
-  useEffect(() => {
-  const handleMouseMove = (e: MouseEvent) => {
-    // Update CSS variables for cursor position
-    document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-    document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
-  };
 
-  // Only track mouse on clickable elements
-  const clickableElements = document.querySelectorAll('.clickable-sub-image');
-  
-  clickableElements.forEach(element => {
-    element.addEventListener('mouseenter', () => {
-      document.addEventListener('mousemove', handleMouseMove);
-    });
-    
-    element.addEventListener('mouseleave', () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      // Hide cursor when not hovering
-      document.documentElement.style.setProperty('--mouse-x', '-100px');
-      document.documentElement.style.setProperty('--mouse-y', '-100px');
-    });
-  });
-
-  return () => {
-    document.removeEventListener('mousemove', handleMouseMove);
-  };
-}, [sections]);
 
   // ENHANCED: Apply device-specific multipliers to API scroll settings
   const getDeviceAdjustedScrollSettings = (): ScrollSpeedSettings => {
-    const device = getDeviceType();
-    
-    let deviceMultiplier = 1;
-    if (device === "mobile") {
-      deviceMultiplier = 1.5; // Higher sensitivity for mobile
-    } else if (device === "tablet") {
-      deviceMultiplier = 1.25; // Medium sensitivity for tablet
-    }
+  const device = getDeviceType();
+  
+  let deviceMultiplier = 1;
+  if (device === "mobile") {
+    deviceMultiplier = 1.5;
+  } else if (device === "tablet") {
+    deviceMultiplier = 1.25;
+  } else if (device === "desktop") {
+    deviceMultiplier = 1.3; // CHANGED: from 1 to 1.3
+  }
 
     return {
       wheel: apiScrollSettings.wheel * deviceMultiplier,
@@ -350,48 +321,48 @@ const isScrollSpeedPending = false; // Mock pending state
 
   // ENHANCED: Professional smooth scroll animation with API-driven dynamic speed
   const smoothScrollStep = () => {
-    const scrollSettings = getDeviceAdjustedScrollSettings();
-    const difference = targetScrollY.current - currentScrollY.current;
+  const scrollSettings = getDeviceAdjustedScrollSettings();
+  const difference = targetScrollY.current - currentScrollY.current;
+  const maxScroll = Math.max(0, totalHeight - window.innerHeight);
 
-    // Dynamic easing based on scroll distance and API smoothness setting
-    let easingFactor = scrollSettings.smoothness;
+  let easingFactor = scrollSettings.smoothness;
 
-    if (Math.abs(difference) > 100) {
-      easingFactor = scrollSettings.smoothness * 1.5; // Faster for long distances
-    } else if (Math.abs(difference) < 10) {
-      easingFactor = scrollSettings.smoothness * 0.5; // Slower for fine-tuning
-    }
+  // Adjust easing based on distance and proximity to boundaries
+  if (Math.abs(difference) > 100) {
+    easingFactor = scrollSettings.smoothness * 1.2;
+  } else if (Math.abs(difference) < 10) {
+    easingFactor = scrollSettings.smoothness * 0.8;
+  }
 
-    const step = difference * easingFactor;
+  // Increase easing when near boundaries to prevent sticking
+  if (currentScrollY.current <= 5 || currentScrollY.current >= maxScroll - 5) {
+    easingFactor = Math.min(easingFactor * 1.5, 0.3);
+  }
 
-    if (Math.abs(difference) < 0.8) {
-      currentScrollY.current = targetScrollY.current;
-      isScrolling.current = false;
-      setScrollY(currentScrollY.current);
+  const step = difference * easingFactor;
 
-      if (containerRef.current) {
-        containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
-        containerRef.current.style.transition = "transform 0.1s ease-out";
-
-        setTimeout(() => {
-          if (containerRef.current) {
-            containerRef.current.style.transition = "none";
-          }
-        }, 100);
-      }
-      return;
-    }
-
-    currentScrollY.current += step;
-    setScrollY(currentScrollY.current);
-
+  // Reduced precision threshold to prevent sticking
+  if (Math.abs(difference) < 0.3) {
+    currentScrollY.current = targetScrollY.current;
+    isScrolling.current = false;
+    
     if (containerRef.current) {
-      containerRef.current.style.transform = `translateY(-${currentScrollY.current}px)`;
-      containerRef.current.style.transition = "none";
+      containerRef.current.style.transform = `translate3d(0, -${currentScrollY.current}px, 0)`;
     }
+    
+    setScrollY(currentScrollY.current);
+    return;
+  }
 
-    animationFrameId.current = requestAnimationFrame(smoothScrollStep);
-  };
+  currentScrollY.current += step;
+  setScrollY(currentScrollY.current);
+
+  if (containerRef.current) {
+    containerRef.current.style.transform = `translate3d(0, -${currentScrollY.current}px, 0)`;
+  }
+
+  animationFrameId.current = requestAnimationFrame(smoothScrollStep);
+};
 
   // ENHANCED: Handle wheel events with API-driven scroll speed
   useEffect(() => {
@@ -400,47 +371,64 @@ const isScrollSpeedPending = false; // Mock pending state
     let momentumVelocity = 0;
     let isMomentumActive = false;
 
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const scrollSettings = getDeviceAdjustedScrollSettings();
-      
-      // Use API-driven wheel speed
-      const scrollAmount = e.deltaY * scrollSettings.wheel;
-      const maxScroll = Math.max(0, totalHeight - window.innerHeight);
+ const handleWheel = (e: WheelEvent) => {
+  e.preventDefault();
+  const scrollSettings = getDeviceAdjustedScrollSettings();
+  
+  const scrollAmount = e.deltaY * scrollSettings.wheel;
+  const maxScroll = Math.max(0, totalHeight - window.innerHeight);
+  const newScrollY = targetScrollY.current + scrollAmount;
+  
+  const atTopBoundary = newScrollY <= 0 && scrollAmount < 0;
+  const atBottomBoundary = newScrollY >= maxScroll && scrollAmount > 0;
+  
+  targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
 
-      if (Math.abs(scrollAmount) > 0) {
-        momentumVelocity = scrollAmount * scrollSettings.momentum;
-        isMomentumActive = true;
-      }
+  // CHANGED: Disable momentum for desktop only
+  if (deviceType !== 'desktop' && !atTopBoundary && !atBottomBoundary) {
+    momentumVelocity = scrollAmount * scrollSettings.momentum;
+    isMomentumActive = true;
+    
+    setTimeout(() => {
+      isMomentumActive = false;
+      momentumVelocity = 0;
+    }, 100);
+  } else {
+    // Desktop or at boundary: no momentum
+    momentumVelocity = 0;
+    isMomentumActive = false;
+  }
 
-      const newScrollY = targetScrollY.current + scrollAmount;
-      targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
-
-      if (!isScrolling.current) {
-        isScrolling.current = true;
-        smoothScrollStep();
-      }
-
-      setTimeout(() => {
-        isMomentumActive = false;
-        momentumVelocity = 0;
-      }, 150);
-    };
+  if (!isScrolling.current) {
+    isScrolling.current = true;
+    smoothScrollStep();
+  }
+};
 
     const applyMomentum = () => {
-      if (isMomentumActive && Math.abs(momentumVelocity) > 0.1) {
-        const maxScroll = Math.max(0, totalHeight - window.innerHeight);
-        const newScrollY = targetScrollY.current + momentumVelocity;
-        targetScrollY.current = Math.max(0, Math.min(maxScroll, newScrollY));
+  if (isMomentumActive && Math.abs(momentumVelocity) > 0.1) {
+    const maxScroll = Math.max(0, totalHeight - window.innerHeight);
+    const newScrollY = targetScrollY.current + momentumVelocity;
+    
+    // Check if momentum would exceed boundaries
+    if (newScrollY <= 0 || newScrollY >= maxScroll) {
+      // Stop momentum when hitting boundaries
+      momentumVelocity = 0;
+      isMomentumActive = false;
+      targetScrollY.current = Math.max(0, Math.min(maxScroll, targetScrollY.current));
+      return;
+    }
+    
+    targetScrollY.current = newScrollY;
 
-        if (!isScrolling.current) {
-          isScrolling.current = true;
-          smoothScrollStep();
-        }
+    if (!isScrolling.current) {
+      isScrolling.current = true;
+      smoothScrollStep();
+    }
 
-        momentumVelocity *= 0.95;
-      }
-    };
+    momentumVelocity *= 0.92; // Slightly faster decay
+  }
+};
 
     const momentumInterval = setInterval(applyMomentum, 16);
 
@@ -629,32 +617,32 @@ const isScrollSpeedPending = false; // Mock pending state
     setIsMenuOpen(false);
   };
 
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
-      }
-    );
+  // useEffect(() => {
+  //   observerRef.current = new IntersectionObserver(
+  //     (entries) => {
+  //       entries.forEach((entry) => {
+  //         if (entry.isIntersecting) {
+  //           entry.target.classList.add("visible");
+  //         }
+  //       });
+  //     },
+  //     {
+  //       threshold: 0.1,
+  //       rootMargin: "0px 0px -50px 0px",
+  //     }
+  //   );
 
-    const elements = document.querySelectorAll(
-      ".fade-in-on-scroll:not(.sub-image-container)"
-    );
-    elements.forEach((el) => observerRef.current?.observe(el));
+  //   const elements = document.querySelectorAll(
+  //     ".fade-in-on-scroll:not(.sub-image-container)"
+  //   );
+  //   elements.forEach((el) => observerRef.current?.observe(el));
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [sections]);
+  //   return () => {
+  //     if (observerRef.current) {
+  //       observerRef.current.disconnect();
+  //     }
+  //   };
+  // }, [sections]);
 
   // Responsive image dimensions calculation
   const calculateResponsiveImageDimensions = (
@@ -732,25 +720,25 @@ const isScrollSpeedPending = false; // Mock pending state
   };
 
   // Add smooth scroll behavior for better user experience
-  useEffect(() => {
-    const handleSmoothScroll = () => {
-      if (containerRef.current) {
-        containerRef.current.style.transition =
-          "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
-      }
-    };
+  // useEffect(() => {
+  //   const handleSmoothScroll = () => {
+  //     if (containerRef.current) {
+  //       containerRef.current.style.transition =
+  //         "transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)";
+  //     }
+  //   };
 
-    const removeSmoothTransition = () => {
-      if (containerRef.current) {
-        containerRef.current.style.transition = "none";
-      }
-    };
+  //   const removeSmoothTransition = () => {
+  //     if (containerRef.current) {
+  //       containerRef.current.style.transition = "none";
+  //     }
+  //   };
 
-    if (targetScrollY.current !== currentScrollY.current) {
-      handleSmoothScroll();
-      setTimeout(removeSmoothTransition, 300);
-    }
-  }, [targetScrollY.current, currentScrollY.current]);
+  //   if (targetScrollY.current !== currentScrollY.current) {
+  //     handleSmoothScroll();
+  //     setTimeout(removeSmoothTransition, 300);
+  //   }
+  // }, [targetScrollY.current, currentScrollY.current]);
 
   // Track scroll direction for visual feedback
   const [, setScrollDirection] = useState<"up" | "down" | "none">("none");
@@ -767,18 +755,29 @@ const isScrollSpeedPending = false; // Mock pending state
   }, [scrollY]);
 
   // Add scroll performance optimization
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.style.willChange = "transform";
-      containerRef.current.style.transform = "translateZ(0)";
-    }
+ useEffect(() => {
+  if (containerRef.current) {
+    containerRef.current.style.willChange = "transform";
+    containerRef.current.style.transform = "translate3d(0, 0, 0)";
+    containerRef.current.style.transition = "none";
+    containerRef.current.style.backfaceVisibility = "hidden";
+  }
 
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.style.willChange = "auto";
-      }
-    };
-  }, []);
+  return () => {
+    if (containerRef.current) {
+      containerRef.current.style.willChange = "auto";
+    }
+  };
+}, []);
+
+const memoizedSections = useMemo(() => {
+  return sections?.map((section) => ({
+    ...section,
+    dimensions: getResponsiveSectionDimensions(section),
+    bgStyle: getResponsiveBackgroundStyle(section),
+    coordinateSystem: createResponsiveCoordinateSystem(section.backgroundImageAspectRatio),
+  }));
+}, [sections, viewportWidth, viewportHeight, deviceType]);
 
   
 
@@ -947,17 +946,13 @@ const isScrollSpeedPending = false; // Mock pending state
           display: "block",
           fontSize: 0,
           lineHeight: 0,
-          transition: "transform 0.1s ease-out",
-          willChange: "transform",
+           willChange: "transform",
+    backfaceVisibility: "hidden",
         }}
       >
         {/* Responsive sections with NO gaps */}
-        {sections?.map((section, sectionIndex) => {
-          const dimensions = getResponsiveSectionDimensions(section);
-          const bgStyle = getResponsiveBackgroundStyle(section);
-          const coordinateSystem = createResponsiveCoordinateSystem(
-            section.backgroundImageAspectRatio
-          );
+        {memoizedSections?.map((section, sectionIndex) => {
+  const { dimensions, bgStyle, coordinateSystem } = section;
 
           return (
             <section

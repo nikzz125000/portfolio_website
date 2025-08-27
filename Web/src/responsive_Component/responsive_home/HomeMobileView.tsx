@@ -9,9 +9,6 @@ import { useResumeDetails } from "../../api/useResumeDetails";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Footer from "../../components/Footer";
 import {
-  continuousAnimations,
-  getAnimationDuration,
-  getAnimationVariants,
   getDeviceType,
   homepageStyles,
   SAMPLE_BACKGROUND_IMAGE,
@@ -22,7 +19,7 @@ import {
 import HomePageLogo from "../../components/HomePageLogo";
 import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
 import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
-import { CustomCursor } from "../../components/CustomCursor";
+// import { CustomCursor } from "../../components/CustomCursor";
 
 // Helper: extract average color from image
 const getAverageColor = (imageUrl: string): Promise<string> => {
@@ -81,67 +78,7 @@ const DEFAULT_SCROLL_SETTINGS: ScrollSpeedSettings = {
 };
 
 // ENHANCED: Mobile-first unified coordinate system
-const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
-  const getImageDimensions = (containerWidth: number) => {
-    const deviceType = getDeviceType();
 
-    if (!aspectRatio || aspectRatio <= 0) {
-      const defaultRatios = {
-        mobile: 0.75,
-        tablet: 1.33,
-        desktop: 1.78,
-      };
-      aspectRatio = defaultRatios[deviceType];
-    }
-
-    let adjustedAspectRatio = aspectRatio;
-    if (deviceType === "mobile") {
-      adjustedAspectRatio = Math.max(aspectRatio, 0.6);
-      adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.0);
-    } else if (deviceType === "tablet") {
-      adjustedAspectRatio = Math.max(aspectRatio, 0.8);
-      adjustedAspectRatio = Math.min(adjustedAspectRatio, 2.2);
-    }
-
-    const imageHeight = containerWidth / adjustedAspectRatio;
-    return {
-      width: containerWidth,
-      height: imageHeight,
-      originalAspectRatio: aspectRatio,
-      adjustedAspectRatio,
-    };
-  };
-
-  const getPixelFromPercent = (
-    xPercent: number,
-    yPercent: number,
-    containerWidth: number
-  ) => {
-    const { width: imageWidth, height: imageHeight } =
-      getImageDimensions(containerWidth);
-    return {
-      x: (xPercent / 100) * imageWidth,
-      y: (yPercent / 100) * imageHeight,
-      imageWidth,
-      imageHeight,
-    };
-  };
-
-  const getPercentFromPixel = (
-    x: number,
-    y: number,
-    containerWidth: number
-  ) => {
-    const { width: imageWidth, height: imageHeight } =
-      getImageDimensions(containerWidth);
-    return {
-      xPercent: imageWidth > 0 ? (x / imageWidth) * 100 : 0,
-      yPercent: imageHeight > 0 ? (y / imageHeight) * 100 : 0,
-    };
-  };
-
-  return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
-};
 
 const HomeMobileView: React.FC = () => {
   const [sections, setSections] = useState<SectionData[]>([]);
@@ -164,7 +101,7 @@ const HomeMobileView: React.FC = () => {
   const animationFrameId = useRef<number | null>(null);
   const isScrolling = useRef<boolean>(false);
   const [totalHeight, setTotalHeight] = useState<number>(0);
-  const carouselTimersRef = useRef<{ [sectionId: string]: NodeJS.Timeout }>({});
+  const carouselTimersRef = useRef<{ [sectionId: string]: any }>({});
   const navigate = useNavigate();
   const [showLoader, setShowLoader] = useState(false);
 
@@ -223,17 +160,19 @@ const HomeMobileView: React.FC = () => {
     carouselTimersRef.current = {};
 
     // Setup new timers for each section with projects
-    sections.forEach(section => {
-      if (section.projects && section.projects.length > 1) {
-        carouselTimersRef.current[section.projectContainerId] = setInterval(() => {
-          setSectionCarousels(prev => ({
-            ...prev,
-            [section.projectContainerId]: 
-              (prev[section.projectContainerId] + 1) % section.projects.length
-          }));
-        }, 4000);
-      }
-    });
+  sections.forEach(section => {
+  if (section.projects && section.projects.length > 1) {
+    const projectsLength = section.projects.length; // Store the length
+    
+    carouselTimersRef.current[section.projectContainerId] = setInterval(() => {
+      setSectionCarousels(prev => ({
+        ...prev,
+        [section.projectContainerId]: 
+          (prev[section.projectContainerId] + 1) % projectsLength // Use stored length
+      }));
+    }, 4000);
+  }
+});
 
     return () => {
       Object.values(carouselTimersRef.current).forEach(timer => {
@@ -811,7 +750,7 @@ const HomeMobileView: React.FC = () => {
         background:backgroundColors
       }}
     >
-        <CustomCursor />
+        {/* <CustomCursor /> */}
       {/* Show loading spinner while data is being fetched */}
       {showLoader && (
         <div

@@ -2430,39 +2430,39 @@ export const homepageStyles = `
     }
 
     /* RESPONSIVE IMPROVEMENTS FOR TOUCH INTERFACES */
-    @media (max-width: 1024px) {
-      .clickable-sub-image {
-        /* Increase touch target size on tablets/mobile */
-        min-width: 44px !important;
-        min-height: 44px !important;
-      }
+    // @media (max-width: 1024px) {
+    //   .clickable-sub-image {
+    //     /* Increase touch target size on tablets/mobile */
+    //     min-width: 44px !important;
+    //     min-height: 44px !important;
+    //   }
       
-      .clickable-sub-image:hover {
-        /* Enhanced glow for touch devices */
-        filter: brightness(1.1) saturate(1.08) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 45px rgba(102, 126, 234, 0.2));
-        transform: scale(1.02); /* Slightly reduced scale on smaller devices */
-        animation: none; /* Pause the subtle glow animation on hover */
-      }
+    //   .clickable-sub-image:hover {
+    //     /* Enhanced glow for touch devices */
+    //     filter: brightness(1.1) saturate(1.08) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 45px rgba(102, 126, 234, 0.2));
+    //     transform: scale(1.02); /* Slightly reduced scale on smaller devices */
+    //     animation: none; /* Pause the subtle glow animation on hover */
+    //   }
       
-      /* Disable hover effects completely on pure touch devices but keep base glow */
-      @media (hover: none) {
-        .clickable-sub-image {
-          /* Enhanced base glow for touch devices */
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
-        }
+    //   /* Disable hover effects completely on pure touch devices but keep base glow */
+    //   @media (hover: none) {
+    //     .clickable-sub-image {
+    //       /* Enhanced base glow for touch devices */
+    //       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+    //     }
         
-        .clickable-sub-image:hover {
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
-          transform: none;
-          animation: subtleGlow 3s ease-in-out infinite;
-        }
+    //     .clickable-sub-image:hover {
+    //       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+    //       transform: none;
+    //       animation: subtleGlow 3s ease-in-out infinite;
+    //     }
         
-        .menu-item-modern:hover {
-          box-shadow: 0 6px 24px rgba(0,0,0,0.15) !important;
-          background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)) !important;
-        }
-      }
-    }
+    //     .menu-item-modern:hover {
+    //       box-shadow: 0 6px 24px rgba(0,0,0,0.15) !important;
+    //       background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)) !important;
+    //     }
+    //   }
+    // }
 
     /* Reusable Gradient Background System */
     .gradient-background {
@@ -2530,7 +2530,7 @@ export const homepageStyles = `
     /* CRITICAL: Additional background gap prevention */
     section > div:first-child {
       /* Force background divs to have no gaps */
-      transform: translateZ(0) !important; /* Force hardware acceleration */
+      // transform: translateZ(0) !important; /* Force hardware acceleration */
       backface-visibility: hidden !important;
       /* Ensure crisp rendering */
       image-rendering: -webkit-optimize-contrast !important;
@@ -2588,6 +2588,8 @@ export const homepageStyles = `
           radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.09) 0%, transparent 55%) !important;
       }
     }
+
+
  
   
 

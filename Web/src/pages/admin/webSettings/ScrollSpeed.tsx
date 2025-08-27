@@ -41,18 +41,18 @@ const SCROLL_SPEED_PRESETS: { [key: string]: ScrollSpeedSettings } = {
     smoothness: 0.06,
   },
   normal: {
-    wheel: 0.2,
-    touch: 0.6,
-    keyboard: 1.0,
-    momentum: 0.3,
-    smoothness: 0.08,
-  },
-  fast: {
     wheel: 0.3,
     touch: 0.8,
     keyboard: 1.5,
     momentum: 0.4,
     smoothness: 0.12,
+  },
+  fast: {
+    wheel: 0.35,
+    touch: 0.9,
+    keyboard: 1.8,
+    momentum: 0.45,
+    smoothness: 0.14,
   },
   "very-fast": {
     wheel: 0.45,
@@ -983,16 +983,16 @@ setSelectedPreset(current || "custom");
               disabled={ isSaving}
               style={{
                 ...styles.button,
-                background: hasChanges && !isSaving
+                background:  !isSaving
                   ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
                   : "rgba(156, 163, 175, 0.5)",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
                 fontWeight: "600",
-                cursor: hasChanges && !isSaving ? "pointer" : "not-allowed",
+                cursor:  !isSaving ? "pointer" : "not-allowed",
                 transition: "all 0.3s ease",
-                boxShadow: hasChanges && !isSaving ? "0 4px 15px rgba(16, 185, 129, 0.3)" : "none",
+                boxShadow: !isSaving ? "0 4px 15px rgba(16, 185, 129, 0.3)" : "none",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

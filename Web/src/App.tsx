@@ -70,8 +70,8 @@ export const App = () => {
         path="/"
         element={
           <MainLayout>
-            <Homepage /> 
-            {/* <ResponsiveHome/> */}
+            {/* <Homepage />  */}
+             <ResponsiveHome/> 
           </MainLayout>
         }
       />

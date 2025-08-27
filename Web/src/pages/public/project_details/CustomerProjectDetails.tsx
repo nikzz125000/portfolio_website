@@ -754,7 +754,7 @@ const ProjectDetailsPage: React.FC = () => {
          background:backgroundColors
       }}
     >
-         <CustomCursor />
+        {deviceType!=='mobile'&& <CustomCursor />}
          {showLoader && (
           
           <AnimatePresence>

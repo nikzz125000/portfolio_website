@@ -88,6 +88,20 @@ const AnimatedResume: React.FC = () => {
     viewport: { once: true, amount: 0.2 },
   };
 
+  const BREAKPOINTS = {
+  mobile: 768,
+  tablet: 1024,
+  desktop: 1200,
+};
+
+// Get current device type
+const getDeviceType = () => {
+  const width = window.innerWidth;
+  if (width <= BREAKPOINTS.mobile) return "mobile";
+  if (width <= BREAKPOINTS.tablet) return "tablet";
+  return "desktop";
+};
+
 
   const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
         
@@ -174,6 +188,8 @@ const AnimatedResume: React.FC = () => {
     setResumeData(next);
   }, [resumeResponse]);
 
+  const deviceType = getDeviceType();
+
   return (
     <div
       className="min-h-screen ff-brand"
@@ -185,7 +201,7 @@ const AnimatedResume: React.FC = () => {
         overflowY: "auto",
       }}
     >
-       <CustomCursor />
+      {deviceType!=='mobile'&& <CustomCursor />}
       {/* Reuse homepage gradient styles */}
       <style>{homepageStyles}</style>
       {/* Force-enable scrolling on this page */}

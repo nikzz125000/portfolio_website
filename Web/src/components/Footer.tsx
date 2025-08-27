@@ -598,7 +598,7 @@ const getResponsiveDimensions = () => {
             ref={buttonRef}
             className="connect-button"
             onClick={handleResumeClick}
-            style={{}}
+            style={{cursor:'none'}}
           >
             CONNECT
           </button>
