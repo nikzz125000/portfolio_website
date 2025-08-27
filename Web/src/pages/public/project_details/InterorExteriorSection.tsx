@@ -71,7 +71,7 @@ const InterorExteriorSection = ({
           className="nav-titles-container"
           style={{
             position: "absolute",
-            left: "75%",
+            left:deviceType === "mobile" ?'65%': "75%",
             transform: "translateX(-50%)",
             display: "flex",
             gap: deviceType === "mobile" ? "24px" : "32px",

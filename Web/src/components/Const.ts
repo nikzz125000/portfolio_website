@@ -1357,7 +1357,7 @@ export const projectDetailsStyles = `
       }
       
       .centered-logo img {
-        height: 80px !important;
+        height: 40px !important;
       }
       
       .coordinate-debug {
@@ -1369,7 +1369,7 @@ export const projectDetailsStyles = `
       }
       
       .logo-container img {
-        height: 100px !important;
+        height: 50px !important;
       }
       
       /* Mobile menu adjustments */
@@ -2150,7 +2150,7 @@ export const homepageStyles = `
       }
       
       .centered-logo img {
-        height: 80px !important;
+        height: 40px !important;
       }
       
       .coordinate-debug {
@@ -2162,7 +2162,7 @@ export const homepageStyles = `
       }
       
       .logo-container img {
-        height: 100px !important;
+        height: 50px !important;
       }
       
       .connect-form {

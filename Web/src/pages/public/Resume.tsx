@@ -82,7 +82,7 @@ const AnimatedResume: React.FC = () => {
   const navigate = useNavigate();
 
   const fadeUp: any = {
-    initial: { opacity: 0, y: 24 },
+    initial: { opacity: 10, y: 24 },
     whileInView: { opacity: 1, y: 0 },
     transition: { duration: 0.7, ease: "easeOut" },
     viewport: { once: true, amount: 0.2 },

@@ -29,8 +29,8 @@ function HomePageLogo({
       <div
         style={{
           position: "fixed",
-          top: deviceType === "mobile" ? "60px" : "50px",
-          left: deviceType === "mobile" ? "15px" : "20px",
+          top: deviceType === "mobile" ? "20px" : "50px",
+          left: deviceType === "mobile" ? "8px" : "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
           transition: "transform 0.3s ease-out",
@@ -76,8 +76,8 @@ function HomePageLogo({
               height: logoSizes.fixedLogo,
               width: "auto",
               position: "absolute",
-              top: "4.5px", // Match the padding
-              left: "7px", // Match the padding
+              top:deviceType === "mobile" ? "1.5px": "4.5px", // Match the padding
+              left:deviceType === "mobile" ? "9px": "7px", // Match the padding
               filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
               transform: isMenuOpen 
                 ? "translateX(2px) translateY(-14px) rotate(2deg)" 

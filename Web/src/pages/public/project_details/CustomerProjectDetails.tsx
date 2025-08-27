@@ -361,7 +361,7 @@ const ProjectDetailsPage: React.FC = () => {
 
       // Responsive footer height - ensure it matches Footer component dimensions
       const footerHeight =
-        deviceType === "mobile" ? 340 : deviceType === "tablet" ? 280 : 240;
+        deviceType === "mobile" ? 240 : deviceType === "tablet" ? 280 : 240;
       height += footerHeight;
 
       setTotalHeight(height);
@@ -940,8 +940,8 @@ const ProjectDetailsPage: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          top: deviceType === "mobile" ? "60px" : "50px",
-          left: deviceType === "mobile" ? "15px" : "20px",
+          top: deviceType === "mobile" ? "40px" : "50px",
+          left: deviceType === "mobile" ? "5px" : "20px",
           zIndex: 1000,
           transform: `translateY(${Math.min(scrollY * 0.05, 20)}px)`,
           transition: "transform 0.3s ease-out",
@@ -969,7 +969,7 @@ const ProjectDetailsPage: React.FC = () => {
               width: "auto",
                 filter: "brightness(0) invert(1)",
               // transition: "transform 0.2s ease, filter 0.2s ease",
-              marginLeft:12
+              marginLeft: deviceType==="mobile"?1:12
             }}
             
           />

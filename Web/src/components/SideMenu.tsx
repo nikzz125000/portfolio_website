@@ -20,6 +20,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
   onMenuItemClick,
 }) => {
   // Menu items for the animated logo menu
+
+ 
   const menuItems: MenuItem[] = [
     {
       name: "About",
@@ -74,11 +76,11 @@ const SideMenu: React.FC<SideMenuProps> = ({
     switch (deviceType) {
       case "mobile":
         return {
-          logoSize: 100,
-          curveRadius: 60,
-          strokeWidth: 4,
-          menuItemSize: "14px",
-          sunRayDistance: 90,
+          logoSize:80,
+          curveRadius: 40,
+          strokeWidth: 3,
+          menuItemSize: "11px",
+          sunRayDistance: 60,
         };
       case "tablet":
         return {
@@ -168,8 +170,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
           height={sizes.curveRadius + 20}
           style={{
             position: "absolute",
-            bottom: `126px`,
-            right: `-20px`,
+            bottom:deviceType==='mobile'? `76px`:`106px`,
+            right:deviceType==='mobile'? `2px`:`-20px`,
             pointerEvents: "none",
           }}
         >
@@ -194,8 +196,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
           const angleRad = (currentAngle * Math.PI) / 180;
           
           // Calculate sun ray position (radiating outward from curve origin)
-          const curveOriginX = sizes.logoSize - 95; // Bottom-right of logo area
-          const curveOriginY = sizes.logoSize - 200;
+          const curveOriginX = sizes.logoSize - (deviceType==='mobile'?65:95); // Bottom-right of logo area
+          const curveOriginY = sizes.logoSize - (deviceType==='mobile'?115:200); ;
           
           // Position menu items further out like sun rays
           const rayX = curveOriginX + sizes.sunRayDistance * Math.cos(angleRad);

@@ -25,6 +25,7 @@ import ImageEditor from "./pages/admin/home/Subproject";
 import ScrollSpeedAdmin from "./pages/admin/webSettings/ScrollSpeed";
 import GradientEditor from "./pages/admin/webSettings/BackgroundColor";
 import PaddingAdjuster from "./pages/admin/webSettings/Padding";
+import ResponsiveHome from "./responsive_Component/responsive_home/ResponsiveHome";
 
 
 
@@ -69,7 +70,8 @@ export const App = () => {
         path="/"
         element={
           <MainLayout>
-            <Homepage />
+            <Homepage /> 
+            {/* <ResponsiveHome/> */}
           </MainLayout>
         }
       />

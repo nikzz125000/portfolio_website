@@ -6,9 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHomePageList } from "../../api/useHomePage";
 import { useResumeDetails } from "../../api/useResumeDetails";
-// import { useScrollSpeedSettings } from "../../api/useScrollSpeedSettings"; // New API hook
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-// import SideMenu from "../../components/SideMenu";
 import Footer from "../../components/Footer";
 import {
   continuousAnimations,
@@ -25,6 +23,44 @@ import HomePageLogo from "../../components/HomePageLogo";
 import { useScrollerSpeedSettings } from "../../api/useScrollSpeedSettings";
 import { useGetBackgroundColor } from "../../api/webSettings/useGetBackgroundColor";
 import { CustomCursor } from "../../components/CustomCursor";
+
+// Helper: extract average color from image
+const getAverageColor = (imageUrl: string): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imageUrl;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return resolve("rgba(255,255,255,0.6)");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+      let r = 0, g = 0, b = 0;
+      const total = imageData.data.length / 4;
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        r += imageData.data[i];
+        g += imageData.data[i + 1];
+        b += imageData.data[i + 2];
+      }
+      r = Math.floor(r / total);
+      g = Math.floor(g / total);
+      b = Math.floor(b / total);
+      resolve(`rgba(${r}, ${g}, ${b}, 0.75)`);
+    };
+    img.onerror = () => resolve("rgba(255,255,255,0.6)");
+  });
+};
+
+interface SectionGlowColor {
+  [sectionId: string]: string;
+}
+
+interface SectionCarouselState {
+  [sectionId: string]: number; // current project index for each section
+}
 
 // ENHANCED: Scroll speed settings interface
 interface ScrollSpeedSettings {
@@ -107,17 +143,16 @@ const createResponsiveCoordinateSystem = (aspectRatio: number | undefined) => {
   return { getImageDimensions, getPixelFromPercent, getPercentFromPixel };
 };
 
-const Homepage: React.FC = () => {
+const HomeMobileView: React.FC = () => {
   const [sections, setSections] = useState<SectionData[]>([]);
-  const [viewportHeight, setViewportHeight] = useState<number>(
-    window.innerHeight
-  );
+  const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [deviceType, setDeviceType] = useState<string>(getDeviceType());
   const [scrollY, setScrollY] = useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
-  
+  const [glowColors, setGlowColors] = useState<SectionGlowColor>({});
+  const [sectionCarousels, setSectionCarousels] = useState<SectionCarouselState>({});
   
   // ENHANCED: API-based scroll speed settings
   const [apiScrollSettings, setApiScrollSettings] = useState<ScrollSpeedSettings>(DEFAULT_SCROLL_SETTINGS);
@@ -129,22 +164,17 @@ const Homepage: React.FC = () => {
   const animationFrameId = useRef<number | null>(null);
   const isScrolling = useRef<boolean>(false);
   const [totalHeight, setTotalHeight] = useState<number>(0);
+  const carouselTimersRef = useRef<{ [sectionId: string]: NodeJS.Timeout }>({});
   const navigate = useNavigate();
   const [showLoader, setShowLoader] = useState(false);
 
   const { data, isPending } = useHomePageList();
   const { isPending: isResumePending } = useResumeDetails();
-  
-  // ENHANCED: Fetch scroll speed settings from API
-  // const { 
-  //   data: scrollSpeedData, 
-  //   isPending: isScrollSpeedPending,
-  //   error: scrollSpeedError 
-  // } = useScrollSpeedSettings();
   const { data: scrollSpeedData} = useScrollerSpeedSettings();
-  // const scrollSpeedData = { data: {    wheel: 0.2, touch: 0.6, keyboard: 1.0, momentum: 0.3, smoothness: 0.08 } }; // Mock data 
-const scrollSpeedError = null; // Mock error
-const isScrollSpeedPending = false; // Mock pending state
+  
+  const scrollSpeedError = null;
+  const isScrollSpeedPending = false;
+  
   // ENHANCED: Update scroll settings when API data is available
   useEffect(() => {
     if (scrollSpeedData?.data) {
@@ -157,50 +187,98 @@ const isScrollSpeedPending = false; // Mock pending state
       };
       setApiScrollSettings(apiSettings);
     } else if (scrollSpeedError) {
-      // Fallback to default settings if API fails
       console.warn("Failed to load scroll speed settings, using defaults:", scrollSpeedError);
       setApiScrollSettings(DEFAULT_SCROLL_SETTINGS);
     }
   }, [scrollSpeedData, scrollSpeedError]);
 
+  const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
+  const { data: backgroundColor } = useGetBackgroundColor('home');
+  
+  useEffect(() => {
+    if(backgroundColor?.data){
+      setBackgroundColors(backgroundColor?.data?.backgroundColor)
+    }
+  }, [backgroundColor])
 
-     const [backgroundColors, setBackgroundColors] = useState('linear-gradient(90deg, #6e226e 0%, #a5206a 14%, #d31663 28%, #ed3176 42%, #fd336b 56%, #f23d64 70%, #f65d55 84%, #f5655d 100%)')
-  
-   const { data: backgroundColor } = useGetBackgroundColor('home');
-  
-       useEffect(() => {
-        if(backgroundColor?.data){
-          setBackgroundColors(backgroundColor?.data?.backgroundColor)
+  // Initialize carousel states for each section
+  useEffect(() => {
+    if (sections.length > 0) {
+      const initialCarouselState: SectionCarouselState = {};
+      sections.forEach(section => {
+        if (section.projects && section.projects.length > 0) {
+          initialCarouselState[section.projectContainerId] = 0;
         }
-       }, [backgroundColor])
+      });
+      setSectionCarousels(initialCarouselState);
+    }
+  }, [sections]);
+
+  // Setup carousel timers for each section
+  useEffect(() => {
+    // Clear existing timers
+    Object.values(carouselTimersRef.current).forEach(timer => {
+      if (timer) clearInterval(timer);
+    });
+    carouselTimersRef.current = {};
+
+    // Setup new timers for each section with projects
+    sections.forEach(section => {
+      if (section.projects && section.projects.length > 1) {
+        carouselTimersRef.current[section.projectContainerId] = setInterval(() => {
+          setSectionCarousels(prev => ({
+            ...prev,
+            [section.projectContainerId]: 
+              (prev[section.projectContainerId] + 1) % section.projects.length
+          }));
+        }, 4000);
+      }
+    });
+
+    return () => {
+      Object.values(carouselTimersRef.current).forEach(timer => {
+        if (timer) clearInterval(timer);
+      });
+    };
+  }, [sections]);
+
+  // Extract glow colors for sections
+  useEffect(() => {
+    if (sections) {
+      sections.forEach((section) => {
+        if (section.backgroundImageUrl) {
+          getAverageColor(section.backgroundImageUrl).then((color) => {
+            setGlowColors((prev) => ({ ...prev, [section.projectContainerId]: color }));
+          });
+        }
+      });
+    }
+  }, [sections]);
 
   useEffect(() => {
-  const handleMouseMove = (e: MouseEvent) => {
-    // Update CSS variables for cursor position
-    document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-    document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
-  };
+    const handleMouseMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    };
 
-  // Only track mouse on clickable elements
-  const clickableElements = document.querySelectorAll('.clickable-sub-image');
-  
-  clickableElements.forEach(element => {
-    element.addEventListener('mouseenter', () => {
-      document.addEventListener('mousemove', handleMouseMove);
-    });
+    const clickableElements = document.querySelectorAll('.clickable-sub-image');
     
-    element.addEventListener('mouseleave', () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      // Hide cursor when not hovering
-      document.documentElement.style.setProperty('--mouse-x', '-100px');
-      document.documentElement.style.setProperty('--mouse-y', '-100px');
+    clickableElements.forEach(element => {
+      element.addEventListener('mouseenter', () => {
+        document.addEventListener('mousemove', handleMouseMove);
+      });
+      
+      element.addEventListener('mouseleave', () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.documentElement.style.setProperty('--mouse-x', '-100px');
+        document.documentElement.style.setProperty('--mouse-y', '-100px');
+      });
     });
-  });
 
-  return () => {
-    document.removeEventListener('mousemove', handleMouseMove);
-  };
-}, [sections]);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [sections]);
 
   // ENHANCED: Apply device-specific multipliers to API scroll settings
   const getDeviceAdjustedScrollSettings = (): ScrollSpeedSettings => {
@@ -208,9 +286,9 @@ const isScrollSpeedPending = false; // Mock pending state
     
     let deviceMultiplier = 1;
     if (device === "mobile") {
-      deviceMultiplier = 1.5; // Higher sensitivity for mobile
+      deviceMultiplier = 1.5;
     } else if (device === "tablet") {
-      deviceMultiplier = 1.25; // Medium sensitivity for tablet
+      deviceMultiplier = 1.25;
     }
 
     return {
@@ -246,52 +324,35 @@ const isScrollSpeedPending = false; // Mock pending state
 
     return {
       backgroundImage: `url(${backgroundUrl})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center center",
+      backgroundSize: "100% auto", // Width 100%, height auto to maintain aspect ratio
+      backgroundPosition: "center top",
       backgroundRepeat: "no-repeat",
       backgroundAttachment: "scroll",
       imageRendering: "auto",
-      WebkitBackdropFilter: "cover",
-      MozBackgroundSize: "cover",
+      WebkitBackdropFilter: "none",
+      MozBackgroundSize: "100% auto",
     } as React.CSSProperties;
   };
 
-  // Responsive section dimension calculation
+  // Responsive section dimension calculation based on background image
   const getResponsiveSectionDimensions = (section: SectionData) => {
     const containerWidth = window.innerWidth;
-    const device = getDeviceType();
-    const coordinateSystem = createResponsiveCoordinateSystem(
-      section.backgroundImageAspectRatio
-    );
-    const { height, adjustedAspectRatio } =
-      coordinateSystem.getImageDimensions(containerWidth);
-
-    let sectionHeight = Math.ceil(height);
-
-    if (device === "mobile") {
-      const maxMobileHeight = Math.ceil(window.innerHeight * 1.2);
-      const minMobileHeight = Math.ceil(window.innerHeight * 0.8);
-      sectionHeight = Math.max(
-        Math.min(sectionHeight, maxMobileHeight),
-        minMobileHeight
-      );
-    } else if (device === "tablet") {
-      const maxTabletHeight = Math.ceil(window.innerHeight * 1.5);
-      const minTabletHeight = Math.ceil(window.innerHeight * 0.9);
-      sectionHeight = Math.max(
-        Math.min(sectionHeight, maxTabletHeight),
-        minTabletHeight
-      );
-    } else {
-      sectionHeight = Math.max(Math.ceil(height), window.innerHeight);
+    
+    // Use background image aspect ratio, fallback to default if not available
+    let aspectRatio = section.backgroundImageAspectRatio;
+    if (!aspectRatio || aspectRatio <= 0) {
+      aspectRatio = 16 / 9; // Default aspect ratio
     }
-
+    
+    // Calculate height based on width and aspect ratio
+    const sectionHeight = Math.ceil(containerWidth / aspectRatio);
+    
     return {
       width: containerWidth,
       height: sectionHeight,
-      imageHeight: Math.ceil(height),
-      adjustedAspectRatio,
-      device,
+      imageHeight: sectionHeight,
+      adjustedAspectRatio: aspectRatio,
+      device: getDeviceType(),
     };
   };
 
@@ -337,7 +398,7 @@ const isScrollSpeedPending = false; // Mock pending state
       });
 
       const footerHeight =
-        deviceType === "mobile" ? 340 : deviceType === "tablet" ? 280 : 240;
+        deviceType === "mobile" ? 140 : deviceType === "tablet" ? 280 : 240;
       height += footerHeight;
 
       setTotalHeight(height);
@@ -353,13 +414,12 @@ const isScrollSpeedPending = false; // Mock pending state
     const scrollSettings = getDeviceAdjustedScrollSettings();
     const difference = targetScrollY.current - currentScrollY.current;
 
-    // Dynamic easing based on scroll distance and API smoothness setting
     let easingFactor = scrollSettings.smoothness;
 
     if (Math.abs(difference) > 100) {
-      easingFactor = scrollSettings.smoothness * 1.5; // Faster for long distances
+      easingFactor = scrollSettings.smoothness * 1.5;
     } else if (Math.abs(difference) < 10) {
-      easingFactor = scrollSettings.smoothness * 0.5; // Slower for fine-tuning
+      easingFactor = scrollSettings.smoothness * 0.5;
     }
 
     const step = difference * easingFactor;
@@ -404,7 +464,6 @@ const isScrollSpeedPending = false; // Mock pending state
       e.preventDefault();
       const scrollSettings = getDeviceAdjustedScrollSettings();
       
-      // Use API-driven wheel speed
       const scrollAmount = e.deltaY * scrollSettings.wheel;
       const maxScroll = Math.max(0, totalHeight - window.innerHeight);
 
@@ -447,7 +506,6 @@ const isScrollSpeedPending = false; // Mock pending state
     const handleKeyDown = (e: KeyboardEvent) => {
       const scrollSettings = getDeviceAdjustedScrollSettings();
       
-      // Use API-driven keyboard speed
       let scrollAmount = 80 * scrollSettings.keyboard;
 
       if (e.repeat) {
@@ -515,7 +573,6 @@ const isScrollSpeedPending = false; // Mock pending state
         const deltaY = startY - currentY;
         const timeDelta = currentTime - startTime;
 
-        // Use API-driven touch speed
         const scrollAmount = deltaY * scrollSettings.touch;
 
         if (timeDelta > 0) {
@@ -582,7 +639,7 @@ const isScrollSpeedPending = false; // Mock pending state
         clearInterval(momentumInterval);
       }
     };
-  }, [totalHeight, deviceType, apiScrollSettings]); // Now depends on apiScrollSettings
+  }, [totalHeight, deviceType, apiScrollSettings]);
 
   // Handle click outside menu
   useEffect(() => {
@@ -656,47 +713,6 @@ const isScrollSpeedPending = false; // Mock pending state
     };
   }, [sections]);
 
-  // Responsive image dimensions calculation
-  const calculateResponsiveImageDimensions = (
-    containerWidth: number,
-    heightPercent: number,
-    aspectRatio: number | undefined
-  ) => {
-    const device = getDeviceType();
-    const coordinateSystem = createResponsiveCoordinateSystem(aspectRatio);
-    const { width: imageWidth } =
-      coordinateSystem.getImageDimensions(containerWidth);
-
-    let scaleFactor = 1;
-    if (device === "mobile") {
-      scaleFactor = 0.8;
-    } else if (device === "tablet") {
-      scaleFactor = 0.9;
-    }
-
-    const adjustedHeightPercent = heightPercent * scaleFactor;
-    const height = (adjustedHeightPercent / 100) * imageWidth;
-
-    const maxWidths = {
-      mobile: containerWidth * 0.85,
-      tablet: containerWidth * 0.9,
-      desktop: containerWidth * 0.9,
-    };
-
-    const maxHeights = {
-      mobile: window.innerHeight * 0.6,
-      tablet: window.innerHeight * 0.8,
-      desktop: window.innerHeight * 0.9,
-    };
-
-    return {
-      width: "auto",
-      height: `${height}px`,
-      maxWidth: `${maxWidths[device]}px`,
-      maxHeight: `${maxHeights[device]}px`,
-    };
-  };
-
   // Get responsive logo and menu sizes
   const getResponsiveLogoSizes = () => {
     const device = getDeviceType();
@@ -706,7 +722,7 @@ const isScrollSpeedPending = false; // Mock pending state
       SecondLogo:
         device === "mobile" ? "80px" : device === "tablet" ? "100px" : "130px",
       centeredLogo:
-        device === "mobile" ? "40px" : device === "tablet" ? "100px" : "120px",
+        device === "mobile" ? "80px" : device === "tablet" ? "100px" : "120px",
       menuItemSize:
         device === "mobile" ? "8px" : device === "tablet" ? "10px" : "11px",
       menuPadding:
@@ -716,7 +732,7 @@ const isScrollSpeedPending = false; // Mock pending state
           ? "5px 10px"
           : "6px 12px",
       bottomLogo:
-        device === "mobile" ? "40px" : device === "tablet" ? "108px" : "148px",
+        device === "mobile" ? "90px" : device === "tablet" ? "108px" : "148px",
     };
   };
 
@@ -780,8 +796,6 @@ const isScrollSpeedPending = false; // Mock pending state
     };
   }, []);
 
-  
-
   return (
     <div
       className="homepage-container homepage-gradient-bg"
@@ -823,6 +837,105 @@ const isScrollSpeedPending = false; // Mock pending state
         </div>
       )}
       <style>{homepageStyles}</style>
+
+      {/* Carousel Styles */}
+      <style>
+        {`
+.mobile-carousel-slide {
+  position: absolute;
+  top: 30%;
+  left: 35%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  width: 30vw;
+  height: 20vh;
+  max-width: 30vw;
+  max-height: 20vh;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-carousel-image-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-carousel-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 14px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  backface-visibility: hidden !important;
+  perspective: 1000px !important;
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  animation: mobileImageGlow 6s ease-in-out infinite alternate !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 25px var(--glow-color, rgba(255, 255, 255, 0.25)),
+    0 0 50px var(--glow-color, rgba(255, 255, 255, 0.15));
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.mobile-carousel-image:hover {
+  transform: scale(1.07) rotate(0.5deg) !important;
+  box-shadow: 
+    0 12px 36px rgba(0, 0, 0, 0.4),
+    0 0 35px var(--glow-color, rgba(255, 255, 255, 0.4)),
+    0 0 70px var(--glow-color, rgba(255, 255, 255, 0.2)),
+    0 0 100px var(--glow-color, rgba(102, 126, 234, 0.3)) !important;
+  animation: pulseGlow 3s ease-in-out infinite alternate !important;
+}
+
+.mobile-carousel-image:active {
+  transform: scale(0.96) !important;
+}
+
+@keyframes mobileImageGlow {
+  0% { 
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      0 0 20px var(--glow-color, rgba(255, 255, 255, 0.2)),
+      0 0 40px var(--glow-color, rgba(255, 255, 255, 0.1));
+  }
+  50% { 
+    box-shadow: 
+      0 12px 32px rgba(0, 0, 0, 0.35),
+      0 0 30px var(--glow-color, rgba(255, 255, 255, 0.35)),
+      0 0 60px var(--glow-color, rgba(255, 255, 255, 0.2));
+  }
+  100% { 
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      0 0 20px var(--glow-color, rgba(255, 255, 255, 0.25)),
+      0 0 40px var(--glow-color, rgba(255, 255, 255, 0.15));
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    filter: drop-shadow(0 0 10px var(--glow-color)) drop-shadow(0 0 20px var(--glow-color));
+  }
+  100% {
+    filter: drop-shadow(0 0 25px var(--glow-color)) drop-shadow(0 0 50px var(--glow-color));
+  }
+}
+        `}
+      </style>
 
       {/* Additional CSS to eliminate background gaps */}
       <style>
@@ -921,10 +1034,7 @@ const isScrollSpeedPending = false; // Mock pending state
           }
         `}
       </style>
-
-      
               
-
       <HomePageLogo 
         deviceType={deviceType} 
         handleLogoClick={handleLogoClick}  
@@ -951,13 +1061,13 @@ const isScrollSpeedPending = false; // Mock pending state
           willChange: "transform",
         }}
       >
-        {/* Responsive sections with NO gaps */}
+        {/* Responsive sections with carousel behavior */}
         {sections?.map((section, sectionIndex) => {
           const dimensions = getResponsiveSectionDimensions(section);
           const bgStyle = getResponsiveBackgroundStyle(section);
-          const coordinateSystem = createResponsiveCoordinateSystem(
-            section.backgroundImageAspectRatio
-          );
+          const glowColor = glowColors[section.projectContainerId] || "rgba(255,255,255,0.6)";
+          const currentProjectIndex = sectionCarousels[section.projectContainerId] || 0;
+          const currentProject = section.projects?.[currentProjectIndex];
 
           return (
             <section
@@ -977,6 +1087,7 @@ const isScrollSpeedPending = false; // Mock pending state
                 minHeight: "0",
                 maxHeight: "none",
                 overflow: "hidden",
+                ["--glow-color" as any]: glowColor,
               }}
             >
               {/* Separate Background Layer with Blur Effect */}
@@ -1039,7 +1150,7 @@ const isScrollSpeedPending = false; // Mock pending state
                     style={{
                       top:
                         deviceType === "mobile"
-                          ? "10px"
+                          ? "20px"
                           : deviceType === "tablet"
                           ? "30px"
                           : "80px",
@@ -1049,177 +1160,41 @@ const isScrollSpeedPending = false; // Mock pending state
                       src="/logo/logo.webp"
                       alt="Centered Logo"
                       style={{
-                        // cursor: "pointer",
                         height: logoSizes.centeredLogo,
                       }}
                     />
                   </div>
                 )}
 
-                {/* Responsive sub-images positioned using coordinate system */}
-                <AnimatePresence>
-                  {section.projects?.map((subImage) => {
-                    const containerWidth = window.innerWidth;
-                    const { x: pixelX, y: pixelY } =
-                      coordinateSystem.getPixelFromPercent(
-                        subImage.xPosition,
-                        subImage.yPosition,
-                        containerWidth
-                      );
-
-                    const imageDimensions = calculateResponsiveImageDimensions(
-                      containerWidth,
-                      subImage.heightPercent,
-                      section.backgroundImageAspectRatio
-                    );
-
-                    const isHovered = hoveredImageId === subImage.projectId;
-
-                    const animationVariants = getAnimationVariants(
-                      subImage.animation,
-                      subImage.animationTrigger
-                    );
-                    const duration = getAnimationDuration(
-                      subImage.animationSpeed
-                    );
-
-                    const transition: any = { duration };
-
-                    if (subImage.animationTrigger === "continuous") {
-                      if (continuousAnimations.includes(subImage.animation)) {
-                        transition.repeat = Infinity;
-                      }
-
-                      if (
-                        ["rotate", "flip", "flipX", "flipY"].includes(
-                          subImage.animation
-                        )
-                      ) {
-                        transition.ease = "linear";
-                      }
-                    }
-
-                    if (subImage.animationTrigger === "once") {
-                      const attentionAnimations = [
-                        "bounce",
-                        "shake",
-                        "shakeY",
-                        "pulse",
-                        "heartbeat",
-                        "flash",
-                        "headShake",
-                        "swing",
-                        "rubberBand",
-                        "wobble",
-                        "jello",
-                        "tada",
-                      ];
-
-                      if (attentionAnimations.includes(subImage.animation)) {
-                        const repeatCounts: { [key: string]: number } = {
-                          bounce: 3,
-                          shake: 3,
-                          shakeY: 3,
-                          pulse: 2,
-                          heartbeat: 2,
-                          flash: 3,
-                          headShake: 2,
-                          swing: 1,
-                          rubberBand: 1,
-                          wobble: 1,
-                          jello: 1,
-                          tada: 1,
-                        };
-                        transition.repeat =
-                          repeatCounts[subImage.animation] || 1;
-                      }
-                    }
-
-                    if (subImage.animation === "hinge") {
-                      transition.duration = duration * 1.5;
-                    }
-
-                    if (
-                      [
-                        "elasticIn",
-                        "elasticInUp",
-                        "elasticInDown",
-                        "elasticInLeft",
-                        "elasticInRight",
-                      ].includes(subImage.animation)
-                    ) {
-                      transition.duration = duration * 1.2;
-                    }
-
-
-                    return (
-                      <motion.div
-                        key={subImage.projectId}
-                        className="sub-image-visible sub-image-container"
-                        style={{
-                          position: "absolute",
-                          left: `${pixelX}px`,
-                          top: `${pixelY}px`,
-                          zIndex: isHovered ? 50 : 20,
-                        }}
-                      >
-                        <motion.img
-                          src={
-                            subImage.projectImageUrl &&
-                            subImage.projectImageUrl.trim() !== ""
-                              ? subImage.projectImageUrl
-                              : SAMPLE_SUB_IMAGE
-                          }
-                          alt={subImage.name || subImage.imageFileName}
-                          data-project-id={subImage.projectId}
-                          data-animation={subImage.animation}
-                          data-animation-speed={subImage.animationSpeed}
-                          data-animation-trigger={subImage.animationTrigger}
-                          // className="clickable-sub-image"
-                           className="clickable-sub-image "
-                          variants={animationVariants}
-                          initial={
-                            subImage.animation !== "none" ? "initial" : {}
-                          }
-                          animate={
-                            subImage.animation !== "none" &&
-                            subImage.animationTrigger !== "hover"
-                              ? "animate"
-                              : "initial"
-                          }
-                          whileHover={
-                            subImage.animation !== "none" &&
-                            subImage.animationTrigger === "hover"
-                              ? "animate"
-                              : {}
-                          }
-                          transition={transition}
-                          onClick={() =>
-                            handleSubImageClick(subImage.projectId)
-                          }
-                          onMouseEnter={() =>
-                            setHoveredImageId(subImage.projectId)
-                          }
+                {/* Carousel Project Display */}
+                {currentProject && (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`${section.projectContainerId}-${currentProject.projectId}`}
+                      className="mobile-carousel-slide"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                    >
+                      <div className="mobile-carousel-image-wrapper">
+                        <img
+                          src={currentProject.projectImageUrl || SAMPLE_SUB_IMAGE}
+                          alt={currentProject.name || currentProject.imageFileName}
+                          className="mobile-carousel-image clickable-sub-image"
+                          onClick={() => handleSubImageClick(currentProject.projectId)}
+                          onMouseEnter={() => setHoveredImageId(currentProject.projectId)}
                           onMouseLeave={() => setHoveredImageId(null)}
                           onError={(e) => {
                             if (e.currentTarget.src !== SAMPLE_SUB_IMAGE) {
                               e.currentTarget.src = SAMPLE_SUB_IMAGE;
                             }
                           }}
-                          style={{
-                            ...imageDimensions,
-                            display: "block",
-                            borderRadius: "8px",
-                            // cursor: "pointer",
-                            backfaceVisibility: "hidden",
-                            perspective: "1000px",
-                            
-                          }}
                         />
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
 
                 {/* Section Title (Hidden but can be used for SEO) */}
                 <h1
@@ -1284,7 +1259,6 @@ const isScrollSpeedPending = false; // Mock pending state
               border: "2px solid rgba(255, 255, 255, 0.4)",
               color: "white",
               fontSize: deviceType === "mobile" ? "18px" : "22px",
-              // cursor: "pointer",
               zIndex: 1000,
               boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(10px)",
@@ -1301,4 +1275,4 @@ const isScrollSpeedPending = false; // Mock pending state
   );
 };
 
-export default Homepage;
+export default HomeMobileView;
