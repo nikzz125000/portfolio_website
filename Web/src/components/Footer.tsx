@@ -2,7 +2,7 @@
 
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useCustomerConnect } from "../api/useCustomerConnect";
 import { useResumeDetails } from "../api/useResumeDetails";
 import { createPortal } from "react-dom";
@@ -19,7 +19,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({
   deviceType = "desktop",
   variant = "homepage",
-  onResumeClick,
+  // onResumeClick,
   className,
 }) => {
   const [showConnectForm, setShowConnectForm] = useState<boolean>(false);
@@ -47,7 +47,7 @@ const Footer: React.FC<FooterProps> = ({
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { mutate: customerConnect, isPending: isConnecting } = useCustomerConnect();
   const { data: resumeData } = useResumeDetails();
 
@@ -206,13 +206,13 @@ const Footer: React.FC<FooterProps> = ({
   };
 
   // Handle resume click
-  const handleResumeClick = () => {
-    if (onResumeClick) {
-      onResumeClick();
-    } else {
-      navigate("/resume");
-    }
-  };
+  // const handleResumeClick = () => {
+  //   if (onResumeClick) {
+  //     onResumeClick();
+  //   } else {
+  //     navigate("/resume");
+  //   }
+  // };
 
   // Set up intersection observer for scroll-triggered animation
   useEffect(() => {
@@ -597,7 +597,7 @@ const getResponsiveDimensions = () => {
           <button
             ref={buttonRef}
             className="connect-button"
-            onClick={handleResumeClick}
+            onClick={()=>setShowConnectForm(true)}
             style={{cursor:'none'}}
           >
             CONNECT
@@ -606,7 +606,7 @@ const getResponsiveDimensions = () => {
       </motion.footer>
 
       {/* Connect Form Modal - Rendered via Portal */}
-      {showConnectForm &&
+  {showConnectForm &&
         modalContainer &&
         createPortal(
           <div
@@ -636,12 +636,7 @@ const getResponsiveDimensions = () => {
               {!formSubmitted ? (
                 <form onSubmit={handleConnectSubmit}>
                   <h2>Let's Connect!</h2>
-                  <p>
-                    {variant === "homepage"
-                      ? "Fill out the form below and we'll get back to you soon."
-                      : "Enter your email address and we'll get in touch with you soon."}
-                  </p>
-
+                  
                   {formErrors.general && (
                     <div className="error-message general-error">
                       {formErrors.general}
@@ -685,16 +680,6 @@ const getResponsiveDimensions = () => {
                       </div>
 
                       <div className="form-group">
-                        <textarea
-                          placeholder="Enter your message (minimum 10 characters)"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          className={`message-input ${
-                            formErrors.message ? "error" : ""
-                          }`}
-                          rows={4}
-                          required
-                        />
                         {formErrors.message && (
                           <div className="error-message">
                             {formErrors.message}
@@ -791,42 +776,70 @@ const getResponsiveDimensions = () => {
             left: 0 !important;
             width: 100vw !important;
             height: 100vh !important;
-            background: rgba(0, 0, 0, 0.8) !important;
+            /* Transparent glass background */
+            background: rgba(255, 255, 255, 0.02) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             z-index: 9999 !important;
-            animation: fadeIn 0.3s ease-out !important;
-            backdrop-filter: blur(5px) !important;
+            animation: fadeInGlass 0.5s ease-out !important;
+            // backdrop-filter: blur(15px) !important;
+            // -webkit-backdrop-filter: blur(15px) !important;
           }
 
           .connect-form {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)) !important;
-            backdrop-filter: blur(20px) !important;
-            border-radius: 20px !important;
+            /* Glass morphism effect */
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 25px !important;
             padding: 40px !important;
             max-width: 400px !important;
             width: 90% !important;
             text-align: center !important;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
-            animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            box-shadow: 
+              0 25px 45px rgba(0, 0, 0, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            /* Genie animation */
+            // animation: genieEmerge 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
             position: relative !important;
             z-index: 10000 !important;
             margin: auto !important;
+            overflow: hidden !important;
+          }
+
+          .connect-form::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: linear-gradient(135deg, 
+              rgba(255, 255, 255, 0.1) 0%, 
+              rgba(255, 255, 255, 0.05) 50%, 
+              rgba(255, 255, 255, 0.1) 100%) !important;
+            border-radius: 25px !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
           }
 
           .connect-form h2 {
             margin: 0 0 20px 0;
-            color: #2d3748;
+            color: rgba(0, 0, 0, 0.9);
             font-size: 28px;
             font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           }
 
           .connect-form p {
             margin: 0 0 30px 0;
-            color: #4a5568;
+            color: rgba(0, 0, 0, 0.8);
             font-size: 16px;
             line-height: 1.5;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
           }
 
           .form-group {
@@ -838,44 +851,60 @@ const getResponsiveDimensions = () => {
           .message-input {
             width: 100%;
             padding: 15px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
             font-size: 16px;
             transition: all 0.3s ease;
             box-sizing: border-box;
+            color: rgba(0, 0, 0, 0.9);
+          }
+
+          .email-input::placeholder,
+          .mobile-input::placeholder,
+          .message-input::placeholder {
+            color: rgba(0, 0, 0, 0.6);
           }
 
           .email-input:focus,
           .mobile-input:focus,
           .message-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
           }
 
           .email-input.error,
           .mobile-input.error,
           .message-input.error {
-            border-color: #e53e3e;
+            border-color: rgba(229, 62, 62, 0.6);
+            background: rgba(255, 255, 255, 0.25);
           }
 
           .submit-btn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: rgba(102, 126, 234, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: white;
-            border: none;
-            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
             font-size: 16px;
             font-weight: 600;
-            // cursor: pointer;
+            cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
           }
 
           .submit-btn:hover {
+            background: rgba(102, 126, 234, 1);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
           }
 
           .submit-btn:disabled {
@@ -886,17 +915,21 @@ const getResponsiveDimensions = () => {
           }
 
           .close-btn {
-            background: none;
-            border: none;
-            color: #718096;
-            // cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(0, 0, 0, 0.7);
+            cursor: pointer;
             font-size: 14px;
-            padding: 10px;
-            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
           }
 
           .close-btn:hover {
-            color: #2d3748;
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(0, 0, 0, 0.9);
           }
 
           .error-message {
@@ -904,42 +937,108 @@ const getResponsiveDimensions = () => {
             font-size: 14px;
             margin-top: 5px;
             text-align: left;
+            background: rgba(229, 62, 62, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border-left: 3px solid #e53e3e;
           }
 
           .success-container {
             text-align: center;
+            animation: successPulse 0.6s ease-out;
           }
 
           .success-icon {
             font-size: 48px;
             color: #38a169;
             margin-bottom: 20px;
+            animation: checkmarkPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-block;
           }
 
           .success-message {
-            color: #38a169;
+            color: rgba(56, 161, 105, 0.9);
             font-weight: 600;
             margin-bottom: 10px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
 
           .closing-note {
-            color: #718096;
+            color: rgba(0, 0, 0, 0.6);
             font-size: 14px;
           }
 
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-
-          @keyframes zoomIn {
+          /* Glass fade-in animation */
+          @keyframes fadeInGlass {
             from { 
               opacity: 0;
-              transform: scale(0.9);
+              backdrop-filter: blur(0px);
+              -webkit-backdrop-filter: blur(0px);
             }
             to { 
               opacity: 1;
+              backdrop-filter: blur(15px);
+              -webkit-backdrop-filter: blur(15px);
+            }
+          }
+
+          /* Genie emerge animation - like coming out of a bottle */
+          @keyframes genieEmerge {
+            0% {
+              opacity: 0;
+              transform: scale(0.3) translateY(200px) rotate(10deg);
+              filter: blur(5px);
+            }
+            30% {
+              opacity: 0.7;
+              transform: scale(0.6) translateY(100px) rotate(5deg);
+              filter: blur(3px);
+            }
+            60% {
+              opacity: 0.9;
+              transform: scale(0.9) translateY(20px) rotate(-2deg);
+              filter: blur(1px);
+            }
+            80% {
+              opacity: 1;
+              transform: scale(1.05) translateY(-10px) rotate(1deg);
+              filter: blur(0px);
+            }
+            100% {
+              opacity: 1;
+              transform: scale(1) translateY(0px) rotate(0deg);
+              filter: blur(0px);
+            }
+          }
+
+          /* Success animations */
+          @keyframes successPulse {
+            0% {
+              transform: scale(0.8);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(1.1);
+              opacity: 0.8;
+            }
+            100% {
               transform: scale(1);
+              opacity: 1;
+            }
+          }
+
+          @keyframes checkmarkPop {
+            0% {
+              transform: scale(0) rotate(45deg);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(1.3) rotate(45deg);
+              opacity: 0.8;
+            }
+            100% {
+              transform: scale(1) rotate(0deg);
+              opacity: 1;
             }
           }
 
@@ -953,6 +1052,7 @@ const getResponsiveDimensions = () => {
               margin: 0 10px !important;
               max-width: 90vw !important;
               width: 95% !important;
+              border-radius: 20px !important;
             }
             
             .connect-form h2 {
@@ -968,11 +1068,18 @@ const getResponsiveDimensions = () => {
             .message-input {
               padding: 12px 16px !important;
               font-size: 14px !important;
+              border-radius: 12px !important;
             }
             
             .submit-btn {
               padding: 12px !important;
               font-size: 14px !important;
+              border-radius: 12px !important;
+            }
+
+            .close-btn {
+              padding: 8px 16px !important;
+              border-radius: 8px !important;
             }
           }
 
@@ -1032,6 +1139,28 @@ const getResponsiveDimensions = () => {
 
           #modal-root .connect-modal {
             pointer-events: auto !important;
+          }
+
+          /* Enhanced glass effects for modern browsers */
+          @supports (backdrop-filter: blur(1px)) {
+            .connect-modal {
+              background: rgba(255, 255, 255, 0.02) !important;
+            }
+            
+            .connect-form {
+              background: rgba(255, 255, 255, 0.12) !important;
+            }
+          }
+
+          /* Fallback for browsers without backdrop-filter support */
+          @supports not (backdrop-filter: blur(1px)) {
+            .connect-modal {
+              background: rgba(0, 0, 0, 0.3) !important;
+            }
+            
+            .connect-form {
+              background: rgba(255, 255, 255, 0.95) !important;
+            }
           }
         `}
       </style>

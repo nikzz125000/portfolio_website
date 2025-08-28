@@ -1830,8 +1830,8 @@ export const homepageStyles = `
       position: relative;
       z-index: 20;
       /* Base glow effect with subtle animation */
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
-      animation: subtleGlow 3s ease-in-out infinite;
+      // filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+      // animation: subtleGlow 3s ease-in-out infinite;
     }
 
     .clickable-sub-image:hover {

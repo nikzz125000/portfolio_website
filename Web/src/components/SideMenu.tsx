@@ -5,6 +5,7 @@ interface MenuItem {
   icon: string;
   link: string;
   action?: () => void | Promise<void>;
+  spaceBeteen:number;
 }
 
 interface SideMenuProps {
@@ -27,12 +28,13 @@ const SideMenu: React.FC<SideMenuProps> = ({
       name: "About",
       icon: "👤",
       link: "/resume",
-    
+     spaceBeteen:220
     },
     {
       name: "Contact",
       icon: "📞",
       link: `tel:+16265550134`,
+      spaceBeteen:225,
       action: () => {
         window.open("tel:+16265550134", "_self");
       },
@@ -41,6 +43,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
       name: "Instagram",
       icon: "📷",
       link: "https://instagram.com",
+      spaceBeteen:215,
       action: () => {
         window.open("https://instagram.com", "_blank");
       },
@@ -49,6 +52,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
       name: "LinkedIn",
       icon: "💼",
       link: "https://linkedin.com",
+      spaceBeteen:220,
       action: () => {
         window.open("https://linkedin.com", "_blank");
       },
@@ -97,6 +101,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           strokeWidth: 6,
           menuItemSize: "18px",
           sunRayDistance: 130,
+          space:10
         };
     }
   };
@@ -170,8 +175,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
           height={sizes.curveRadius + 20}
           style={{
             position: "absolute",
-            bottom:deviceType==='mobile'? `76px`:`106px`,
-            right:deviceType==='mobile'? `2px`:`-20px`,
+            bottom:deviceType==='mobile'? `76px`:`138px`,
+            right:deviceType==='mobile'? `2px`:`-19px`,
             pointerEvents: "none",
           }}
         >
@@ -197,8 +202,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
           
           // Calculate sun ray position (radiating outward from curve origin)
           const curveOriginX = sizes.logoSize - (deviceType==='mobile'?65:95); // Bottom-right of logo area
-          const curveOriginY = sizes.logoSize - (deviceType==='mobile'?115:200); ;
-          
+          // const curveOriginY = sizes.logoSize - (deviceType==='mobile'?115:220);
+            const curveOriginY = sizes.logoSize - (deviceType==='mobile'?115:item.spaceBeteen);
           // Position menu items further out like sun rays
           const rayX = curveOriginX + sizes.sunRayDistance * Math.cos(angleRad);
           const rayY = curveOriginY + sizes.sunRayDistance * Math.sin(angleRad);
